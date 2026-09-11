@@ -1,0 +1,202 @@
+import { useState } from "react";
+import type { CgPage } from "../../App";
+
+interface Props { navigate: (p: CgPage) => void; }
+
+const RECS = [
+  { id: 1, title: "Patch Critical Vulnerabilities – Tier 1 Infrastructure", icon: "🔧", impact: "Critical", cost: "₹4.2L", reduction: "18%", ealSavings: "₹44L", effort: "High", timeframe: "30 days", desc: "31 CVEs with CVSS ≥ 9 remain unpatched on Mail, ERP, and DNS servers. These are being actively exploited in the wild.", controls: ["CVE-2024-21413 (Outlook RCE)", "CVE-2024-3400 (PAN-OS)", "CVE-2023-44487 (HTTP/2 Rapid Reset)"], status: "Pending" },
+  { id: 2, title: "Enforce MFA for All Privileged & Admin Accounts", icon: "🔐", impact: "Critical", cost: "₹85K", reduction: "12%", ealSavings: "₹29L", effort: "Low", timeframe: "7 days", desc: "48 admin accounts across AWS, Azure AD, and core banking system lack MFA. Single-factor compromise is the top initial access vector.", controls: ["AWS IAM", "Azure Active Directory", "Core Banking Admin Console"], status: "Pending" },
+  { id: 3, title: "Revoke Excessive Privileged Access (Least Privilege)", icon: "🛡", impact: "Critical", cost: "₹60K", reduction: "9%", ealSavings: "₹22L", effort: "Medium", timeframe: "14 days", desc: "Access review reveals 134 accounts with admin rights that haven't been used in 90+ days. Violates principle of least privilege.", controls: ["Active Directory", "Jira", "GitLab Admin"], status: "In Progress" },
+  { id: 4, title: "Deploy Anti-Phishing Training & Email Filtering", icon: "🎣", impact: "High", cost: "₹1.1L", reduction: "7%", ealSavings: "₹17L", effort: "Low", timeframe: "21 days", desc: "Employee phishing simulation shows 23% click rate — industry benchmark is <5%. Advanced email filtering rules are not enforced.", controls: ["Google Workspace Security", "ProofPoint / Mimecast"], status: "Pending" },
+  { id: 5, title: "Harden AWS S3 Bucket Access Policies", icon: "☁", impact: "High", cost: "₹45K", reduction: "5%", ealSavings: "₹11L", effort: "Low", timeframe: "3 days", desc: "12 S3 buckets have overly permissive bucket policies. Two contain PII data with public list access enabled.", controls: ["AWS S3 Bucket Policies", "AWS IAM", "AWS Config Rules"], status: "Pending" },
+  { id: 6, title: "Implement Network Micro-Segmentation", icon: "🌐", impact: "High", cost: "₹8.5L", reduction: "11%", ealSavings: "₹27L", effort: "High", timeframe: "90 days", desc: "Flat network topology allows unrestricted lateral movement. A single compromised endpoint can reach core banking systems.", controls: ["Cisco Catalyst SD-WAN", "Palo Alto Networks NGFW"], status: "Planned" },
+  { id: 7, title: "Deploy UEBA for Insider Threat Detection", icon: "👁", impact: "Medium", cost: "₹3.2L", reduction: "6%", ealSavings: "₹15L", effort: "Medium", timeframe: "45 days", desc: "No user behaviour analytics in place. Insider threats and compromised credential abuse are undetected until post-incident.", controls: ["Splunk UBA", "Microsoft Defender for Identity"], status: "Planned" },
+];
+
+function EffortBadge({ e }: { e: string }) {
+  const colors: Record<string, [string, string]> = {
+    Low: ["#34D399", "rgba(52,211,153,0.12)"],
+    Medium: ["#FBBF24", "rgba(251,191,36,0.12)"],
+    High: ["#F87171", "rgba(248,113,113,0.12)"],
+  };
+  const [c, bg] = colors[e] ?? ["#8BB8C4", "rgba(139,184,196,0.1)"];
+  return <span className="px-2 py-0.5 rounded text-xs font-semibold" style={{ color: c, background: bg }}>{e} Effort</span>;
+}
+
+function ImpactBadge({ i }: { i: string }) {
+  const colors: Record<string, [string, string]> = {
+    Critical: ["#F87171", "rgba(248,113,113,0.12)"],
+    High: ["#FBBF24", "rgba(251,191,36,0.12)"],
+    Medium: ["#60B8CF", "rgba(96,184,207,0.12)"],
+  };
+  const [c, bg] = colors[i] ?? ["#8BB8C4", "rgba(139,184,196,0.1)"];
+  return <span className="px-2 py-0.5 rounded text-xs font-semibold" style={{ color: c, background: bg }}>{i}</span>;
+}
+
+function StatusBadge({ s }: { s: string }) {
+  const colors: Record<string, [string, string]> = {
+    Pending: ["#FBBF24", "rgba(251,191,36,0.1)"],
+    "In Progress": ["#9CDFF0", "rgba(156,223,240,0.1)"],
+    Planned: ["#5196A7", "rgba(81,150,167,0.1)"],
+    Done: ["#34D399", "rgba(52,211,153,0.1)"],
+  };
+  const [c, bg] = colors[s] ?? ["#8BB8C4", "rgba(139,184,196,0.1)"];
+  return <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ color: c, background: bg }}>{s}</span>;
+}
+
+export default function CgRecommendations({ navigate }: Props) {
+  const [expanded, setExpanded] = useState<number | null>(null);
+  const [filter, setFilter] = useState("All");
+
+  const filters = ["All", "Critical", "High", "Medium", "Pending", "In Progress", "Planned"];
+  const filtered = RECS.filter(r => {
+    if (filter === "All") return true;
+    return r.impact === filter || r.status === filter;
+  });
+
+  const totalCost = RECS.reduce((s, r) => s + parseFloat(r.cost.replace(/[₹L]/g, "")), 0);
+  const totalSavings = RECS.reduce((s, r) => s + parseFloat(r.ealSavings.replace(/[₹L]/g, "")), 0);
+
+  return (
+    <div className="p-5 max-w-screen-xl mx-auto space-y-5">
+      {/* Header */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-base font-bold" style={{ fontFamily: "'Outfit',sans-serif" }}>AI Recommendations</h1>
+          <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>Priority-ranked, cost-optimised remediation actions generated by CyberGuard AI</p>
+        </div>
+        <button className="text-xs px-3 py-1.5 rounded-lg font-semibold" style={{ background: "var(--accent)", color: "var(--bg)" }}>
+          Export Roadmap
+        </button>
+      </div>
+
+      {/* Summary */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          { label: "Total Recommendations", value: "23", color: "var(--accent)" },
+          { label: "Total Est. Investment",  value: `₹${totalCost.toFixed(0)}L+`, color: "var(--accent2)" },
+          { label: "Total EAL Savings",      value: `₹${totalSavings.toFixed(0)}L`,  color: "var(--ok)" },
+          { label: "Critical Pending",       value: "8",  color: "#F87171" },
+        ].map(s => (
+          <div key={s.label} className="rounded-xl border p-4" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
+            <p className="text-xs mb-1" style={{ color: "var(--muted)" }}>{s.label}</p>
+            <p className="text-xl font-bold" style={{ fontFamily: "'Outfit',sans-serif", color: s.color }}>{s.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Filters */}
+      <div className="flex gap-2 flex-wrap">
+        {filters.map(f => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className="px-3 py-1.5 rounded-lg text-xs font-medium border transition"
+            style={filter === f
+              ? { background: "var(--accent)", color: "var(--bg)", borderColor: "var(--accent)" }
+              : { background: "transparent", color: "var(--muted)", borderColor: "var(--border)" }
+            }
+          >
+            {f}
+          </button>
+        ))}
+      </div>
+
+      {/* Cards */}
+      <div className="space-y-3">
+        {filtered.map(r => (
+          <div
+            key={r.id}
+            className="rounded-xl border transition-all"
+            style={{
+              background: "var(--panel)",
+              borderColor: expanded === r.id ? "var(--accent2)" : "var(--border)",
+            }}
+          >
+            {/* Card header */}
+            <div
+              className="flex items-start gap-4 p-4 cursor-pointer"
+              onClick={() => setExpanded(expanded === r.id ? null : r.id)}
+            >
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center text-lg flex-shrink-0" style={{ background: "rgba(156,223,240,0.1)" }}>
+                {r.icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <p className="text-sm font-semibold leading-snug" style={{ color: "var(--text)" }}>{r.title}</p>
+                  <StatusBadge s={r.status} />
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  <ImpactBadge i={r.impact} />
+                  <EffortBadge e={r.effort} />
+                  <span className="text-xs px-2 py-0.5 rounded border" style={{ color: "var(--muted)", borderColor: "var(--border)" }}>⏱ {r.timeframe}</span>
+                </div>
+              </div>
+              <div className="flex gap-6 flex-shrink-0 text-right hidden sm:flex">
+                <div>
+                  <p className="text-xs" style={{ color: "var(--muted)" }}>Cost</p>
+                  <p className="text-sm font-bold font-mono" style={{ color: "var(--accent2)" }}>{r.cost}</p>
+                </div>
+                <div>
+                  <p className="text-xs" style={{ color: "var(--muted)" }}>Risk ↓</p>
+                  <p className="text-sm font-bold" style={{ color: "var(--ok)" }}>−{r.reduction}</p>
+                </div>
+                <div>
+                  <p className="text-xs" style={{ color: "var(--muted)" }}>EAL Saves</p>
+                  <p className="text-sm font-bold font-mono" style={{ color: "#FBBF24" }}>{r.ealSavings}</p>
+                </div>
+              </div>
+              <svg
+                className="w-4 h-4 flex-shrink-0 mt-1 transition-transform"
+                style={{ transform: expanded === r.id ? "rotate(180deg)" : "none", color: "var(--muted)" }}
+                fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+
+            {/* Expanded */}
+            {expanded === r.id && (
+              <div className="px-4 pb-4 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                <div className="pt-4 grid md:grid-cols-3 gap-4">
+                  <div className="md:col-span-2">
+                    <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: "var(--muted)" }}>Description</p>
+                    <p className="text-xs leading-relaxed mb-4" style={{ color: "var(--text)", opacity: 0.85 }}>{r.desc}</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: "var(--muted)" }}>Affected Systems / Controls</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {r.controls.map(c => (
+                        <span key={c} className="text-xs px-2 py-1 rounded-md font-mono" style={{ background: "rgba(96,184,207,0.1)", color: "var(--accent2)", border: "1px solid rgba(96,184,207,0.2)" }}>{c}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="rounded-lg p-3" style={{ background: "#1a2f3c", border: "1px solid var(--border)" }}>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div><p className="text-xs" style={{ color: "var(--muted)" }}>Est. Cost</p><p className="font-bold font-mono" style={{ color: "var(--accent2)" }}>{r.cost}</p></div>
+                        <div><p className="text-xs" style={{ color: "var(--muted)" }}>Risk Reduction</p><p className="font-bold" style={{ color: "var(--ok)" }}>−{r.reduction}</p></div>
+                        <div><p className="text-xs" style={{ color: "var(--muted)" }}>EAL Savings</p><p className="font-bold font-mono" style={{ color: "#FBBF24" }}>{r.ealSavings}</p></div>
+                        <div><p className="text-xs" style={{ color: "var(--muted)" }}>Timeframe</p><p className="font-bold" style={{ color: "var(--text)" }}>{r.timeframe}</p></div>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button className="flex-1 py-2 rounded-lg text-xs font-semibold" style={{ background: "var(--accent)", color: "var(--bg)" }}>
+                        Add to Roadmap
+                      </button>
+                      <button
+                        className="flex-1 py-2 rounded-lg text-xs font-semibold border"
+                        style={{ borderColor: "var(--border)", color: "var(--muted)" }}
+                        onClick={() => navigate("whatif")}
+                      >
+                        Simulate →
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

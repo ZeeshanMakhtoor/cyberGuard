@@ -1,0 +1,11 @@
+{
+  "title": "cyber",
+  "description": "Streamline the recovery of lost items on campus with a user-friendly platform for students and staff to report, search, and connect with found belongings.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
