@@ -5,11 +5,10 @@ export default function Footer() {
   const year = new Date().getFullYear();
   const { ref, visible } = useReveal<HTMLDivElement>();
   return (
-    <footer className="lp-container pb-6">
+    <footer className="relative overflow-hidden pt-14" style={{ background: "#071620" }}>
       <div
         ref={ref}
-        className={`lp-fade-up ${visible ? "lp-visible" : ""} relative overflow-hidden rounded-3xl px-6 sm:px-10 pt-14`}
-        style={{ background: "#071620" }}
+        className={`lp-fade-up ${visible ? "lp-visible" : ""} lp-container relative`}
       >
         <div className="relative grid sm:grid-cols-2 gap-8 items-start pb-10">
           <div>
