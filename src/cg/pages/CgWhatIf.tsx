@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, AreaChart, Area, ReferenceLine } from "recharts";
 import type { CgPage } from "../../App";
+import { simulateLossExceedance, type LossExceedanceResult } from "@/lib/monteCarlo";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -73,11 +74,16 @@ export default function CgWhatIf({ navigate }: Props) {
   const [selected, setSelected] = useState(SCENARIOS[0]);
   const [ran, setRan] = useState(false);
   const [running, setRunning] = useState(false);
+  const [exceedance, setExceedance] = useState<LossExceedanceResult | null>(null);
 
   const runScenario = () => {
     setRunning(true);
     setRan(false);
-    setTimeout(() => { setRunning(false); setRan(true); }, 1600);
+    setTimeout(() => {
+      setRunning(false);
+      setRan(true);
+      setExceedance(simulateLossExceedance(selected.predictedEAL));
+    }, 1600);
   };
 
   const riskDelta = selected.currentRisk - selected.predictedRisk;
@@ -104,7 +110,7 @@ export default function CgWhatIf({ navigate }: Props) {
           {SCENARIOS.map(sc => (
             <button
               key={sc.id}
-              onClick={() => { setSelected(sc); setRan(false); }}
+              onClick={() => { setSelected(sc); setRan(false); setExceedance(null); }}
               className="w-full text-left rounded-xl border p-4 transition-all"
               style={{
                 background: selected.id === sc.id ? "var(--panel)" : "rgba(37,73,83,0.4)",
@@ -196,6 +202,53 @@ export default function CgWhatIf({ navigate }: Props) {
                   Add to Roadmap →
                 </button>
               </div>
+            </div>
+          )}
+
+          {/* Monte Carlo Loss Exceedance Curve */}
+          {ran && exceedance && (
+            <div className="rounded-xl border p-4" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs font-semibold" style={{ color: "var(--muted)" }}>LOSS EXCEEDANCE CURVE — 2,000-TRIAL MONTE CARLO</p>
+                <span className="text-xs px-2 py-0.5 rounded" style={{ background: "rgba(96,184,207,0.12)", color: "var(--accent2)" }}>Post-mitigation</span>
+              </div>
+              <p className="text-xs mb-3" style={{ color: "var(--muted)" }}>
+                50% chance loss exceeds <span className="font-semibold" style={{ color: "var(--text)" }}>₹{exceedance.p50.toFixed(2)} Cr</span> · 10% chance it exceeds{" "}
+                <span className="font-semibold" style={{ color: "#F87171" }}>₹{exceedance.p90.toFixed(2)} Cr</span> — a range, not a single number.
+              </p>
+              <ResponsiveContainer width="100%" height={180}>
+                <AreaChart data={exceedance.points} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="lecFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="var(--accent2)" stopOpacity={0.4} />
+                      <stop offset="100%" stopColor="var(--accent2)" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                  <XAxis
+                    dataKey="lossCr"
+                    tick={{ fill: "#8BB8C4", fontSize: 10 }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={v => `₹${Number(v).toFixed(1)}Cr`}
+                  />
+                  <YAxis
+                    domain={[0, 1]}
+                    tick={{ fill: "#8BB8C4", fontSize: 10 }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={v => `${Math.round(v * 100)}%`}
+                  />
+                  <Tooltip content={({ active, payload }: any) => active && payload?.length ? (
+                    <div className="rounded-lg border px-3 py-2 text-xs" style={{ background: "#0d1b26", borderColor: "var(--border)", color: "var(--text)" }}>
+                      <p>P(loss &gt; ₹{Number(payload[0].payload.lossCr).toFixed(2)} Cr) = {Math.round(payload[0].payload.probability * 100)}%</p>
+                    </div>
+                  ) : null} />
+                  <ReferenceLine x={Number(exceedance.p50.toFixed(2))} stroke="var(--accent)" strokeDasharray="4 4" label={{ value: "p50", fill: "var(--accent)", fontSize: 10, position: "top" }} />
+                  <ReferenceLine x={Number(exceedance.p90.toFixed(2))} stroke="#F87171" strokeDasharray="4 4" label={{ value: "p90", fill: "#F87171", fontSize: 10, position: "top" }} />
+                  <Area type="monotone" dataKey="probability" stroke="var(--accent2)" strokeWidth={2} fill="url(#lecFill)" />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           )}
 
