@@ -11,28 +11,28 @@ const LINKS = [
   { href: "#faq", label: "FAQ" },
 ];
 
-export default function Nav({ variant = "default" }: { variant?: "light" | "default" }) {
+export default function Nav({ scrolled }: { scrolled: boolean }) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const isLight = variant === "light";
+  const isLight = !scrolled;
 
   return (
-    <div className="sticky top-0 z-50 pt-4 px-4 sm:px-6">
+    <div className="fixed top-0 inset-x-0 z-50 pt-4 px-4 sm:px-6">
       <header
-        className="lp-container flex items-center justify-between h-14 px-3 sm:px-5 rounded-2xl"
+        className="lp-container flex items-center justify-between h-14 px-3 sm:px-5 rounded-2xl transition-all duration-300 ease-out"
         style={
           isLight
             ? { background: "rgba(255,255,255,0.14)", backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.25)" }
-            : { background: "rgba(255,255,255,0.92)", backdropFilter: "blur(10px)", boxShadow: "var(--lp-shadow-md)" }
+            : { background: "rgba(255,255,255,0.65)", backdropFilter: "blur(18px) saturate(160%)", border: "1px solid rgba(255,255,255,0.6)", boxShadow: "var(--lp-shadow-md)" }
         }
       >
         <a href="#top" className="flex items-center gap-2.5">
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-300"
             style={{ background: isLight ? "rgba(255,255,255,0.2)" : "var(--lp-accent)" }}
           >
             <ShieldCheck className="w-4 h-4" color="#fff" strokeWidth={2.5} />
           </div>
-          <span className="font-bold text-sm" style={{ fontFamily: "'Outfit',sans-serif", color: isLight ? "#fff" : "var(--lp-text)" }}>CyberGuard AI</span>
+          <span className="font-bold text-sm transition-colors duration-300" style={{ fontFamily: "'Outfit',sans-serif", color: isLight ? "#fff" : "var(--lp-text)" }}>CyberGuard AI</span>
         </a>
 
         <nav className="hidden md:flex items-center gap-7">
@@ -40,7 +40,7 @@ export default function Nav({ variant = "default" }: { variant?: "light" | "defa
             <a
               key={l.href}
               href={l.href}
-              className="text-sm font-medium transition-colors"
+              className="text-sm font-medium transition-colors duration-300"
               style={{ color: isLight ? "rgba(255,255,255,0.85)" : "var(--lp-muted)" }}
             >
               {l.label}
@@ -53,7 +53,7 @@ export default function Nav({ variant = "default" }: { variant?: "light" | "defa
             href={DASHBOARD_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="lp-btn-primary"
+            className="lp-btn-primary transition-colors duration-300"
             style={isLight ? { borderRadius: 999, background: "#fff", color: "#0A6C86" } : { borderRadius: 999 }}
           >
             Start for Free
@@ -61,7 +61,7 @@ export default function Nav({ variant = "default" }: { variant?: "light" | "defa
         </div>
 
         <button
-          className="md:hidden p-2 rounded-lg"
+          className="md:hidden p-2 rounded-lg transition-colors duration-300"
           style={{ color: isLight ? "#fff" : "var(--lp-text)" }}
           onClick={() => setMobileOpen(o => !o)}
           aria-label="Toggle menu"

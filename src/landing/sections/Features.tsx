@@ -214,7 +214,7 @@ export default function Features() {
   const { ref, visible } = useReveal<HTMLDivElement>();
 
   return (
-    <section id="features" className="lp-section" style={{ background: "var(--lp-panel2)" }}>
+    <section id="features" className="lp-section">
       <div className="lp-container">
         <div ref={ref} className={`lp-fade-up ${visible ? "lp-visible" : ""} max-w-2xl`}>
           <span className="lp-eyebrow">What We Do</span>

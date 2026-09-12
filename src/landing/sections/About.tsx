@@ -4,7 +4,7 @@ import { useReveal } from "../lib/useReveal";
 export default function About() {
   const { ref, visible } = useReveal<HTMLDivElement>();
   return (
-    <section id="about" className="lp-section" style={{ background: "var(--lp-panel2)" }}>
+    <section id="about" className="lp-section">
       <div className="lp-container grid lg:grid-cols-2 gap-14 items-center">
         <div ref={ref} className={`lp-fade-up ${visible ? "lp-visible" : ""}`}>
           <span className="lp-eyebrow">Who We Are</span>
