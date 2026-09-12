@@ -27,7 +27,7 @@ function Field({ label, value, onChange }: { label: string; value: string; onCha
         value={value}
         onChange={e => onChange(e.target.value)}
         className="w-full px-3 py-2 rounded-lg text-xs focus:outline-none"
-        style={{ background: "#1a2f3c", border: "1px solid var(--border)", color: "var(--text)" }}
+        style={{ background: "var(--panel2)", border: "1px solid var(--border)", color: "var(--text)" }}
       />
     </div>
   );
@@ -177,7 +177,7 @@ export default function CgSettings({ navigate }: Props) {
             <div className="space-y-2">
               <V1Pill label="Working Invite User + Remove" compact />
               {users.map(u => (
-                <div key={u.email} className="flex items-center justify-between px-3 py-2.5 rounded-lg" style={{ background: "#1a2f3c" }}>
+                <div key={u.email} className="flex items-center justify-between px-3 py-2.5 rounded-lg" style={{ background: "var(--panel2)" }}>
                   <div>
                     <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>{u.name}</p>
                     <p className="text-xs" style={{ color: "var(--muted)" }}>{u.email}</p>
@@ -196,7 +196,7 @@ export default function CgSettings({ navigate }: Props) {
             <div className="space-y-2">
               <V1Pill label="Working Connect / Disconnect toggle" compact />
               {integrations.map(i => (
-                <div key={i.name} className="flex items-center justify-between px-3 py-2.5 rounded-lg" style={{ background: "#1a2f3c" }}>
+                <div key={i.name} className="flex items-center justify-between px-3 py-2.5 rounded-lg" style={{ background: "var(--panel2)" }}>
                   <div>
                     <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>{i.name}</p>
                     <p className="text-xs" style={{ color: "var(--muted)" }}>{i.type}</p>
@@ -205,7 +205,7 @@ export default function CgSettings({ navigate }: Props) {
                     <span
                       className="text-xs px-2 py-0.5 rounded font-semibold"
                       style={{
-                        background: i.status === "Connected" ? "rgba(52,211,153,0.12)" : "rgba(255,255,255,0.06)",
+                        background: i.status === "Connected" ? "rgba(52,211,153,0.12)" : "var(--overlay-2)",
                         color: i.status === "Connected" ? "#34D399" : "var(--muted)",
                       }}
                     >
@@ -226,7 +226,7 @@ export default function CgSettings({ navigate }: Props) {
           )}
 
           {active === "notifications" && (
-            <div className="max-w-md divide-y" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+            <div className="max-w-md divide-y" style={{ borderColor: "var(--overlay-2)" }}>
               <Toggle label="Critical vulnerability alerts" defaultOn />
               <Toggle label="Weekly executive digest" defaultOn />
               <Toggle label="Threat intelligence updates" defaultOn />
@@ -247,7 +247,7 @@ export default function CgSettings({ navigate }: Props) {
           )}
 
           {active === "ai" && (
-            <div className="max-w-md divide-y" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+            <div className="max-w-md divide-y" style={{ borderColor: "var(--overlay-2)" }}>
               <Toggle label="AI mitigation recommendations" defaultOn />
               <Toggle label="Predictive risk analytics" defaultOn />
               <Toggle label="Natural language query assistant" defaultOn />
@@ -256,7 +256,7 @@ export default function CgSettings({ navigate }: Props) {
           )}
 
           {active === "frameworks" && (
-            <div className="max-w-md divide-y" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+            <div className="max-w-md divide-y" style={{ borderColor: "var(--overlay-2)" }}>
               <Toggle label="ISO/IEC 27001" defaultOn />
               <Toggle label="NIST CSF" defaultOn />
               <Toggle label="CIS Controls" defaultOn />

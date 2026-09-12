@@ -62,7 +62,7 @@ const domains = [
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg border px-3 py-2 text-xs" style={{ background: "#0d1b26", borderColor: "var(--border)", color: "var(--text)" }}>
+    <div className="rounded-lg border px-3 py-2 text-xs" style={{ background: "var(--panel3)", borderColor: "var(--border)", color: "var(--text)" }}>
       <p className="font-semibold mb-1" style={{ color: "var(--accent)" }}>{label || payload[0]?.payload?.name}</p>
       {payload.map((p: any) => (
         <p key={p.name} style={{ color: p.stroke || p.fill || "var(--text)" }}>{p.name}: {p.value}</p>
@@ -80,7 +80,7 @@ function ScoreGauge({ score }: { score: number }) {
   return (
     <div className="relative flex items-center justify-center w-40 h-32 mx-auto">
       <svg viewBox="0 0 140 110" className="absolute inset-0 w-full h-full">
-        <path d="M 14 98 A 56 56 0 0 1 126 98" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="10" strokeLinecap="round" />
+        <path d="M 14 98 A 56 56 0 0 1 126 98" fill="none" stroke="var(--overlay-3)" strokeWidth="10" strokeLinecap="round" />
         <path d="M 14 98 A 56 56 0 0 1 126 98" fill="none" stroke={color} strokeWidth="10" strokeLinecap="round"
           strokeDasharray={`${circ * 0.75}`}
           strokeDashoffset={`${circ * 0.75 * (1 - pct)}`}
@@ -149,7 +149,7 @@ export default function CgRiskAnalysis({ navigate }: Props) {
               <span className="font-semibold font-mono" style={{ color: "var(--text)" }}>{formatCr(exposureRange.likely)}</span>
             </div>
           </div>
-          <div className="mt-3 pt-3 border-t w-full" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+          <div className="mt-3 pt-3 border-t w-full" style={{ borderColor: "var(--overlay-2)" }}>
             <div className="flex items-center gap-2 mb-1">
               <p className="text-xs" style={{ color: "var(--muted)" }}>vs. {benchmark.sector} peer median</p>
               <V2Pill label="Peer benchmark, inspired by Bitsight" compact />
@@ -179,9 +179,9 @@ export default function CgRiskAnalysis({ navigate }: Props) {
                   <stop offset="95%" stopColor="#34D399" stopOpacity={0.02} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-              <XAxis dataKey="m" tick={{ fill: "#8BB8C4", fontSize: 10 }} axisLine={false} tickLine={false} />
-              <YAxis tickFormatter={v => `₹${v}Cr`} tick={{ fill: "#8BB8C4", fontSize: 10 }} axisLine={false} tickLine={false} domain={[1.5, 4]} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--overlay-1)" />
+              <XAxis dataKey="m" tick={{ fill: "var(--muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
+              <YAxis tickFormatter={v => `₹${v}Cr`} tick={{ fill: "var(--muted)", fontSize: 10 }} axisLine={false} tickLine={false} domain={[1.5, 4]} />
               <Tooltip content={<CustomTooltip />} />
               <Area type="monotone" dataKey="eal" name="Actual EAL" stroke="#F87171" fill="url(#ealA)" strokeWidth={2} dot={false} />
               <Area type="monotone" dataKey="patched" name="If Patched" stroke="#34D399" fill="url(#ealB)" strokeWidth={2} dot={false} strokeDasharray="5 3" />
@@ -203,14 +203,14 @@ export default function CgRiskAnalysis({ navigate }: Props) {
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <ScatterChart margin={{ top: 8, right: 16, left: -16, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-              <XAxis dataKey="likelihood" type="number" name="Likelihood" domain={[0, 100]} tick={{ fill: "#8BB8C4", fontSize: 10 }} axisLine={false} tickLine={false} label={{ value: "Likelihood →", position: "insideBottomRight", offset: -4, fill: "#5196A7", fontSize: 10 }} />
-              <YAxis dataKey="impact" type="number" name="Impact" domain={[0, 100]} tick={{ fill: "#8BB8C4", fontSize: 10 }} axisLine={false} tickLine={false} label={{ value: "Impact ↑", angle: -90, position: "insideLeft", offset: 8, fill: "#5196A7", fontSize: 10 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--overlay-1)" />
+              <XAxis dataKey="likelihood" type="number" name="Likelihood" domain={[0, 100]} tick={{ fill: "var(--muted)", fontSize: 10 }} axisLine={false} tickLine={false} label={{ value: "Likelihood →", position: "insideBottomRight", offset: -4, fill: "var(--mid)", fontSize: 10 }} />
+              <YAxis dataKey="impact" type="number" name="Impact" domain={[0, 100]} tick={{ fill: "var(--muted)", fontSize: 10 }} axisLine={false} tickLine={false} label={{ value: "Impact ↑", angle: -90, position: "insideLeft", offset: 8, fill: "var(--mid)", fontSize: 10 }} />
               <Tooltip cursor={{ strokeDasharray: "3 3", stroke: "var(--border)" }} content={({ active, payload }) => {
                 if (!active || !payload?.length) return null;
                 const d = payload[0].payload;
                 return (
-                  <div className="rounded-lg border px-3 py-2 text-xs" style={{ background: "#0d1b26", borderColor: "var(--border)", color: "var(--text)" }}>
+                  <div className="rounded-lg border px-3 py-2 text-xs" style={{ background: "var(--panel3)", borderColor: "var(--border)", color: "var(--text)" }}>
                     <p className="font-semibold mb-1" style={{ color: "var(--accent)" }}>{d.name}</p>
                     <p>Impact: {d.impact}</p>
                     <p>Likelihood: {d.likelihood}</p>
@@ -219,10 +219,10 @@ export default function CgRiskAnalysis({ navigate }: Props) {
               }} />
               <Scatter
                 data={scatter}
-                fill="#9CDFF0"
+                fill="var(--accent)"
               >
                 {scatter.map((d, i) => (
-                  <circle key={i} style={{ fill: d.impact > 75 && d.likelihood > 60 ? "#F87171" : d.impact > 60 ? "#FBBF24" : "#60B8CF" }} />
+                  <circle key={i} style={{ fill: d.impact > 75 && d.likelihood > 60 ? "#F87171" : d.impact > 60 ? "#FBBF24" : "var(--accent2)" }} />
                 ))}
               </Scatter>
             </ScatterChart>
@@ -237,15 +237,15 @@ export default function CgRiskAnalysis({ navigate }: Props) {
               <V1Pill label="Illustrative current-vs-target posture radar" compact />
             </div>
             <div className="flex gap-3 text-xs">
-              <span className="flex items-center gap-1"><span className="w-3 h-0.5 inline-block" style={{ background: "#9CDFF0" }} /> Current</span>
+              <span className="flex items-center gap-1"><span className="w-3 h-0.5 inline-block" style={{ background: "var(--accent)" }} /> Current</span>
               <span className="flex items-center gap-1"><span className="w-3 h-0.5 inline-block" style={{ background: "#34D399" }} /> Target</span>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <RadarChart data={radarData} margin={{ top: 8, right: 20, left: 20, bottom: 8 }}>
-              <PolarGrid stroke="rgba(255,255,255,0.08)" />
-              <PolarAngleAxis dataKey="subject" tick={{ fill: "#8BB8C4", fontSize: 10 }} />
-              <Radar name="Current" dataKey="current" stroke="#9CDFF0" fill="#9CDFF0" fillOpacity={0.12} strokeWidth={1.5} />
+              <PolarGrid stroke="var(--overlay-4)" />
+              <PolarAngleAxis dataKey="subject" tick={{ fill: "var(--muted)", fontSize: 10 }} />
+              <Radar name="Current" dataKey="current" stroke="var(--accent)" fill="var(--accent)" fillOpacity={0.12} strokeWidth={1.5} />
               <Radar name="Target" dataKey="target" stroke="#34D399" fill="#34D399" fillOpacity={0.07} strokeWidth={1.5} strokeDasharray="4 2" />
               <Tooltip content={<CustomTooltip />} />
             </RadarChart>
@@ -270,14 +270,14 @@ export default function CgRiskAnalysis({ navigate }: Props) {
             </thead>
             <tbody>
               {domains.map((d, i) => (
-                <tr key={i} className="border-b hover:bg-white/[0.02] transition" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+                <tr key={i} className="border-b cg-hover-soft transition" style={{ borderColor: "var(--overlay-1)" }}>
                   <td className="py-3 pr-4 font-medium" style={{ color: "var(--text)" }}>{d.name}</td>
                   <td className="py-3 pr-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-20 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.07)" }}>
-                        <div className="h-full rounded-full" style={{ width: `${d.score}%`, background: d.score >= 70 ? "#9CDFF0" : d.score >= 55 ? "#FBBF24" : "#F87171" }} />
+                      <div className="w-20 h-1.5 rounded-full overflow-hidden" style={{ background: "var(--overlay-3)" }}>
+                        <div className="h-full rounded-full" style={{ width: `${d.score}%`, background: d.score >= 70 ? "var(--accent)" : d.score >= 55 ? "#FBBF24" : "#F87171" }} />
                       </div>
-                      <span className="font-mono font-semibold" style={{ color: d.score >= 70 ? "#9CDFF0" : d.score >= 55 ? "#FBBF24" : "#F87171" }}>{d.score}</span>
+                      <span className="font-mono font-semibold" style={{ color: d.score >= 70 ? "var(--accent)" : d.score >= 55 ? "#FBBF24" : "#F87171" }}>{d.score}</span>
                     </div>
                   </td>
                   <td className="py-3 pr-4 font-mono" style={{ color: "var(--muted)" }}>{d.risks}</td>

@@ -34,7 +34,7 @@ function todayLabel(): string {
 
 export default function CgReports({ navigate }: Props) {
   const typeColors: Record<string, string> = {
-    Executive: "#9CDFF0", Technical: "#60B8CF", Compliance: "#FBBF24", Risk: "#F87171", Intel: "#34D399",
+    Executive: "var(--accent)", Technical: "var(--accent2)", Compliance: "#FBBF24", Risk: "#F87171", Intel: "#34D399",
   };
   const [reports, setReports] = useState<ReportRow[]>(INITIAL_REPORTS);
   const [previewing, setPreviewing] = useState<ReportRow | null>(null);
@@ -125,7 +125,7 @@ export default function CgReports({ navigate }: Props) {
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr style={{ background: "#1a2f3c", borderBottom: "1px solid var(--border)" }}>
+              <tr style={{ background: "var(--panel2)", borderBottom: "1px solid var(--border)" }}>
                 {["Report Name", "Date", "Type", "Status", "Size", "Actions"].map(h => (
                   <th key={h} className="text-left px-4 py-3 font-semibold" style={{ color: "var(--muted)" }}>{h}</th>
                 ))}
@@ -133,7 +133,7 @@ export default function CgReports({ navigate }: Props) {
             </thead>
             <tbody>
               {reports.map((r, i) => (
-                <tr key={i} className="border-b hover:bg-white/[0.02] transition" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+                <tr key={i} className="border-b cg-hover-soft transition" style={{ borderColor: "var(--overlay-1)" }}>
                   <td className="px-4 py-3 font-medium" style={{ color: "var(--text)" }}>{r.name}</td>
                   <td className="px-4 py-3 font-mono" style={{ color: "var(--muted)" }}>{r.date}</td>
                   <td className="px-4 py-3">
@@ -189,7 +189,7 @@ export default function CgReports({ navigate }: Props) {
             { name: "Monthly Exec Summary", schedule: "1st of every month", next: "01 Oct 2026" },
             { name: "RBI Quarterly Compliance", schedule: "Every quarter-end", next: "30 Sep 2026" },
           ].map(s => (
-            <div key={s.name} className="rounded-lg border p-3" style={{ background: "#1a2f3c", borderColor: "var(--border)" }}>
+            <div key={s.name} className="rounded-lg border p-3" style={{ background: "var(--panel2)", borderColor: "var(--border)" }}>
               <p className="text-xs font-semibold mb-1" style={{ color: "var(--text)" }}>{s.name}</p>
               <p className="text-xs" style={{ color: "var(--muted)" }}>{s.schedule}</p>
               <p className="text-xs mt-1 font-mono" style={{ color: "var(--accent2)" }}>Next: {s.next}</p>
@@ -208,7 +208,7 @@ export default function CgReports({ navigate }: Props) {
               </DialogHeader>
               <div className="mt-4 flex-1 overflow-y-auto space-y-4 pr-1">
                 {sectionsFor(previewing).map(section => (
-                  <div key={section.title} className="rounded-lg border p-4" style={{ borderColor: "var(--border)", background: "#1a2f3c" }}>
+                  <div key={section.title} className="rounded-lg border p-4" style={{ borderColor: "var(--border)", background: "var(--panel2)" }}>
                     <p className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: typeColors[previewing.type] }}>{section.title}</p>
                     {section.kv && (
                       <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2">
@@ -232,7 +232,7 @@ export default function CgReports({ navigate }: Props) {
                           </thead>
                           <tbody>
                             {section.table.rows.map((row, i) => (
-                              <tr key={i} className="border-b" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+                              <tr key={i} className="border-b" style={{ borderColor: "var(--overlay-1)" }}>
                                 {row.map((cell, j) => (
                                   <td key={j} className="px-1 py-2 whitespace-nowrap" style={{ color: "var(--text)" }}>{cell}</td>
                                 ))}

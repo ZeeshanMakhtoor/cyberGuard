@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { useAssets } from "@/hooks/useAssets";
 import { useVulnerabilities } from "@/hooks/useVulnerabilities";
 import { useThreats } from "@/hooks/useThreats";
+import { useTheme } from "@/hooks/useTheme";
 import { INITIAL_RECS } from "@/lib/recommendationsData";
 import AIAssistant from "./AIAssistant";
 import NotificationsPanel from "./NotificationsPanel";
@@ -49,6 +50,7 @@ export default function CyberLayout({ page, navigate, children, userEmail }: Pro
 
   const [helpOpen, setHelpOpen] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   const results = useMemo<SearchResult[]>(() => {
     const q = query.trim().toLowerCase();
@@ -85,7 +87,7 @@ export default function CyberLayout({ page, navigate, children, userEmail }: Pro
       <aside
         className={`fixed lg:static inset-y-0 left-0 z-40 flex flex-col w-60 flex-shrink-0 border-r transition-transform duration-300
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
-        style={{ background: "#0d1b26", borderColor: "var(--border)" }}
+        style={{ background: "var(--panel3)", borderColor: "var(--border)" }}
       >
         {/* Logo */}
         <div className="flex items-center gap-3 px-5 py-4 border-b" style={{ borderColor: "var(--border)" }}>
@@ -93,7 +95,7 @@ export default function CyberLayout({ page, navigate, children, userEmail }: Pro
             className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
             style={{ background: "var(--accent)", boxShadow: "0 0 12px rgba(156,223,240,0.35)" }}
           >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#10202C" strokeWidth="2.5" strokeLinecap="round">
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="var(--bg)" strokeWidth="2.5" strokeLinecap="round">
               <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
           </div>
@@ -167,7 +169,7 @@ export default function CyberLayout({ page, navigate, children, userEmail }: Pro
         {/* Topbar */}
         <header
           className="flex items-center gap-3 px-5 h-13 flex-shrink-0 border-b"
-          style={{ background: "#0d1b26", borderColor: "var(--border)", minHeight: 52 }}
+          style={{ background: "var(--panel3)", borderColor: "var(--border)", minHeight: 52 }}
         >
           <button className="lg:hidden p-1.5 rounded-md" style={{ color: "var(--muted)" }} onClick={() => setMobileOpen(true)}>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16"/></svg>
@@ -193,7 +195,7 @@ export default function CyberLayout({ page, navigate, children, userEmail }: Pro
             {searchFocused && query.trim() && (
               <div
                 className="absolute top-full left-0 right-0 mt-1.5 rounded-lg border shadow-xl z-50 overflow-hidden"
-                style={{ background: "#0d1b26", borderColor: "var(--border)" }}
+                style={{ background: "var(--panel3)", borderColor: "var(--border)" }}
               >
                 {results.length === 0 ? (
                   <p className="px-3 py-3 text-xs" style={{ color: "var(--muted)" }}>No matches for "{query}"</p>
@@ -201,7 +203,7 @@ export default function CyberLayout({ page, navigate, children, userEmail }: Pro
                   results.map(r => (
                     <button
                       key={r.id}
-                      className="w-full text-left px-3 py-2 hover:bg-white/5 transition"
+                      className="w-full text-left px-3 py-2 cg-hover transition"
                       onMouseDown={() => goToResult(r)}
                     >
                       <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>{r.label}</p>
@@ -221,10 +223,25 @@ export default function CyberLayout({ page, navigate, children, userEmail }: Pro
             </div>
 
             {/* Icons */}
+            <button
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              className="p-2 rounded-lg cg-hover transition"
+              onClick={toggleTheme}
+            >
+              {theme === "dark" ? (
+                <svg className="w-4 h-4" style={{ color: "var(--muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+              ) : (
+                <svg className="w-4 h-4" style={{ color: "var(--muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                </svg>
+              )}
+            </button>
             <div className="relative">
               <button
                 title="Help"
-                className="relative p-2 rounded-lg hover:bg-white/5 transition"
+                className="relative p-2 rounded-lg cg-hover transition"
                 onClick={() => { setHelpOpen(o => !o); setAvatarOpen(false); }}
               >
                 <svg className="w-4 h-4" style={{ color: "var(--muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -247,7 +264,7 @@ export default function CyberLayout({ page, navigate, children, userEmail }: Pro
                         { label: "Keyboard Shortcuts", desc: "Speed up navigation" },
                         { label: "Contact Support", desc: "support@cyberguard.ai" },
                       ].map(item => (
-                        <button key={item.label} className="w-full text-left px-4 py-2.5 hover:bg-white/5 transition" onClick={() => setHelpOpen(false)}>
+                        <button key={item.label} className="w-full text-left px-4 py-2.5 cg-hover transition" onClick={() => setHelpOpen(false)}>
                           <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>{item.label}</p>
                           <p className="text-xs" style={{ color: "var(--muted)" }}>{item.desc}</p>
                         </button>
@@ -280,7 +297,7 @@ export default function CyberLayout({ page, navigate, children, userEmail }: Pro
                     </div>
                     <div className="py-1">
                       <button
-                        className="w-full text-left px-4 py-2.5 text-xs font-semibold hover:bg-white/5 transition"
+                        className="w-full text-left px-4 py-2.5 text-xs font-semibold cg-hover transition"
                         style={{ color: "var(--text)" }}
                         onClick={() => { setAvatarOpen(false); navigate("settings"); }}
                       >
@@ -288,7 +305,7 @@ export default function CyberLayout({ page, navigate, children, userEmail }: Pro
                       </button>
                       {userEmail && supabase && (
                         <button
-                          className="w-full text-left px-4 py-2.5 text-xs font-semibold hover:bg-white/5 transition"
+                          className="w-full text-left px-4 py-2.5 text-xs font-semibold cg-hover transition"
                           style={{ color: "#F87171" }}
                           onClick={() => { setAvatarOpen(false); supabase?.auth.signOut(); }}
                         >

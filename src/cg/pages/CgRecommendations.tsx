@@ -12,7 +12,7 @@ function EffortBadge({ e }: { e: string }) {
     Medium: ["#FBBF24", "rgba(251,191,36,0.12)"],
     High: ["#F87171", "rgba(248,113,113,0.12)"],
   };
-  const [c, bg] = colors[e] ?? ["#8BB8C4", "rgba(139,184,196,0.1)"];
+  const [c, bg] = colors[e] ?? ["var(--muted)", "rgba(139,184,196,0.1)"];
   return <span className="px-2 py-0.5 rounded text-xs font-semibold" style={{ color: c, background: bg }}>{e} Effort</span>;
 }
 
@@ -20,20 +20,20 @@ function ImpactBadge({ i }: { i: string }) {
   const colors: Record<string, [string, string]> = {
     Critical: ["#F87171", "rgba(248,113,113,0.12)"],
     High: ["#FBBF24", "rgba(251,191,36,0.12)"],
-    Medium: ["#60B8CF", "rgba(96,184,207,0.12)"],
+    Medium: ["var(--accent2)", "rgba(96,184,207,0.12)"],
   };
-  const [c, bg] = colors[i] ?? ["#8BB8C4", "rgba(139,184,196,0.1)"];
+  const [c, bg] = colors[i] ?? ["var(--muted)", "rgba(139,184,196,0.1)"];
   return <span className="px-2 py-0.5 rounded text-xs font-semibold" style={{ color: c, background: bg }}>{i}</span>;
 }
 
 function StatusBadge({ s }: { s: string }) {
   const colors: Record<string, [string, string]> = {
     Pending: ["#FBBF24", "rgba(251,191,36,0.1)"],
-    "In Progress": ["#9CDFF0", "rgba(156,223,240,0.1)"],
-    Planned: ["#5196A7", "rgba(81,150,167,0.1)"],
+    "In Progress": ["var(--accent)", "rgba(156,223,240,0.1)"],
+    Planned: ["var(--mid)", "rgba(81,150,167,0.1)"],
     Done: ["#34D399", "rgba(52,211,153,0.1)"],
   };
-  const [c, bg] = colors[s] ?? ["#8BB8C4", "rgba(139,184,196,0.1)"];
+  const [c, bg] = colors[s] ?? ["var(--muted)", "rgba(139,184,196,0.1)"];
   return <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ color: c, background: bg }}>{s}</span>;
 }
 
@@ -168,7 +168,7 @@ export default function CgRecommendations({ navigate }: Props) {
 
             {/* Expanded */}
             {expanded === r.id && (
-              <div className="px-4 pb-4 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+              <div className="px-4 pb-4 border-t" style={{ borderColor: "var(--overlay-2)" }}>
                 <div className="pt-4 grid md:grid-cols-3 gap-4">
                   <div className="md:col-span-2">
                     <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: "var(--muted)" }}>Description</p>
@@ -181,7 +181,7 @@ export default function CgRecommendations({ navigate }: Props) {
                     </div>
                   </div>
                   <div className="space-y-3">
-                    <div className="rounded-lg p-3" style={{ background: "#1a2f3c", border: "1px solid var(--border)" }}>
+                    <div className="rounded-lg p-3" style={{ background: "var(--panel2)", border: "1px solid var(--border)" }}>
                       <div className="grid grid-cols-2 gap-3">
                         <div><p className="text-xs" style={{ color: "var(--muted)" }}>Est. Cost</p><p className="font-bold font-mono" style={{ color: "var(--accent2)" }}>{r.cost}</p></div>
                         <div><p className="text-xs" style={{ color: "var(--muted)" }}>Risk Reduction</p><p className="font-bold" style={{ color: "var(--ok)" }}>−{r.reduction}</p></div>

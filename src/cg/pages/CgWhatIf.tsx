@@ -63,7 +63,7 @@ function Metric({ label, value, subValue, color }: { label: string; value: strin
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg border px-3 py-2 text-xs" style={{ background: "#0d1b26", borderColor: "var(--border)", color: "var(--text)" }}>
+    <div className="rounded-lg border px-3 py-2 text-xs" style={{ background: "var(--panel3)", borderColor: "var(--border)", color: "var(--text)" }}>
       <p className="font-semibold mb-1" style={{ color: "var(--accent)" }}>{label}</p>
       {payload.map((p: any) => (
         <p key={p.name} style={{ color: p.fill }}>{p.name}: {p.value}</p>
@@ -180,7 +180,7 @@ export default function CgWhatIf({ navigate }: Props) {
               { label: "Predicted EAL",             value: ran ? `₹${selected.predictedEAL} Cr` : "—",   color: ran ? "var(--ok)" : "var(--muted)", subValue: ran ? `↓ ₹${ealDelta.toFixed(2)} Cr` : undefined },
               { label: "Est. Investment",           value: `₹${selected.investment}L`,    color: "var(--accent2)" },
             ].map(m => (
-              <div key={m.label} className="rounded-xl border p-4" style={{ background: "#1a2f3c", borderColor: "var(--border)" }}>
+              <div key={m.label} className="rounded-xl border p-4" style={{ background: "var(--panel2)", borderColor: "var(--border)" }}>
                 <Metric label={m.label} value={m.value} subValue={m.subValue} color={m.color} />
               </div>
             ))}
@@ -188,7 +188,7 @@ export default function CgWhatIf({ navigate }: Props) {
 
           {/* ROI */}
           {ran && (
-            <div className="rounded-xl border p-4" style={{ background: "#1a2f3c", borderColor: "var(--accent)", boxShadow: "0 0 0 1px rgba(156,223,240,0.15)" }}>
+            <div className="rounded-xl border p-4" style={{ background: "var(--panel2)", borderColor: "var(--accent)", boxShadow: "0 0 0 1px rgba(156,223,240,0.15)" }}>
               <div className="flex items-center gap-3 flex-wrap">
                 <div className="flex-1">
                   <div className="flex items-center gap-1.5 mb-1">
@@ -235,23 +235,23 @@ export default function CgWhatIf({ navigate }: Props) {
                       <stop offset="100%" stopColor="var(--accent2)" stopOpacity={0.02} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--overlay-1)" />
                   <XAxis
                     dataKey="lossCr"
-                    tick={{ fill: "#8BB8C4", fontSize: 10 }}
+                    tick={{ fill: "var(--muted)", fontSize: 10 }}
                     axisLine={false}
                     tickLine={false}
                     tickFormatter={v => `₹${Number(v).toFixed(1)}Cr`}
                   />
                   <YAxis
                     domain={[0, 1]}
-                    tick={{ fill: "#8BB8C4", fontSize: 10 }}
+                    tick={{ fill: "var(--muted)", fontSize: 10 }}
                     axisLine={false}
                     tickLine={false}
                     tickFormatter={v => `${Math.round(v * 100)}%`}
                   />
                   <Tooltip content={({ active, payload }: any) => active && payload?.length ? (
-                    <div className="rounded-lg border px-3 py-2 text-xs" style={{ background: "#0d1b26", borderColor: "var(--border)", color: "var(--text)" }}>
+                    <div className="rounded-lg border px-3 py-2 text-xs" style={{ background: "var(--panel3)", borderColor: "var(--border)", color: "var(--text)" }}>
                       <p>P(loss &gt; ₹{Number(payload[0].payload.lossCr).toFixed(2)} Cr) = {Math.round(payload[0].payload.probability * 100)}%</p>
                     </div>
                   ) : null} />
@@ -275,11 +275,11 @@ export default function CgWhatIf({ navigate }: Props) {
                   <p className="text-xs mb-2" style={{ color: "var(--muted)" }}>Risk Score</p>
                   <ResponsiveContainer width="100%" height={100}>
                     <BarChart data={compareData} barSize={28}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-                      <XAxis dataKey="name" tick={{ fill: "#8BB8C4", fontSize: 10 }} axisLine={false} tickLine={false} />
-                      <YAxis domain={[0, 100]} tick={{ fill: "#8BB8C4", fontSize: 10 }} axisLine={false} tickLine={false} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--overlay-1)" vertical={false} />
+                      <XAxis dataKey="name" tick={{ fill: "var(--muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
+                      <YAxis domain={[0, 100]} tick={{ fill: "var(--muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
                       <Tooltip content={({ active, payload, label }) => active && payload?.length ? (
-                        <div className="rounded-lg border px-3 py-2 text-xs" style={{ background: "#0d1b26", borderColor: "var(--border)", color: "var(--text)" }}>
+                        <div className="rounded-lg border px-3 py-2 text-xs" style={{ background: "var(--panel3)", borderColor: "var(--border)", color: "var(--text)" }}>
                           <p>{label}: {payload[0].value}</p>
                         </div>
                       ) : null} />
@@ -294,11 +294,11 @@ export default function CgWhatIf({ navigate }: Props) {
                   <p className="text-xs mb-2" style={{ color: "var(--muted)" }}>EAL (₹ Crore)</p>
                   <ResponsiveContainer width="100%" height={100}>
                     <BarChart data={compareData} barSize={28}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-                      <XAxis dataKey="name" tick={{ fill: "#8BB8C4", fontSize: 10 }} axisLine={false} tickLine={false} />
-                      <YAxis domain={[0, 3]} tick={{ fill: "#8BB8C4", fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => `₹${v}Cr`} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--overlay-1)" vertical={false} />
+                      <XAxis dataKey="name" tick={{ fill: "var(--muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
+                      <YAxis domain={[0, 3]} tick={{ fill: "var(--muted)", fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => `₹${v}Cr`} />
                       <Tooltip content={({ active, payload, label }) => active && payload?.length ? (
-                        <div className="rounded-lg border px-3 py-2 text-xs" style={{ background: "#0d1b26", borderColor: "var(--border)", color: "var(--text)" }}>
+                        <div className="rounded-lg border px-3 py-2 text-xs" style={{ background: "var(--panel3)", borderColor: "var(--border)", color: "var(--text)" }}>
                           <p>{label}: ₹{payload[0].value} Cr</p>
                         </div>
                       ) : null} />

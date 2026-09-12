@@ -52,7 +52,7 @@ export default function CgInvestment({ navigate }: Props) {
           step={5}
           onChange={e => setBudgetL(Math.max(0, Number(e.target.value)))}
           className="w-32 px-3 py-2 rounded-lg text-sm font-mono focus:outline-none"
-          style={{ background: "#1a2f3c", border: "1px solid var(--border)", color: "var(--text)" }}
+          style={{ background: "var(--panel2)", border: "1px solid var(--border)", color: "var(--text)" }}
         />
         <span className="text-xs" style={{ color: "var(--muted)" }}>
           = ₹{(budgetL / 100).toFixed(2)} Crore
@@ -86,7 +86,7 @@ export default function CgInvestment({ navigate }: Props) {
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr style={{ background: "#1a2f3c", borderBottom: "1px solid var(--border)" }}>
+                <tr style={{ background: "var(--panel2)", borderBottom: "1px solid var(--border)" }}>
                   {["Security Initiative", "Cost", "Risk Reduction", "In Plan"].map(h => (
                     <th key={h} className="text-left px-4 py-3 font-semibold" style={{ color: "var(--muted)" }}>{h}</th>
                   ))}
@@ -96,7 +96,7 @@ export default function CgInvestment({ navigate }: Props) {
                 {INITIATIVES.map(i => {
                   const chosen = recommended.picks.some(p => p.name === i.name);
                   return (
-                    <tr key={i.name} className="border-b" style={{ borderColor: "rgba(255,255,255,0.04)", background: chosen ? "rgba(156,223,240,0.05)" : "transparent" }}>
+                    <tr key={i.name} className="border-b" style={{ borderColor: "var(--overlay-1)", background: chosen ? "rgba(156,223,240,0.05)" : "transparent" }}>
                       <td className="px-4 py-3 font-medium" style={{ color: "var(--text)" }}>{i.name}</td>
                       <td className="px-4 py-3 font-mono" style={{ color: "var(--muted)" }}>₹{i.costL}L</td>
                       <td className="px-4 py-3 font-mono" style={{ color: "var(--accent2)" }}>{i.riskReduction}%</td>
@@ -121,16 +121,16 @@ export default function CgInvestment({ navigate }: Props) {
           </div>
           <ResponsiveContainer width="100%" height={240}>
             <ScatterChart margin={{ top: 10, right: 10, bottom: 10, left: 0 }}>
-              <CartesianGrid stroke="rgba(255,255,255,0.06)" />
-              <XAxis type="number" dataKey="costL" name="Cost (₹L)" stroke="#8BB8C4" fontSize={11} />
-              <YAxis type="number" dataKey="riskReduction" name="Risk Reduction (%)" stroke="#8BB8C4" fontSize={11} />
+              <CartesianGrid stroke="var(--overlay-2)" />
+              <XAxis type="number" dataKey="costL" name="Cost (₹L)" stroke="var(--muted)" fontSize={11} />
+              <YAxis type="number" dataKey="riskReduction" name="Risk Reduction (%)" stroke="var(--muted)" fontSize={11} />
               <ZAxis range={[120, 120]} />
               <Tooltip
                 cursor={{ strokeDasharray: "3 3" }}
-                contentStyle={{ background: "#1a2f3c", border: "1px solid #38707D", borderRadius: 8, fontSize: 12 }}
+                contentStyle={{ background: "var(--panel2)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
                 formatter={(value: any, name: any) => [name === "costL" ? `₹${value}L` : `${value}%`, name === "costL" ? "Cost" : "Risk Reduction"]}
               />
-              <Scatter data={INITIATIVES} fill="#60B8CF" />
+              <Scatter data={INITIATIVES} fill="var(--accent2)" />
             </ScatterChart>
           </ResponsiveContainer>
           <p className="text-xs mt-2" style={{ color: "var(--muted)" }}>Diminishing returns appear once cost outpaces risk reduction — spend concentrates before that point.</p>

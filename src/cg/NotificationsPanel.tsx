@@ -25,7 +25,7 @@ export default function NotificationsPanel() {
     <div className="relative">
       <button
         title="Notifications"
-        className="relative p-2 rounded-lg hover:bg-white/5 transition"
+        className="relative p-2 rounded-lg cg-hover transition"
         onClick={() => { setOpen(o => !o); if (!open) markAllRead(); }}
       >
         <svg className="w-4 h-4" style={{ color: "var(--muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,7 +56,7 @@ export default function NotificationsPanel() {
                 <p className="text-xs px-4 py-6 text-center" style={{ color: "var(--muted)" }}>You're all caught up.</p>
               ) : (
                 notifications.map(n => (
-                  <div key={n.id} className="px-4 py-3 border-b" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+                  <div key={n.id} className="px-4 py-3 border-b" style={{ borderColor: "var(--overlay-1)" }}>
                     <div className="flex items-start gap-2">
                       <div className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ background: SEVERITY_COLOR[n.severity] }} />
                       <div className="min-w-0">

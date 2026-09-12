@@ -60,7 +60,7 @@ export default function CgAssets({ navigate }: Props) {
     .filter(a => criticality === "All" || a.criticality === criticality);
 
   const colorMap: Record<string, string> = {
-    Critical: "#F87171", High: "#FBBF24", Medium: "#60B8CF", Low: "#34D399",
+    Critical: "#F87171", High: "#FBBF24", Medium: "var(--accent2)", Low: "#34D399",
   };
 
   if (loading) {
@@ -137,7 +137,7 @@ export default function CgAssets({ navigate }: Props) {
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr style={{ background: "#1a2f3c", borderBottom: "1px solid var(--border)" }}>
+              <tr style={{ background: "var(--panel2)", borderBottom: "1px solid var(--border)" }}>
                 {["Asset ID", "Name", "Type", "Criticality", "Vulnerabilities", "Risk Score", "Financial Exposure", "Owner", "Actions"].map(h => (
                   <th key={h} className="text-left px-4 py-3 font-semibold" style={{ color: "var(--muted)" }}>{h}</th>
                 ))}
@@ -145,7 +145,7 @@ export default function CgAssets({ navigate }: Props) {
             </thead>
             <tbody>
               {filtered.map((a, i) => (
-                <tr key={a.id} className="border-b hover:bg-white/[0.02] transition cursor-pointer" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+                <tr key={a.id} className="border-b cg-hover-soft transition cursor-pointer" style={{ borderColor: "var(--overlay-1)" }}>
                   <td className="px-4 py-3 font-mono" style={{ color: "var(--muted)" }}>{a.id}</td>
                   <td className="px-4 py-3 font-medium" style={{ color: "var(--text)" }}>{a.name}</td>
                   <td className="px-4 py-3">
@@ -158,7 +158,7 @@ export default function CgAssets({ navigate }: Props) {
                     <span className="font-mono font-bold" style={{ color: a.vulns > 4 ? "#F87171" : a.vulns > 2 ? "#FBBF24" : "#34D399" }}>{a.vulns}</span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="font-mono font-bold" style={{ color: a.riskScore >= 80 ? "#F87171" : a.riskScore >= 65 ? "#FBBF24" : "#9CDFF0" }}>{a.riskScore}</span>
+                    <span className="font-mono font-bold" style={{ color: a.riskScore >= 80 ? "#F87171" : a.riskScore >= 65 ? "#FBBF24" : "var(--accent)" }}>{a.riskScore}</span>
                   </td>
                   <td className="px-4 py-3 font-mono font-semibold" style={{ color: "#FBBF24" }}>{a.exposure}</td>
                   <td className="px-4 py-3" style={{ color: "var(--muted)" }}>{a.owner}</td>
@@ -189,7 +189,7 @@ export default function CgAssets({ navigate }: Props) {
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                 placeholder="e.g. Payment Gateway"
                 className="w-full px-3 py-2 rounded-lg text-xs focus:outline-none"
-                style={{ background: "#1a2f3c", border: "1px solid var(--border)", color: "var(--text)" }}
+                style={{ background: "var(--panel2)", border: "1px solid var(--border)", color: "var(--text)" }}
               />
             </div>
 
@@ -222,7 +222,7 @@ export default function CgAssets({ navigate }: Props) {
                   onChange={e => setForm(f => ({ ...f, owner: e.target.value }))}
                   placeholder="e.g. IT Ops"
                   className="w-full px-3 py-2 rounded-lg text-xs focus:outline-none"
-                  style={{ background: "#1a2f3c", border: "1px solid var(--border)", color: "var(--text)" }}
+                  style={{ background: "var(--panel2)", border: "1px solid var(--border)", color: "var(--text)" }}
                 />
               </div>
               <div>
@@ -232,7 +232,7 @@ export default function CgAssets({ navigate }: Props) {
                   onChange={e => setForm(f => ({ ...f, businessUnit: e.target.value }))}
                   placeholder="e.g. Finance"
                   className="w-full px-3 py-2 rounded-lg text-xs focus:outline-none"
-                  style={{ background: "#1a2f3c", border: "1px solid var(--border)", color: "var(--text)" }}
+                  style={{ background: "var(--panel2)", border: "1px solid var(--border)", color: "var(--text)" }}
                 />
               </div>
             </div>
@@ -245,7 +245,7 @@ export default function CgAssets({ navigate }: Props) {
                   onChange={e => setForm(f => ({ ...f, environment: e.target.value }))}
                   placeholder="e.g. AWS, On-prem"
                   className="w-full px-3 py-2 rounded-lg text-xs focus:outline-none"
-                  style={{ background: "#1a2f3c", border: "1px solid var(--border)", color: "var(--text)" }}
+                  style={{ background: "var(--panel2)", border: "1px solid var(--border)", color: "var(--text)" }}
                 />
               </div>
               <div>
@@ -267,7 +267,7 @@ export default function CgAssets({ navigate }: Props) {
                   value={form.riskScore}
                   onChange={e => setForm(f => ({ ...f, riskScore: e.target.value }))}
                   className="w-full px-3 py-2 rounded-lg text-xs focus:outline-none"
-                  style={{ background: "#1a2f3c", border: "1px solid var(--border)", color: "var(--text)" }}
+                  style={{ background: "var(--panel2)", border: "1px solid var(--border)", color: "var(--text)" }}
                 />
               </div>
               <div>
@@ -277,7 +277,7 @@ export default function CgAssets({ navigate }: Props) {
                   value={form.exposureLakh}
                   onChange={e => setForm(f => ({ ...f, exposureLakh: e.target.value }))}
                   className="w-full px-3 py-2 rounded-lg text-xs focus:outline-none"
-                  style={{ background: "#1a2f3c", border: "1px solid var(--border)", color: "var(--text)" }}
+                  style={{ background: "var(--panel2)", border: "1px solid var(--border)", color: "var(--text)" }}
                 />
               </div>
             </div>
@@ -312,31 +312,31 @@ export default function CgAssets({ navigate }: Props) {
                 <DialogDescription>{viewingAsset.id} · {viewingAsset.type}</DialogDescription>
               </DialogHeader>
               <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
-                <div className="rounded-lg p-3" style={{ background: "#1a2f3c", border: "1px solid var(--border)" }}>
+                <div className="rounded-lg p-3" style={{ background: "var(--panel2)", border: "1px solid var(--border)" }}>
                   <p style={{ color: "var(--muted)" }}>Criticality</p>
                   <p className="font-bold mt-0.5" style={{ color: colorMap[viewingAsset.criticality] }}>{viewingAsset.criticality}</p>
                 </div>
-                <div className="rounded-lg p-3" style={{ background: "#1a2f3c", border: "1px solid var(--border)" }}>
+                <div className="rounded-lg p-3" style={{ background: "var(--panel2)", border: "1px solid var(--border)" }}>
                   <p style={{ color: "var(--muted)" }}>Risk Score</p>
-                  <p className="font-bold font-mono mt-0.5" style={{ color: viewingAsset.riskScore >= 80 ? "#F87171" : viewingAsset.riskScore >= 65 ? "#FBBF24" : "#9CDFF0" }}>{viewingAsset.riskScore}</p>
+                  <p className="font-bold font-mono mt-0.5" style={{ color: viewingAsset.riskScore >= 80 ? "#F87171" : viewingAsset.riskScore >= 65 ? "#FBBF24" : "var(--accent)" }}>{viewingAsset.riskScore}</p>
                 </div>
-                <div className="rounded-lg p-3" style={{ background: "#1a2f3c", border: "1px solid var(--border)" }}>
+                <div className="rounded-lg p-3" style={{ background: "var(--panel2)", border: "1px solid var(--border)" }}>
                   <p style={{ color: "var(--muted)" }}>Vulnerabilities</p>
                   <p className="font-bold font-mono mt-0.5" style={{ color: viewingAsset.vulns > 4 ? "#F87171" : viewingAsset.vulns > 2 ? "#FBBF24" : "#34D399" }}>{viewingAsset.vulns}</p>
                 </div>
-                <div className="rounded-lg p-3" style={{ background: "#1a2f3c", border: "1px solid var(--border)" }}>
+                <div className="rounded-lg p-3" style={{ background: "var(--panel2)", border: "1px solid var(--border)" }}>
                   <p style={{ color: "var(--muted)" }}>Financial Exposure</p>
                   <p className="font-bold font-mono mt-0.5" style={{ color: "#FBBF24" }}>{viewingAsset.exposure}</p>
                 </div>
-                <div className="rounded-lg p-3" style={{ background: "#1a2f3c", border: "1px solid var(--border)" }}>
+                <div className="rounded-lg p-3" style={{ background: "var(--panel2)", border: "1px solid var(--border)" }}>
                   <p style={{ color: "var(--muted)" }}>IP Address</p>
                   <p className="font-bold font-mono mt-0.5" style={{ color: "var(--text)" }}>{viewingAsset.ip}</p>
                 </div>
-                <div className="rounded-lg p-3" style={{ background: "#1a2f3c", border: "1px solid var(--border)" }}>
+                <div className="rounded-lg p-3" style={{ background: "var(--panel2)", border: "1px solid var(--border)" }}>
                   <p style={{ color: "var(--muted)" }}>Environment</p>
                   <p className="font-bold mt-0.5" style={{ color: "var(--text)" }}>{viewingAsset.env}</p>
                 </div>
-                <div className="rounded-lg p-3 col-span-2" style={{ background: "#1a2f3c", border: "1px solid var(--border)" }}>
+                <div className="rounded-lg p-3 col-span-2" style={{ background: "var(--panel2)", border: "1px solid var(--border)" }}>
                   <p style={{ color: "var(--muted)" }}>Owner</p>
                   <p className="font-bold mt-0.5" style={{ color: "var(--text)" }}>{viewingAsset.owner}</p>
                 </div>

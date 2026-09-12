@@ -87,7 +87,7 @@ export default function CgCompliance({ navigate }: Props) {
               <div>
                 <p className="text-xs mb-1" style={{ color: "var(--muted)" }}>Compliance</p>
                 <p className="text-lg font-bold" style={{ fontFamily: "'Outfit',sans-serif", color: "var(--accent)" }}>{f.compliance}%</p>
-                <div className="w-full h-1.5 rounded-full overflow-hidden mt-1" style={{ background: "rgba(255,255,255,0.06)" }}>
+                <div className="w-full h-1.5 rounded-full overflow-hidden mt-1" style={{ background: "var(--overlay-2)" }}>
                   <div className="h-full rounded-full" style={{ width: `${f.compliance}%`, background: "var(--accent)" }} />
                 </div>
               </div>
@@ -130,7 +130,7 @@ export default function CgCompliance({ navigate }: Props) {
               </DialogHeader>
               <div className="mt-4 space-y-4">
                 {buildFrameworkReportSections(viewing, gradeFromPercent(viewing.compliance)).map(section => (
-                  <div key={section.title} className="rounded-lg border p-4" style={{ borderColor: "var(--border)", background: "#1a2f3c" }}>
+                  <div key={section.title} className="rounded-lg border p-4" style={{ borderColor: "var(--border)", background: "var(--panel2)" }}>
                     <p className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: "var(--accent2)" }}>{section.title}</p>
                     {section.kv && (
                       <div className="space-y-2">
