@@ -1,5 +1,9 @@
 import { useRef, useState, type FormEvent } from "react";
-import { askAssistant } from "@/lib/aiAssistant";
+import { askAssistant, type RiskContext } from "@/lib/aiAssistant";
+import { useAssets } from "@/hooks/useAssets";
+import { useVulnerabilities } from "@/hooks/useVulnerabilities";
+import { useThreats } from "@/hooks/useThreats";
+import { computeRiskScore, riskLevelLabel } from "@/lib/riskScore";
 
 interface Message {
   role: "user" | "assistant";
@@ -12,6 +16,7 @@ const EXAMPLES = [
   "Which vulnerabilities contribute most to our expected losses?",
   "What happens if we enable MFA?",
   "Where should we spend our next ₹50 lakh?",
+  "Generate a board risk briefing",
 ];
 
 export default function AIAssistant() {
@@ -23,12 +28,33 @@ export default function AIAssistant() {
   const [thinking, setThinking] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const { data: assets } = useAssets();
+  const { data: vulnerabilities } = useVulnerabilities();
+  const { data: threats } = useThreats();
+
+  function buildRiskContext(): RiskContext {
+    const criticalVulns = vulnerabilities.filter(v => v.severity === "Critical").length;
+    const criticalAssetRatio = assets.length ? assets.filter(a => a.criticality === "Critical").length / assets.length : 0;
+    const breakdown = computeRiskScore({ activeThreats: threats.length, criticalVulns, criticalAssetRatio });
+    const topVuln = [...vulnerabilities].sort((a, b) => b.cvss - a.cvss)[0];
+    return {
+      riskScore: breakdown.score,
+      riskLevel: riskLevelLabel(breakdown.score).label,
+      activeThreats: threats.length,
+      criticalVulns,
+      totalAssets: assets.length,
+      expectedAnnualLossCr: 2.45,
+      topRisk: topVuln ? `${topVuln.id} on ${topVuln.asset}` : "no open critical findings",
+      topRiskImpact: topVuln?.impact ?? "—",
+    };
+  }
+
   async function send(question: string) {
     if (!question.trim() || thinking) return;
     setMessages(m => [...m, { role: "user", text: question }]);
     setInput("");
     setThinking(true);
-    const { answer, live } = await askAssistant(question);
+    const { answer, live } = await askAssistant(question, buildRiskContext());
     setMessages(m => [...m, { role: "assistant", text: answer, live }]);
     setThinking(false);
     requestAnimationFrame(() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }));

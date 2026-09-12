@@ -8,10 +8,12 @@ import { useEalTrend } from "@/hooks/useRiskSnapshots";
 import { useAssets } from "@/hooks/useAssets";
 import { useVulnerabilities } from "@/hooks/useVulnerabilities";
 import { useComplianceFrameworks } from "@/hooks/useComplianceFrameworks";
+import { useThreats } from "@/hooks/useThreats";
 import { INITIAL_RECS } from "@/lib/recommendationsData";
 import { exportDashboardExcel } from "@/lib/exportExcel";
 import { benchmarkRiskScore } from "@/lib/benchmark";
 import { computeLossRange, formatCr } from "@/lib/lossRange";
+import { computeRiskScore, riskLevelLabel } from "@/lib/riskScore";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -188,7 +190,13 @@ export default function CgDashboard({ navigate }: Props) {
 
   const topRecs = INITIAL_RECS.filter(r => r.status === "Pending").slice(0, 4);
 
-  const OVERALL_RISK_SCORE = 72;
+  const { data: threats } = useThreats();
+  const activeThreats = threats.length;
+  const criticalAssetRatio = totalAssets ? assets.filter(a => a.criticality === "Critical").length / totalAssets : 0;
+  const riskBreakdown = computeRiskScore({ activeThreats, criticalVulns, criticalAssetRatio });
+  const OVERALL_RISK_SCORE = riskBreakdown.score;
+  const riskLevel = riskLevelLabel(OVERALL_RISK_SCORE);
+  const [showFormula, setShowFormula] = useState(false);
   const benchmark = benchmarkRiskScore(OVERALL_RISK_SCORE, "Banking / BFSI");
   const ealRange = computeLossRange(2.45);
   const exposureRange = computeLossRange(8.3);
@@ -232,10 +240,45 @@ export default function CgDashboard({ navigate }: Props) {
         <KpiCard icon="🖥" label="Total Assets" value={String(totalAssets)} sub="Live from Asset Inventory" color="#9CDFF0" onClick={() => navigate("assets")} />
         <KpiCard icon="⚠" label="Critical Vulnerabilities" value={String(criticalVulns)} sub="Live from Vulnerabilities" color="#F87171" onClick={() => navigate("vulnerabilities")} />
         <KpiCard icon="₹" label="Expected Annual Loss" value="₹2.45 Cr" sub="↓ 6% vs last quarter" color="#FBBF24" onClick={() => navigate("risk")} />
-        <KpiCard icon="🎯" label="Overall Risk Score" value={`${OVERALL_RISK_SCORE} / 100`} sub="High — action needed" color="#F87171" onClick={() => navigate("risk")} />
+        <KpiCard icon="🎯" label="Overall Risk Score" value={`${OVERALL_RISK_SCORE} / 100`} sub={riskLevel.label} color={riskLevel.color} onClick={() => navigate("risk")} />
         <KpiCard icon="💰" label="Financial Risk Exposure" value="₹8.3 Cr" sub="Total potential loss" color="#60B8CF" onClick={() => navigate("risk")} />
         <KpiCard icon="🤖" label="AI Recommendations" value={String(pendingRecs)} sub={`${pendingRecs} pending`} color="#9CDFF0" onClick={() => navigate("ai")} />
       </div>
+
+      {/* ── Risk Score Formula ── */}
+      <Panel>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "var(--muted)" }}>How is {OVERALL_RISK_SCORE} calculated?</p>
+            <p className="text-xs" style={{ color: "var(--muted)" }}>Risk Score = Threats × Vulnerabilities × Business Consequence — every input is traceable, not a black-box model.</p>
+          </div>
+          <button
+            className="text-xs font-semibold px-3 py-1.5 rounded-lg border flex-shrink-0"
+            style={{ borderColor: "var(--border)", color: "var(--accent2)" }}
+            onClick={() => setShowFormula(s => !s)}
+          >
+            {showFormula ? "Hide Formula" : "Show Formula"}
+          </button>
+        </div>
+        {showFormula && (
+          <div className="grid sm:grid-cols-3 gap-3 mt-4">
+            {[
+              { label: "Threats", detail: `${activeThreats} active threats tracked`, value: riskBreakdown.threatFactor, weight: "35%", color: "#F87171" },
+              { label: "Vulnerabilities", detail: `${criticalVulns} critical CVEs open`, value: riskBreakdown.vulnerabilityFactor, weight: "40%", color: "#FBBF24" },
+              { label: "Business Consequence", detail: `${Math.round(criticalAssetRatio * 100)}% of assets are Critical-tier`, value: riskBreakdown.consequenceFactor, weight: "25%", color: "#9CDFF0" },
+            ].map(f => (
+              <div key={f.label} className="rounded-lg p-3" style={{ background: "#1a2f3c", border: "1px solid var(--border)" }}>
+                <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>{f.label} <span style={{ color: "var(--muted)" }}>({f.weight} weight)</span></p>
+                <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>{f.detail}</p>
+                <div className="h-1.5 rounded-full overflow-hidden mt-2" style={{ background: "rgba(255,255,255,0.07)" }}>
+                  <div className="h-full rounded-full" style={{ width: `${f.value}%`, background: f.color }} />
+                </div>
+                <p className="text-xs mt-1 font-mono font-bold" style={{ color: f.color }}>{f.value} / 100</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </Panel>
 
       {/* ── Industry Benchmark ── */}
       <Panel>
