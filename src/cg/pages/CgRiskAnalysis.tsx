@@ -4,6 +4,7 @@ import {
   AreaChart, Area,
 } from "recharts";
 import type { CgPage } from "../../App";
+import { useVulnerabilities } from "@/hooks/useVulnerabilities";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -88,6 +89,9 @@ function ScoreGauge({ score }: { score: number }) {
 }
 
 export default function CgRiskAnalysis({ navigate }: Props) {
+  const { data: vulnerabilities } = useVulnerabilities();
+  const openRisks = vulnerabilities.filter(v => v.status === "Open").length;
+
   return (
     <div className="p-5 max-w-screen-xl mx-auto space-y-5">
       <div className="flex items-center justify-between">
@@ -111,7 +115,7 @@ export default function CgRiskAnalysis({ navigate }: Props) {
             <span className="text-xs font-semibold px-2 py-0.5 rounded" style={{ background: "rgba(248,113,113,0.15)", color: "#F87171" }}>HIGH RISK</span>
           </div>
           <div className="mt-3 space-y-1 w-full">
-            {[["EAL", "₹2.45 Cr"], ["Max Exposure", "₹8.3 Cr"], ["MTTR", "14.2 days"], ["Open Risks", "86"]].map(([k, v]) => (
+            {[["EAL", "₹2.45 Cr"], ["Max Exposure", "₹8.3 Cr"], ["MTTR", "14.2 days"], ["Open Risks", String(openRisks)]].map(([k, v]) => (
               <div key={k} className="flex justify-between text-xs">
                 <span style={{ color: "var(--muted)" }}>{k}</span>
                 <span className="font-semibold font-mono" style={{ color: "var(--text)" }}>{v}</span>
@@ -229,7 +233,7 @@ export default function CgRiskAnalysis({ navigate }: Props) {
                   </td>
                   <td className="py-3 pr-4 font-mono" style={{ color: "var(--muted)" }}>{d.risks}</td>
                   <td className="py-3 pr-4 font-mono font-semibold" style={{ color: "#FBBF24" }}>{d.exposure}</td>
-                  <td className="py-3 pr-4" style={{ color: i % 2 === 0 ? "#F87171" : "#34D399" }}>{i % 2 === 0 ? "↑ Worsening" : "↓ Improving"}</td>
+                  <td className="py-3 pr-4" style={{ color: d.score < 60 ? "#F87171" : "#34D399" }}>{d.score < 60 ? "↑ Worsening" : "↓ Improving"}</td>
                   <td className="py-3">
                     <button className="text-xs font-semibold" style={{ color: "var(--accent)" }} onClick={() => navigate("whatif")}>Simulate →</button>
                   </td>
