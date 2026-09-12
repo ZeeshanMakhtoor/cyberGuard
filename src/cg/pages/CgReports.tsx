@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { exportGeneratedReportExcel } from "@/lib/exportExcel";
+import V1Pill from "@/components/V1Pill";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -84,6 +85,10 @@ export default function CgReports({ navigate }: Props) {
         </button>
       </div>
 
+      <div className="flex items-center gap-2">
+        <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--muted)" }}>Generated Reports</p>
+        <V1Pill label="Generate, View, Download (Excel) and Share" compact />
+      </div>
       <div className="rounded-xl border overflow-hidden" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
@@ -142,7 +147,10 @@ export default function CgReports({ navigate }: Props) {
 
       {/* Scheduled reports */}
       <div className="rounded-xl border p-4" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
-        <p className="text-xs font-semibold mb-3" style={{ color: "var(--muted)" }}>SCHEDULED REPORTS</p>
+        <div className="flex items-center gap-1.5 mb-3">
+          <p className="text-xs font-semibold" style={{ color: "var(--muted)" }}>SCHEDULED REPORTS</p>
+          <V1Pill label="Illustrative recurring schedule" compact />
+        </div>
         <div className="grid sm:grid-cols-3 gap-3">
           {[
             { name: "Weekly Vuln Digest", schedule: "Every Monday, 08:00 IST", next: "08 Sep 2026" },

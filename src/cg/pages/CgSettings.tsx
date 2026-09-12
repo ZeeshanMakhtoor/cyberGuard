@@ -5,6 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import V1Pill from "@/components/V1Pill";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -163,6 +164,7 @@ export default function CgSettings({ navigate }: Props) {
         <div className="flex-1 rounded-xl border p-5" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
           {active === "org" && (
             <div className="space-y-4 max-w-md">
+              <V1Pill label="Persists to localStorage via Save Changes" compact />
               <Field label="Organization Name" value={orgFields.name} onChange={v => setOrgFields(f => ({ ...f, name: v }))} />
               <Field label="Industry" value={orgFields.industry} onChange={v => setOrgFields(f => ({ ...f, industry: v }))} />
               <Field label="Regulatory Jurisdiction" value={orgFields.jurisdiction} onChange={v => setOrgFields(f => ({ ...f, jurisdiction: v }))} />
@@ -173,6 +175,7 @@ export default function CgSettings({ navigate }: Props) {
 
           {active === "users" && (
             <div className="space-y-2">
+              <V1Pill label="Working Invite User + Remove" compact />
               {users.map(u => (
                 <div key={u.email} className="flex items-center justify-between px-3 py-2.5 rounded-lg" style={{ background: "#1a2f3c" }}>
                   <div>
@@ -191,6 +194,7 @@ export default function CgSettings({ navigate }: Props) {
 
           {active === "integrations" && (
             <div className="space-y-2">
+              <V1Pill label="Working Connect / Disconnect toggle" compact />
               {integrations.map(i => (
                 <div key={i.name} className="flex items-center justify-between px-3 py-2.5 rounded-lg" style={{ background: "#1a2f3c" }}>
                   <div>
@@ -233,6 +237,7 @@ export default function CgSettings({ navigate }: Props) {
 
           {active === "risk" && (
             <div className="space-y-4 max-w-md">
+              <V1Pill label="Persists to localStorage via Save Changes" compact />
               <Field label="Currency" value={riskFields.currency} onChange={v => setRiskFields(f => ({ ...f, currency: v }))} />
               <Field label="Risk Refresh Interval" value={riskFields.refreshInterval} onChange={v => setRiskFields(f => ({ ...f, refreshInterval: v }))} />
               <Field label="Value-at-Risk Confidence Level" value={riskFields.varConfidence} onChange={v => setRiskFields(f => ({ ...f, varConfidence: v }))} />

@@ -5,6 +5,7 @@ import { useVulnerabilities } from "@/hooks/useVulnerabilities";
 import { useThreats } from "@/hooks/useThreats";
 import { computeRiskScore, riskLevelLabel } from "@/lib/riskScore";
 import V2Pill from "@/components/V2Pill";
+import V1Pill from "@/components/V1Pill";
 
 interface Message {
   role: "user" | "assistant";
@@ -89,6 +90,7 @@ export default function AIAssistant() {
           <div className="px-4 py-3 border-b flex items-center gap-2" style={{ borderColor: "var(--border)", background: "#1a2f3c" }}>
             <div className="w-2 h-2 rounded-full" style={{ background: "var(--accent)" }} />
             <p className="text-xs font-bold" style={{ fontFamily: "'Outfit',sans-serif", color: "var(--text)" }}>CyberGuard AI Assistant</p>
+            <V1Pill label="Canned Q&A, falls back to live Edge Function when deployed" compact />
           </div>
 
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-2.5">

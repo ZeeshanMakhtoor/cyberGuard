@@ -3,6 +3,7 @@ import { useComplianceFrameworks } from "@/hooks/useComplianceFrameworks";
 import { exportComplianceAuditExcel } from "@/lib/exportExcel";
 import { gradeFromPercent, overallGrade } from "@/lib/securityGrade";
 import V2Pill from "@/components/V2Pill";
+import V1Pill from "@/components/V1Pill";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -44,6 +45,10 @@ export default function CgCompliance({ navigate }: Props) {
         </div>
       </div>
 
+      <div className="flex items-center gap-2">
+        <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--muted)" }}>Framework Mapping</p>
+        <V1Pill label="Live framework compliance, mapped controls, Export Audit Report (Excel)" compact />
+      </div>
       <div className="grid gap-4">
         {frameworks.map(f => {
           const grade = gradeFromPercent(f.compliance);

@@ -4,6 +4,7 @@ import { useVulnerabilities } from "@/hooks/useVulnerabilities";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { computePriorityScore } from "@/lib/priorityScore";
 import V2Pill from "@/components/V2Pill";
+import V1Pill from "@/components/V1Pill";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -71,7 +72,8 @@ export default function CgVulnerabilities({ navigate }: Props) {
             {VULNS.length ? `${criticalCount} critical · ${highCount} high · ${mediumCount} medium · ${lastScanLabel}` : lastScanLabel}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          <V1Pill label="Synthetic vulnerability scan, appends a realistic finding" compact />
           <button
             className="text-xs px-3 py-1.5 rounded-lg border font-medium disabled:opacity-60 inline-flex items-center gap-2"
             style={{ borderColor: "var(--border)", color: "var(--muted)" }}
@@ -89,6 +91,10 @@ export default function CgVulnerabilities({ navigate }: Props) {
       </div>
 
       {/* KPIs */}
+      <div className="flex items-center gap-2">
+        <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--muted)" }}>Vulnerability KPIs</p>
+        <V1Pill label="Live from vulnerability scan data" compact />
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           { label: "Critical (CVSS 9–10)", value: String(criticalCount),      color: "#F87171" },

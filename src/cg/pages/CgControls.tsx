@@ -1,5 +1,6 @@
 import type { CgPage } from "../../App";
 import { useControls } from "@/hooks/useControls";
+import V1Pill from "@/components/V1Pill";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -38,6 +39,10 @@ export default function CgControls({ navigate }: Props) {
         </button>
       </div>
 
+      <div className="flex items-center gap-2">
+        <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--muted)" }}>Control KPIs</p>
+        <V1Pill label="Live from tracked security controls" compact />
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           { label: "Controls Tracked", value: String(controls.length), color: "var(--accent)" },
@@ -52,6 +57,10 @@ export default function CgControls({ navigate }: Props) {
         ))}
       </div>
 
+      <div className="flex items-center gap-2">
+        <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--muted)" }}>Control Effectiveness Breakdown</p>
+        <V1Pill label="Per-control effectiveness & coverage" compact />
+      </div>
       <div className="grid md:grid-cols-2 gap-4">
         {controls.map(c => (
           <div key={c.short} className="rounded-xl border p-4 space-y-3" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
