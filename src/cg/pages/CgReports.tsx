@@ -151,6 +151,14 @@ export default function CgReports({ navigate }: Props) {
                 <p>This is a demo preview. In production this report would render its actual content here (charts, tables, narrative) pulled from the same risk data as the dashboard.</p>
                 <p style={{ color: "var(--text)" }}>Report type: <span style={{ color: typeColors[previewing.type] }}>{previewing.type}</span></p>
               </div>
+              <button
+                className="w-full py-2 rounded-lg text-xs font-semibold mt-4 disabled:opacity-40"
+                style={{ background: "var(--accent)", color: "var(--bg)" }}
+                disabled={previewing.status !== "Ready"}
+                onClick={() => handleDownload(previewing)}
+              >
+                {downloadedName === previewing.name ? "Downloaded ✓" : "Download Report"}
+              </button>
             </>
           )}
         </DialogContent>
