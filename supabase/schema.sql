@@ -88,9 +88,10 @@ create table if not exists compliance_frameworks (
 );
 
 -- Row Level Security — enabled everywhere, reads require a signed-in user
--- (Supabase Auth, wired up in Part 3 — src/cg/Login.tsx). No write
--- policies are defined, so inserts/updates/deletes are already blocked
--- from the browser (the anon key can only read, and only once authenticated).
+-- (Supabase Auth, wired up in Part 3 — src/cg/Login.tsx). Writes are
+-- blocked from the browser by default (the anon key can only read once
+-- authenticated) except where an explicit insert/update/delete policy
+-- is added below for a feature that needs it (e.g. "+ Add Asset").
 alter table assets enable row level security;
 alter table vulnerabilities enable row level security;
 alter table risk_snapshots enable row level security;
@@ -100,8 +101,8 @@ alter table threats enable row level security;
 alter table compliance_frameworks enable row level security;
 
 create policy "authenticated read" on assets                for select using (auth.role() = 'authenticated');
+create policy "authenticated insert" on assets               for insert to authenticated with check (true);
 create policy "authenticated read" on vulnerabilities        for select using (auth.role() = 'authenticated');
-create policy "authenticated read" on risk_snapshots         for select using (auth.role() = 'authenticated');
 create policy "authenticated read" on controls               for select using (auth.role() = 'authenticated');
 create policy "authenticated read" on recommendations        for select using (auth.role() = 'authenticated');
 create policy "authenticated read" on threats                for select using (auth.role() = 'authenticated');

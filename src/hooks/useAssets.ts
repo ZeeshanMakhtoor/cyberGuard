@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { formatInrCompact } from "@/lib/currency";
+import { supabase } from "@/lib/supabaseClient";
 import { useSupabaseQuery } from "./useSupabaseQuery";
 
 export interface AssetRow {
@@ -14,6 +16,19 @@ export interface AssetRow {
   env: string;
 }
 
+export interface NewAsset {
+  name: string;
+  type: string;
+  criticality: "Critical" | "High" | "Medium" | "Low";
+  owner: string;
+  businessUnit: string;
+  environment: string;
+  riskScore: number;
+  financialExposureInr: number;
+  protectionStatus: "Protected" | "Partial" | "Unprotected";
+  internetFacing: boolean;
+}
+
 const MOCK_ASSETS: AssetRow[] = [
   { id: "A-001", name: "Core Banking Server (CBS-01)", type: "Server", criticality: "Critical", ip: "10.0.1.10", vulns: 4, riskScore: 89, exposure: "₹1.2Cr", owner: "IT Ops", env: "On-prem" },
   { id: "A-002", name: "Customer Web Portal",          type: "Web App", criticality: "Critical", ip: "203.0.113.5", vulns: 7, riskScore: 84, exposure: "₹92L",  owner: "Engineering", env: "AWS" },
@@ -25,8 +40,17 @@ const MOCK_ASSETS: AssetRow[] = [
   { id: "A-008", name: "ERP System (SAP)",              type: "Server", criticality: "Critical", ip: "10.0.1.20", vulns: 6, riskScore: 79, exposure: "₹88L",  owner: "Finance", env: "On-prem" },
 ];
 
+/**
+ * Assets list, plus addAsset() for the "+ Add Asset" dialog. In Supabase
+ * mode, addAsset inserts a real row and triggers a refetch. In mock mode
+ * (no Supabase configured), it just appends to the in-memory list so the
+ * demo still works with zero setup.
+ */
 export function useAssets() {
-  return useSupabaseQuery<AssetRow[]>(
+  const [reloadKey, setReloadKey] = useState(0);
+  const [localExtras, setLocalExtras] = useState<AssetRow[]>([]);
+
+  const query = useSupabaseQuery<AssetRow[]>(
     async client => {
       const { data, error } = await client
         .from("assets")
@@ -47,6 +71,44 @@ export function useAssets() {
       }));
     },
     MOCK_ASSETS,
-    [],
+    [reloadKey],
   );
+
+  async function addAsset(asset: NewAsset) {
+    if (supabase) {
+      const { error } = await supabase.from("assets").insert({
+        name: asset.name,
+        type: asset.type,
+        criticality: asset.criticality,
+        owner: asset.owner,
+        business_unit: asset.businessUnit,
+        environment: asset.environment,
+        risk_score: asset.riskScore,
+        financial_exposure_inr: asset.financialExposureInr,
+        protection_status: asset.protectionStatus,
+        internet_facing: asset.internetFacing,
+      });
+      if (error) throw error;
+      setReloadKey(k => k + 1);
+      return;
+    }
+
+    setLocalExtras(prev => [
+      ...prev,
+      {
+        id: `A-${String(query.data.length + prev.length + 1).padStart(3, "0")}`,
+        name: asset.name,
+        type: asset.type,
+        criticality: asset.criticality,
+        ip: "—",
+        vulns: 0,
+        riskScore: asset.riskScore,
+        exposure: formatInrCompact(asset.financialExposureInr),
+        owner: asset.owner,
+        env: asset.environment,
+      },
+    ]);
+  }
+
+  return { ...query, data: [...query.data, ...(supabase ? [] : localExtras)], addAsset };
 }

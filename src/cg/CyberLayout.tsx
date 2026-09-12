@@ -2,6 +2,7 @@ import { ReactNode, useState } from "react";
 import type { CgPage } from "../App";
 import { supabase } from "@/lib/supabaseClient";
 import AIAssistant from "./AIAssistant";
+import NotificationsPanel from "./NotificationsPanel";
 
 const NAV = [
   { id: "dashboard",       icon: "⬛", label: "Dashboard",           svg: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
@@ -145,19 +146,12 @@ export default function CyberLayout({ page, navigate, children, userEmail }: Pro
             </div>
 
             {/* Icons */}
-            {[
-              { title: "Help", path: "M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z", badge: null },
-              { title: "Notifications", path: "M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9", badge: "4" },
-            ].map(icon => (
-              <button key={icon.title} title={icon.title} className="relative p-2 rounded-lg hover:bg-white/5 transition">
-                <svg className="w-4 h-4" style={{ color: "var(--muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d={icon.path}/>
-                </svg>
-                {icon.badge && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-xs flex items-center justify-center font-bold" style={{ background: "#F87171", color: "#fff", fontSize: 9 }}>{icon.badge}</span>
-                )}
-              </button>
-            ))}
+            <button title="Help" className="relative p-2 rounded-lg hover:bg-white/5 transition">
+              <svg className="w-4 h-4" style={{ color: "var(--muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </button>
+            <NotificationsPanel />
 
             <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold cursor-pointer" style={{ background: "var(--accent)", color: "var(--bg)" }}>{initials}</div>
           </div>

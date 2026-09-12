@@ -1,16 +1,58 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import type { CgPage } from "../../App";
 import { useAssets } from "@/hooks/useAssets";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 interface Props { navigate: (p: CgPage) => void; }
 
 const CRITICALITY_OPTIONS = ["All", "Critical", "High", "Medium", "Low"] as const;
+const NEW_ASSET_CRITICALITY = ["Critical", "High", "Medium", "Low"] as const;
+const PROTECTION_OPTIONS = ["Protected", "Partial", "Unprotected"] as const;
+const ASSET_TYPES = ["Server", "Web App", "Cloud", "Network", "Database", "Endpoint"] as const;
 
 export default function CgAssets({ navigate }: Props) {
-  const { data: ASSETS, loading } = useAssets();
+  const { data: ASSETS, loading, addAsset } = useAssets();
   const [search, setSearch] = useState("");
   const [criticality, setCriticality] = useState<(typeof CRITICALITY_OPTIONS)[number]>("All");
+  const [addOpen, setAddOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [form, setForm] = useState({
+    name: "", type: ASSET_TYPES[0] as string, criticality: "Medium" as (typeof NEW_ASSET_CRITICALITY)[number],
+    owner: "", businessUnit: "", environment: "", riskScore: "50", exposureLakh: "10",
+    protectionStatus: "Partial" as (typeof PROTECTION_OPTIONS)[number], internetFacing: false,
+  });
+
+  async function handleAddAsset(e: FormEvent) {
+    e.preventDefault();
+    if (!form.name.trim() || !form.owner.trim()) {
+      setFormError("Name and owner are required.");
+      return;
+    }
+    setFormError(null);
+    setSubmitting(true);
+    try {
+      await addAsset({
+        name: form.name.trim(),
+        type: form.type,
+        criticality: form.criticality,
+        owner: form.owner.trim(),
+        businessUnit: form.businessUnit.trim() || "Unassigned",
+        environment: form.environment.trim() || "On-prem",
+        riskScore: Math.max(0, Math.min(100, Number(form.riskScore) || 0)),
+        financialExposureInr: Math.max(0, Number(form.exposureLakh) || 0) * 100_000,
+        protectionStatus: form.protectionStatus,
+        internetFacing: form.internetFacing,
+      });
+      setAddOpen(false);
+      setForm({ name: "", type: ASSET_TYPES[0], criticality: "Medium", owner: "", businessUnit: "", environment: "", riskScore: "50", exposureLakh: "10", protectionStatus: "Partial", internetFacing: false });
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : "Could not add asset.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
   const filtered = ASSETS
     .filter(a => a.name.toLowerCase().includes(search.toLowerCase()) || a.type.toLowerCase().includes(search.toLowerCase()))
     .filter(a => criticality === "All" || a.criticality === criticality);
@@ -35,7 +77,7 @@ export default function CgAssets({ navigate }: Props) {
           <h1 className="text-base font-bold" style={{ fontFamily: "'Outfit',sans-serif" }}>Asset Inventory</h1>
           <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>1,248 assets discovered · Last scan: 01 Sep 2026</p>
         </div>
-        <button className="text-xs px-3 py-1.5 rounded-lg font-semibold" style={{ background: "var(--accent)", color: "var(--bg)" }}>
+        <button className="text-xs px-3 py-1.5 rounded-lg font-semibold" style={{ background: "var(--accent)", color: "var(--bg)" }} onClick={() => setAddOpen(true)}>
           + Add Asset
         </button>
       </div>
@@ -122,6 +164,134 @@ export default function CgAssets({ navigate }: Props) {
           </table>
         </div>
       </div>
+
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Asset</DialogTitle>
+            <DialogDescription>Register a new asset into the inventory and risk model.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleAddAsset} className="mt-4 space-y-3">
+            <div>
+              <label className="text-xs font-semibold block mb-1" style={{ color: "var(--muted)" }}>Asset Name</label>
+              <input
+                value={form.name}
+                onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                placeholder="e.g. Payment Gateway"
+                className="w-full px-3 py-2 rounded-lg text-xs focus:outline-none"
+                style={{ background: "#1a2f3c", border: "1px solid var(--border)", color: "var(--text)" }}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-semibold block mb-1" style={{ color: "var(--muted)" }}>Type</label>
+                <Select value={form.type} onValueChange={v => setForm(f => ({ ...f, type: v }))}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {ASSET_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-xs font-semibold block mb-1" style={{ color: "var(--muted)" }}>Criticality</label>
+                <Select value={form.criticality} onValueChange={v => setForm(f => ({ ...f, criticality: v as typeof form.criticality }))}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {NEW_ASSET_CRITICALITY.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-semibold block mb-1" style={{ color: "var(--muted)" }}>Owner</label>
+                <input
+                  value={form.owner}
+                  onChange={e => setForm(f => ({ ...f, owner: e.target.value }))}
+                  placeholder="e.g. IT Ops"
+                  className="w-full px-3 py-2 rounded-lg text-xs focus:outline-none"
+                  style={{ background: "#1a2f3c", border: "1px solid var(--border)", color: "var(--text)" }}
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold block mb-1" style={{ color: "var(--muted)" }}>Business Unit</label>
+                <input
+                  value={form.businessUnit}
+                  onChange={e => setForm(f => ({ ...f, businessUnit: e.target.value }))}
+                  placeholder="e.g. Finance"
+                  className="w-full px-3 py-2 rounded-lg text-xs focus:outline-none"
+                  style={{ background: "#1a2f3c", border: "1px solid var(--border)", color: "var(--text)" }}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-semibold block mb-1" style={{ color: "var(--muted)" }}>Environment</label>
+                <input
+                  value={form.environment}
+                  onChange={e => setForm(f => ({ ...f, environment: e.target.value }))}
+                  placeholder="e.g. AWS, On-prem"
+                  className="w-full px-3 py-2 rounded-lg text-xs focus:outline-none"
+                  style={{ background: "#1a2f3c", border: "1px solid var(--border)", color: "var(--text)" }}
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold block mb-1" style={{ color: "var(--muted)" }}>Protection Status</label>
+                <Select value={form.protectionStatus} onValueChange={v => setForm(f => ({ ...f, protectionStatus: v as typeof form.protectionStatus }))}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {PROTECTION_OPTIONS.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-semibold block mb-1" style={{ color: "var(--muted)" }}>Risk Score (0–100)</label>
+                <input
+                  type="number" min={0} max={100}
+                  value={form.riskScore}
+                  onChange={e => setForm(f => ({ ...f, riskScore: e.target.value }))}
+                  className="w-full px-3 py-2 rounded-lg text-xs focus:outline-none"
+                  style={{ background: "#1a2f3c", border: "1px solid var(--border)", color: "var(--text)" }}
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold block mb-1" style={{ color: "var(--muted)" }}>Financial Exposure (₹ Lakh)</label>
+                <input
+                  type="number" min={0}
+                  value={form.exposureLakh}
+                  onChange={e => setForm(f => ({ ...f, exposureLakh: e.target.value }))}
+                  className="w-full px-3 py-2 rounded-lg text-xs focus:outline-none"
+                  style={{ background: "#1a2f3c", border: "1px solid var(--border)", color: "var(--text)" }}
+                />
+              </div>
+            </div>
+
+            <label className="flex items-center gap-2 text-xs" style={{ color: "var(--text)" }}>
+              <input type="checkbox" checked={form.internetFacing} onChange={e => setForm(f => ({ ...f, internetFacing: e.target.checked }))} />
+              Internet-facing
+            </label>
+
+            {formError && (
+              <p className="text-xs px-3 py-2 rounded-lg" style={{ background: "rgba(248,113,113,0.1)", color: "#F87171" }}>{formError}</p>
+            )}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full text-xs px-3 py-2.5 rounded-lg font-semibold disabled:opacity-60"
+              style={{ background: "var(--accent)", color: "var(--bg)" }}
+            >
+              {submitting ? "Adding…" : "Add Asset"}
+            </button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

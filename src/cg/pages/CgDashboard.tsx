@@ -5,6 +5,7 @@ import {
 import { useEffect, useState } from "react";
 import type { CgPage } from "../../App";
 import { useEalTrend } from "@/hooks/useRiskSnapshots";
+import { exportDashboardPdf } from "@/lib/exportPdf";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -163,7 +164,21 @@ export default function CgDashboard({ navigate }: Props) {
           <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>Continuous risk quantification · HDFC Bank Ltd.</p>
         </div>
         <div className="flex gap-2">
-          <button className="text-xs px-3 py-1.5 rounded-lg border font-medium" style={{ borderColor: "var(--border)", color: "var(--muted)" }}>Export PDF</button>
+          <button
+            className="text-xs px-3 py-1.5 rounded-lg border font-medium"
+            style={{ borderColor: "var(--border)", color: "var(--muted)" }}
+            onClick={() => exportDashboardPdf({
+              generatedAt: new Date(),
+              riskScore: 72,
+              expectedAnnualLoss: "₹2.45 Cr",
+              financialExposure: "₹8.3 Cr",
+              totalAssets: "1,248",
+              criticalVulnerabilities: "86",
+              topRisks: topRisks.map(r => ({ risk: r.risk, asset: r.asset, impact: r.impact, likelihood: r.likelihood, priority: r.priority })),
+            })}
+          >
+            Export PDF
+          </button>
           <button className="text-xs px-3 py-1.5 rounded-lg font-semibold" style={{ background: "var(--accent)", color: "var(--bg)" }} onClick={() => navigate("risk")}>
             Full Analysis →
           </button>
