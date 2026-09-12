@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { CgPage } from "../../App";
 import { useThreats } from "@/hooks/useThreats";
+import V1Pill from "@/components/V1Pill";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -46,6 +47,10 @@ export default function CgThreatIntel({ navigate }: Props) {
       </div>
 
       {/* Summary */}
+      <div className="flex items-center gap-2">
+        <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--muted)" }}>Threat KPIs</p>
+        <V1Pill label="Live from tracked threats, threat level derived from max severity" compact />
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           { label: "Active Threats",     value: String(activeThreats), color: "#F87171" },
@@ -61,6 +66,10 @@ export default function CgThreatIntel({ navigate }: Props) {
       </div>
 
       {/* Threat cards */}
+      <div className="flex items-center gap-2">
+        <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--muted)" }}>Active Threat Feed</p>
+        <V1Pill label="Block IOCs + Check Exposure actions" compact />
+      </div>
       <div className="space-y-3">
         {threats.map(t => (
           <div key={t.id} className="rounded-xl border p-4" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>

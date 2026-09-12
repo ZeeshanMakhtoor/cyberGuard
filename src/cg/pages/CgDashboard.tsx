@@ -15,6 +15,7 @@ import { benchmarkRiskScore } from "@/lib/benchmark";
 import { computeLossRange, formatCr } from "@/lib/lossRange";
 import { computeRiskScore, riskLevelLabel } from "@/lib/riskScore";
 import V2Pill from "@/components/V2Pill";
+import V1Pill from "@/components/V1Pill";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -240,6 +241,10 @@ export default function CgDashboard({ navigate }: Props) {
       </div>
 
       {/* ── KPI Cards ── */}
+      <div className="flex items-center gap-2">
+        <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--muted)" }}>Live KPI Snapshot</p>
+        <V1Pill label="Core dashboard KPIs, wired to live asset/vulnerability/threat data" compact />
+      </div>
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
         <KpiCard icon="🖥" label="Total Assets" value={String(totalAssets)} sub="Live from Asset Inventory" color="#9CDFF0" onClick={() => navigate("assets")} />
         <KpiCard icon="⚠" label="Critical Vulnerabilities" value={String(criticalVulns)} sub="Live from Vulnerabilities" color="#F87171" onClick={() => navigate("vulnerabilities")} />
@@ -360,6 +365,7 @@ export default function CgDashboard({ navigate }: Props) {
             sub="Rolling 12-month financial risk exposure in ₹ Crore"
             action="View Details"
             onAction={() => navigate("risk")}
+            pill={<V1Pill label="Live EAL trend from risk snapshots" compact />}
           />
           <ResponsiveContainer width="100%" height={200}>
             <AreaChart data={ealTrend} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
@@ -380,7 +386,7 @@ export default function CgDashboard({ navigate }: Props) {
 
         {/* Criticality Donut */}
         <Panel>
-          <SectionHeader title="Risk by Asset Criticality" />
+          <SectionHeader title="Risk by Asset Criticality" pill={<V1Pill label="Live distribution from Asset Inventory" compact />} />
           <div className="flex flex-col items-center">
             <ResponsiveContainer width="100%" height={160}>
               <PieChart>
@@ -407,7 +413,7 @@ export default function CgDashboard({ navigate }: Props) {
       <div className="grid lg:grid-cols-5 gap-5">
         {/* Bar chart */}
         <Panel className="lg:col-span-2">
-          <SectionHeader title="Top Risk Contributors" sub="By financial impact %" />
+          <SectionHeader title="Top Risk Contributors" sub="By financial impact %" pill={<V1Pill label="Illustrative risk-contributor breakdown" compact />} />
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={riskContributors} layout="vertical" margin={{ top: 0, right: 40, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" horizontal={false} />
@@ -425,7 +431,7 @@ export default function CgDashboard({ navigate }: Props) {
 
         {/* Risk table */}
         <Panel className="lg:col-span-3">
-          <SectionHeader title="Top Risk Register" sub="Ranked by risk score" action="Full Register" onAction={() => navigate("risk")} />
+          <SectionHeader title="Top Risk Register" sub="Ranked by risk score" action="Full Register" onAction={() => navigate("risk")} pill={<V1Pill label="Curated top-risk register" compact />} />
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
@@ -456,7 +462,13 @@ export default function CgDashboard({ navigate }: Props) {
 
       {/* ── Row 4: AI Recommendations (preview) ── */}
       <Panel>
-        <SectionHeader title="AI Recommendations" sub="Priority-ranked, cost-optimised remediation actions" action={`View All ${INITIAL_RECS.length}`} onAction={() => navigate("ai")} />
+        <SectionHeader
+          title="AI Recommendations"
+          sub="Priority-ranked, cost-optimised remediation actions"
+          action={`View All ${INITIAL_RECS.length}`}
+          onAction={() => navigate("ai")}
+          pill={<V1Pill label="Live preview from shared recommendations data" compact />}
+        />
         <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-3">
           {topRecs.map(r => (
             <div key={r.id} className="rounded-lg border p-3 hover:border-opacity-70 transition cursor-pointer" style={{ background: "#1a2f3c", borderColor: "var(--border)" }}>
@@ -492,6 +504,7 @@ export default function CgDashboard({ navigate }: Props) {
             sub="Expected Annual Loss (₹Cr) as a function of cybersecurity spend (₹L)"
             action="Simulator"
             onAction={() => navigate("whatif")}
+            pill={<V1Pill label="Illustrative investment curve" compact />}
           />
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={investmentChart} margin={{ top: 4, right: 16, left: -16, bottom: 0 }}>
@@ -516,7 +529,13 @@ export default function CgDashboard({ navigate }: Props) {
 
         {/* Compliance */}
         <Panel>
-          <SectionHeader title="Compliance Coverage" sub="Framework alignment score" action="Full Report" onAction={() => navigate("reports")} />
+          <SectionHeader
+            title="Compliance Coverage"
+            sub="Framework alignment score"
+            action="Full Report"
+            onAction={() => navigate("reports")}
+            pill={<V1Pill label="Live from Compliance frameworks" compact />}
+          />
           <div className="space-y-3">
             {frameworks.map(c => (
               <div key={c.name}>

@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import type { CgPage } from "../../App";
 import { simulateLossExceedance, type LossExceedanceResult } from "@/lib/monteCarlo";
 import V2Pill from "@/components/V2Pill";
+import V1Pill from "@/components/V1Pill";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -107,7 +108,10 @@ export default function CgWhatIf({ navigate }: Props) {
       <div className="grid lg:grid-cols-3 gap-5">
         {/* Scenario selector */}
         <div className="space-y-2">
-          <p className="text-xs font-semibold mb-3" style={{ color: "var(--muted)" }}>SELECT SCENARIO</p>
+          <div className="flex items-center gap-1.5 mb-3">
+            <p className="text-xs font-semibold" style={{ color: "var(--muted)" }}>SELECT SCENARIO</p>
+            <V1Pill label="4 pre-built control scenarios" compact />
+          </div>
           {SCENARIOS.map(sc => (
             <button
               key={sc.id}
@@ -187,7 +191,10 @@ export default function CgWhatIf({ navigate }: Props) {
             <div className="rounded-xl border p-4" style={{ background: "#1a2f3c", borderColor: "var(--accent)", boxShadow: "0 0 0 1px rgba(156,223,240,0.15)" }}>
               <div className="flex items-center gap-3 flex-wrap">
                 <div className="flex-1">
-                  <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "var(--muted)" }}>Return on Security Investment (ROSI)</p>
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--muted)" }}>Return on Security Investment (ROSI)</p>
+                    <V1Pill label="Live from selected scenario's cost/EAL delta" compact />
+                  </div>
                   <div className="flex items-baseline gap-3">
                     <span className="text-3xl font-extrabold" style={{ fontFamily: "'Outfit',sans-serif", color: "var(--accent)" }}>{selected.roiPct}%</span>
                     <span className="text-sm" style={{ color: "var(--muted)" }}>
@@ -259,7 +266,10 @@ export default function CgWhatIf({ navigate }: Props) {
           {/* Comparison bar chart */}
           {ran && (
             <div className="rounded-xl border p-4" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
-              <p className="text-xs font-semibold mb-3" style={{ color: "var(--muted)" }}>BEFORE vs. AFTER COMPARISON</p>
+              <div className="flex items-center gap-1.5 mb-3">
+                <p className="text-xs font-semibold" style={{ color: "var(--muted)" }}>BEFORE vs. AFTER COMPARISON</p>
+                <V1Pill label="Current vs. predicted risk score & EAL" compact />
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs mb-2" style={{ color: "var(--muted)" }}>Risk Score</p>

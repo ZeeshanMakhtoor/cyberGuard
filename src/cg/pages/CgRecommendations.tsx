@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { CgPage } from "../../App";
 import { exportRoadmapExcel } from "@/lib/exportExcel";
 import { INITIAL_RECS, type Recommendation } from "@/lib/recommendationsData";
+import V1Pill from "@/components/V1Pill";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -73,6 +74,10 @@ export default function CgRecommendations({ navigate }: Props) {
       </div>
 
       {/* Summary */}
+      <div className="flex items-center gap-2">
+        <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--muted)" }}>Recommendation Summary</p>
+        <V1Pill label="Live counts from shared recommendations data" compact />
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           { label: "Total Recommendations", value: String(recs.length), color: "var(--accent)" },
@@ -105,6 +110,10 @@ export default function CgRecommendations({ navigate }: Props) {
       </div>
 
       {/* Cards */}
+      <div className="flex items-center gap-2">
+        <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--muted)" }}>Remediation Actions</p>
+        <V1Pill label="Add to Roadmap + Export Roadmap (Excel)" compact />
+      </div>
       <div className="space-y-3">
         {filtered.map(r => (
           <div

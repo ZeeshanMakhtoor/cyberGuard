@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ZAxis } from "recharts";
 import type { CgPage } from "../../App";
+import V1Pill from "@/components/V1Pill";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -40,7 +41,10 @@ export default function CgInvestment({ navigate }: Props) {
 
       {/* Budget input */}
       <div className="rounded-xl border p-4 flex items-center gap-4 flex-wrap" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
-        <label className="text-xs font-semibold" style={{ color: "var(--muted)" }}>Available Budget (₹ Lakh)</label>
+        <label className="text-xs font-semibold flex items-center gap-1.5" style={{ color: "var(--muted)" }}>
+          Available Budget (₹ Lakh)
+          <V1Pill label="Greedy knapsack: highest reduction-per-rupee funded first" compact />
+        </label>
         <input
           type="number"
           value={budgetL}
@@ -111,7 +115,10 @@ export default function CgInvestment({ navigate }: Props) {
 
         {/* Chart */}
         <div className="rounded-xl border p-4" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
-          <p className="text-xs font-semibold mb-3" style={{ color: "var(--muted)" }}>INVESTMENT VS RISK REDUCTION</p>
+          <div className="flex items-center gap-1.5 mb-3">
+            <p className="text-xs font-semibold" style={{ color: "var(--muted)" }}>INVESTMENT VS RISK REDUCTION</p>
+            <V1Pill label="Illustrative cost-vs-reduction scatter" compact />
+          </div>
           <ResponsiveContainer width="100%" height={240}>
             <ScatterChart margin={{ top: 10, right: 10, bottom: 10, left: 0 }}>
               <CartesianGrid stroke="rgba(255,255,255,0.06)" />

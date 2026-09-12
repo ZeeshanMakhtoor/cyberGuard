@@ -11,6 +11,7 @@ import { benchmarkRiskScore } from "@/lib/benchmark";
 import { computeLossRange, formatCr } from "@/lib/lossRange";
 import { computeRiskScore, riskLevelLabel } from "@/lib/riskScore";
 import V2Pill from "@/components/V2Pill";
+import V1Pill from "@/components/V1Pill";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -124,7 +125,10 @@ export default function CgRiskAnalysis({ navigate }: Props) {
       <div className="grid lg:grid-cols-4 gap-4">
         {/* Gauge */}
         <div className="rounded-xl border p-4 flex flex-col items-center" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
-          <p className="text-xs font-semibold mb-2" style={{ color: "var(--muted)" }}>OVERALL RISK SCORE</p>
+          <div className="flex items-center gap-1.5 mb-2">
+            <p className="text-xs font-semibold" style={{ color: "var(--muted)" }}>OVERALL RISK SCORE</p>
+            <V1Pill label="Live risk gauge" compact />
+          </div>
           <ScoreGauge score={riskBreakdown.score} />
           <div className="mt-1 text-center">
             <span className="text-xs font-semibold px-2 py-0.5 rounded" style={{ background: `${riskLevel.color}26`, color: riskLevel.color }}>{riskLevel.label}</span>
@@ -159,7 +163,10 @@ export default function CgRiskAnalysis({ navigate }: Props) {
 
         {/* EAL chart */}
         <div className="lg:col-span-3 rounded-xl border p-4" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
-          <p className="text-xs font-semibold mb-3" style={{ color: "var(--muted)" }}>EAL TREND — ACTUAL vs. IF PATCHED (₹ Crore)</p>
+          <div className="flex items-center gap-1.5 mb-3">
+            <p className="text-xs font-semibold" style={{ color: "var(--muted)" }}>EAL TREND — ACTUAL vs. IF PATCHED (₹ Crore)</p>
+            <V1Pill label="Illustrative patched-vs-actual EAL comparison" compact />
+          </div>
           <ResponsiveContainer width="100%" height={180}>
             <AreaChart data={monthlyEAL} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
               <defs>
@@ -190,7 +197,10 @@ export default function CgRiskAnalysis({ navigate }: Props) {
       <div className="grid lg:grid-cols-2 gap-5">
         {/* Risk matrix */}
         <div className="rounded-xl border p-4" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
-          <p className="text-xs font-semibold mb-3" style={{ color: "var(--muted)" }}>RISK MATRIX — IMPACT vs. LIKELIHOOD</p>
+          <div className="flex items-center gap-1.5 mb-3">
+            <p className="text-xs font-semibold" style={{ color: "var(--muted)" }}>RISK MATRIX — IMPACT vs. LIKELIHOOD</p>
+            <V1Pill label="Illustrative impact/likelihood scatter" compact />
+          </div>
           <ResponsiveContainer width="100%" height={220}>
             <ScatterChart margin={{ top: 8, right: 16, left: -16, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
@@ -222,7 +232,10 @@ export default function CgRiskAnalysis({ navigate }: Props) {
         {/* Radar */}
         <div className="rounded-xl border p-4" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-semibold" style={{ color: "var(--muted)" }}>SECURITY POSTURE RADAR</p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-xs font-semibold" style={{ color: "var(--muted)" }}>SECURITY POSTURE RADAR</p>
+              <V1Pill label="Illustrative current-vs-target posture radar" compact />
+            </div>
             <div className="flex gap-3 text-xs">
               <span className="flex items-center gap-1"><span className="w-3 h-0.5 inline-block" style={{ background: "#9CDFF0" }} /> Current</span>
               <span className="flex items-center gap-1"><span className="w-3 h-0.5 inline-block" style={{ background: "#34D399" }} /> Target</span>
@@ -242,7 +255,10 @@ export default function CgRiskAnalysis({ navigate }: Props) {
 
       {/* Domain table */}
       <div className="rounded-xl border p-4" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
-        <p className="text-xs font-semibold mb-4" style={{ color: "var(--muted)" }}>RISK BY SECURITY DOMAIN</p>
+        <div className="flex items-center gap-1.5 mb-4">
+          <p className="text-xs font-semibold" style={{ color: "var(--muted)" }}>RISK BY SECURITY DOMAIN</p>
+          <V1Pill label="Illustrative security-domain risk breakdown" compact />
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>

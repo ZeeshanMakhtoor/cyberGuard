@@ -3,6 +3,7 @@ import type { CgPage } from "../../App";
 import { useAssets } from "@/hooks/useAssets";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import V1Pill from "@/components/V1Pill";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -84,6 +85,10 @@ export default function CgAssets({ navigate }: Props) {
       </div>
 
       {/* Summary */}
+      <div className="flex items-center gap-2">
+        <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--muted)" }}>Asset Summary</p>
+        <V1Pill label="Live counts from Asset Inventory" compact />
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           { label: "Total Assets",    value: String(ASSETS.length), color: "var(--accent)" },
@@ -124,6 +129,10 @@ export default function CgAssets({ navigate }: Props) {
       </div>
 
       {/* Table */}
+      <div className="flex items-center gap-2">
+        <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--muted)" }}>Asset Table</p>
+        <V1Pill label="Full inventory with per-asset View + Add Asset" compact />
+      </div>
       <div className="rounded-xl border overflow-hidden" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
