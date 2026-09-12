@@ -8,8 +8,15 @@ import CgAssets from "./cg/pages/CgAssets";
 import CgVulnerabilities from "./cg/pages/CgVulnerabilities";
 import CgReports from "./cg/pages/CgReports";
 import CgThreatIntel from "./cg/pages/CgThreatIntel";
+import CgControls from "./cg/pages/CgControls";
+import CgInvestment from "./cg/pages/CgInvestment";
+import CgCompliance from "./cg/pages/CgCompliance";
+import CgSettings from "./cg/pages/CgSettings";
 
-export type CgPage = "dashboard" | "assets" | "vulnerabilities" | "risk" | "threats" | "controls" | "ai" | "whatif" | "reports" | "settings";
+export type CgPage =
+  | "dashboard" | "assets" | "vulnerabilities" | "risk" | "threats"
+  | "controls" | "ai" | "whatif" | "investment" | "compliance"
+  | "reports" | "settings";
 
 export default function App() {
   const [page, setPage] = useState<CgPage>("dashboard");
@@ -20,10 +27,14 @@ export default function App() {
       case "risk":            return <CgRiskAnalysis navigate={setPage} />;
       case "ai":              return <CgRecommendations navigate={setPage} />;
       case "whatif":          return <CgWhatIf navigate={setPage} />;
+      case "investment":      return <CgInvestment navigate={setPage} />;
       case "assets":          return <CgAssets navigate={setPage} />;
       case "vulnerabilities": return <CgVulnerabilities navigate={setPage} />;
       case "threats":         return <CgThreatIntel navigate={setPage} />;
+      case "controls":        return <CgControls navigate={setPage} />;
+      case "compliance":      return <CgCompliance navigate={setPage} />;
       case "reports":         return <CgReports navigate={setPage} />;
+      case "settings":        return <CgSettings navigate={setPage} />;
       default:                return <CgDashboard navigate={setPage} />;
     }
   };
