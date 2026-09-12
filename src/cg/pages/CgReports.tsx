@@ -1,24 +1,52 @@
 import { useState } from "react";
 import type { CgPage } from "../../App";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { exportGeneratedReportExcel } from "@/lib/exportExcel";
 
 interface Props { navigate: (p: CgPage) => void; }
 
-const reports = [
+const REPORT_TYPES = ["Executive", "Technical", "Compliance", "Risk", "Intel"] as const;
+
+interface ReportRow { name: string; date: string; type: string; status: "Ready" | "Generating"; size: string }
+
+const INITIAL_REPORTS: ReportRow[] = [
   { name: "Monthly Risk Executive Summary",  date: "01 Sep 2026", type: "Executive", status: "Ready",     size: "2.4 MB" },
   { name: "Vulnerability Assessment Report", date: "28 Aug 2026", type: "Technical", status: "Ready",     size: "8.1 MB" },
   { name: "RBI CSF Compliance Report Q2",    date: "15 Aug 2026", type: "Compliance",status: "Ready",     size: "3.7 MB" },
   { name: "FAIR Risk Quantification Report", date: "10 Aug 2026", type: "Risk",       status: "Ready",     size: "5.2 MB" },
   { name: "SEBI Cyber Resilience Report",    date: "05 Aug 2026", type: "Compliance",status: "Ready",     size: "2.9 MB" },
   { name: "Threat Intelligence Digest",      date: "01 Aug 2026", type: "Intel",      status: "Ready",     size: "1.8 MB" },
-  { name: "Quarterly Board Risk Report",     date: "Generating…", type: "Executive", status: "Generating",size: "—" },
 ];
+
+function todayLabel(): string {
+  return new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+}
 
 export default function CgReports({ navigate }: Props) {
   const typeColors: Record<string, string> = {
     Executive: "#9CDFF0", Technical: "#60B8CF", Compliance: "#FBBF24", Risk: "#F87171", Intel: "#34D399",
   };
-  const [previewing, setPreviewing] = useState<(typeof reports)[number] | null>(null);
+  const [reports, setReports] = useState<ReportRow[]>(INITIAL_REPORTS);
+  const [previewing, setPreviewing] = useState<ReportRow | null>(null);
+  const [showGenerateDialog, setShowGenerateDialog] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newType, setNewType] = useState<(typeof REPORT_TYPES)[number]>("Executive");
+
+  function handleGenerate() {
+    const name = newName.trim() || `${newType} Report`;
+    const row: ReportRow = { name, date: todayLabel(), type: newType, status: "Generating", size: "—" };
+    setReports(prev => [row, ...prev]);
+    setShowGenerateDialog(false);
+    setNewName("");
+
+    setTimeout(() => {
+      setReports(prev => prev.map(r =>
+        r === row ? { ...r, status: "Ready", size: `${(0.5 + Math.random() * 7).toFixed(1)} MB` } : r
+      ));
+    }, 2200);
+  }
 
   return (
     <div className="p-5 max-w-screen-xl mx-auto space-y-5">
@@ -27,7 +55,11 @@ export default function CgReports({ navigate }: Props) {
           <h1 className="text-base font-bold" style={{ fontFamily: "'Outfit',sans-serif" }}>Reports</h1>
           <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>Auto-generated, board-ready security and compliance reports</p>
         </div>
-        <button className="text-xs px-3 py-1.5 rounded-lg font-semibold" style={{ background: "var(--accent)", color: "var(--bg)" }}>
+        <button
+          className="text-xs px-3 py-1.5 rounded-lg font-semibold"
+          style={{ background: "var(--accent)", color: "var(--bg)" }}
+          onClick={() => setShowGenerateDialog(true)}
+        >
           + Generate Report
         </button>
       </div>
@@ -64,7 +96,14 @@ export default function CgReports({ navigate }: Props) {
                   <td className="px-4 py-3">
                     <div className="flex gap-3">
                       <button className="text-xs font-semibold" style={{ color: "var(--accent)" }} onClick={() => setPreviewing(r)}>View Report</button>
-                      <button className="text-xs font-semibold" style={{ color: "var(--muted)" }}>Download</button>
+                      <button
+                        className="text-xs font-semibold disabled:opacity-40"
+                        style={{ color: "var(--muted)" }}
+                        disabled={r.status !== "Ready"}
+                        onClick={() => exportGeneratedReportExcel({ name: r.name, type: r.type, date: r.date })}
+                      >
+                        Download
+                      </button>
                       <button className="text-xs font-semibold" style={{ color: "var(--muted)" }}>Share</button>
                     </div>
                   </td>
@@ -107,6 +146,41 @@ export default function CgReports({ navigate }: Props) {
               </div>
             </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showGenerateDialog} onOpenChange={setShowGenerateDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Generate Report</DialogTitle>
+            <DialogDescription>Creates a new report from the current risk data.</DialogDescription>
+          </DialogHeader>
+          <div className="mt-4 space-y-3">
+            <div>
+              <label className="text-xs font-medium block mb-1" style={{ color: "var(--muted)" }}>Report name</label>
+              <Input
+                placeholder={`${newType} Report`}
+                value={newName}
+                onChange={e => setNewName(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium block mb-1" style={{ color: "var(--muted)" }}>Type</label>
+              <Select value={newType} onValueChange={v => setNewType(v as typeof newType)}>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {REPORT_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <button
+              className="w-full py-2 rounded-lg text-xs font-semibold mt-2"
+              style={{ background: "var(--accent)", color: "var(--bg)" }}
+              onClick={handleGenerate}
+            >
+              Generate
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
