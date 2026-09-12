@@ -1,8 +1,10 @@
 import { useReveal } from "../lib/useReveal";
+import himanshuPhoto from "../assets/himanshu.jpg";
+import zeeshanPhoto from "../assets/zeeshan.jpg";
 
 const TEAM = [
-  { name: "Himanshu Singh", role: "Team Leader", initials: "HS", color: "var(--lp-accent)", bg: "var(--lp-accent-soft)" },
-  { name: "Zeeshan Makhtoor", role: "Builder", initials: "ZM", color: "var(--lp-ok)", bg: "var(--lp-ok-soft)" },
+  { name: "Himanshu Singh", role: "Team Leader", photo: himanshuPhoto, accent: "var(--lp-accent)" },
+  { name: "Zeeshan Makhtoor", role: "Builder", photo: zeeshanPhoto, accent: "var(--lp-ok)" },
 ];
 
 export default function Team() {
@@ -18,7 +20,7 @@ export default function Team() {
           </p>
         </div>
 
-        <div className="mt-12 flex flex-wrap justify-center gap-6">
+        <div className="mt-12 flex flex-wrap justify-center gap-8">
           {TEAM.map((m, i) => (
             <TeamCard key={m.name} {...m} delay={i * 100} />
           ))}
@@ -28,22 +30,22 @@ export default function Team() {
   );
 }
 
-function TeamCard({ name, role, initials, color, bg, delay }: { name: string; role: string; initials: string; color: string; bg: string; delay: number }) {
+function TeamCard({ name, role, photo, accent, delay }: { name: string; role: string; photo: string; accent: string; delay: number }) {
   const { ref, visible } = useReveal<HTMLDivElement>();
   return (
     <div
       ref={ref}
-      className={`lp-card p-7 w-full sm:w-72 text-center lp-fade-up ${visible ? "lp-visible" : ""}`}
+      className={`lp-card p-10 w-full sm:w-96 text-center lp-fade-up ${visible ? "lp-visible" : ""}`}
       style={{ transitionDelay: `${delay}ms` }}
     >
       <div
-        className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-lg font-extrabold"
-        style={{ background: bg, color, fontFamily: "'Outfit',sans-serif" }}
+        className="w-48 h-48 rounded-full mx-auto overflow-hidden"
+        style={{ border: `4px solid ${accent}`, boxShadow: "var(--lp-shadow-md)" }}
       >
-        {initials}
+        <img src={photo} alt={name} className="w-full h-full object-cover" />
       </div>
-      <p className="mt-4 text-base font-bold">{name}</p>
-      <p className="text-xs mt-1" style={{ color: "var(--lp-muted)" }}>{role}</p>
+      <p className="mt-6 text-lg font-bold">{name}</p>
+      <p className="text-sm mt-1" style={{ color: "var(--lp-muted)" }}>{role}</p>
     </div>
   );
 }
