@@ -1,16 +1,20 @@
 import type { CgPage } from "../../App";
+import { useThreats } from "@/hooks/useThreats";
 
 interface Props { navigate: (p: CgPage) => void; }
 
-const threats = [
-  { id: "TI-001", name: "BlackMatter Ransomware", type: "Ransomware", severity: "Critical", relevance: "High", sector: "Banking", ioc: "37 IOCs", last: "28 Aug 2026", desc: "Actively targeting BFSI sector in South Asia. Exploits CVE-2024-21413 as initial access." },
-  { id: "TI-002", name: "APT41 (Double Dragon)", type: "APT",         severity: "Critical", relevance: "High", sector: "Finance",  ioc: "124 IOCs",last: "25 Aug 2026", desc: "Chinese state-sponsored group. Recent campaigns against Indian financial institutions via spear-phishing." },
-  { id: "TI-003", name: "Phishing Kit: Bank-Impersonation v3", type: "Phishing", severity: "High", relevance: "High", sector: "Banking", ioc: "8 domains",last: "30 Aug 2026", desc: "Active phishing kit mimicking HDFC/ICICI login pages. Hosted on .xyz domains." },
-  { id: "TI-004", name: "Cobalt Strike Beacon C2",type: "C2 Server", severity: "High", relevance: "Medium", sector: "All", ioc: "3 IPs",last: "27 Aug 2026", desc: "Known C2 infrastructure observed in Indian telco ranges. Linked to financial sector campaigns." },
-  { id: "TI-005", name: "Clop Ransomware",        type: "Ransomware", severity: "High", relevance: "Medium", sector: "BFSI",     ioc: "19 IOCs",  last: "20 Aug 2026", desc: "Exploiting Accellion / MOVEit vulnerabilities. Data exfiltration before encryption." },
-];
-
 export default function CgThreatIntel({ navigate }: Props) {
+  const { data: threats, loading } = useThreats();
+
+  if (loading) {
+    return (
+      <div className="p-5 max-w-screen-xl mx-auto space-y-5">
+        <div className="h-16 rounded-xl animate-pulse" style={{ background: "var(--panel)" }} />
+        <div className="h-64 rounded-xl animate-pulse" style={{ background: "var(--panel)" }} />
+      </div>
+    );
+  }
+
   return (
     <div className="p-5 max-w-screen-xl mx-auto space-y-5">
       <div className="flex items-center justify-between">

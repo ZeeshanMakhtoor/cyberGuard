@@ -5,16 +5,19 @@
 create extension if not exists "pgcrypto";
 
 create table if not exists assets (
-  id                 uuid primary key default gen_random_uuid(),
-  name               text not null,
-  owner              text not null,
-  business_unit      text not null,
-  type               text not null,
-  criticality        text not null check (criticality in ('Critical','High','Medium','Low')),
-  risk_score         int  not null check (risk_score between 0 and 100),
-  protection_status  text not null check (protection_status in ('Protected','Partial','Unprotected')),
-  internet_facing    boolean not null default false,
-  created_at         timestamptz not null default now()
+  id                       uuid primary key default gen_random_uuid(),
+  name                     text not null,
+  owner                    text not null,
+  business_unit            text not null,
+  type                     text not null,
+  ip                       text,
+  environment              text,
+  criticality              text not null check (criticality in ('Critical','High','Medium','Low')),
+  risk_score               int  not null check (risk_score between 0 and 100),
+  financial_exposure_inr   numeric not null default 0,
+  protection_status        text not null check (protection_status in ('Protected','Partial','Unprotected')),
+  internet_facing          boolean not null default false,
+  created_at               timestamptz not null default now()
 );
 
 create table if not exists vulnerabilities (
@@ -22,6 +25,7 @@ create table if not exists vulnerabilities (
   cve                             text not null,
   asset_id                        uuid references assets(id) on delete cascade,
   severity                        text not null check (severity in ('Critical','High','Medium','Low')),
+  cvss                            numeric,
   exploitability                  text not null,
   business_criticality            text not null,
   estimated_financial_impact_inr  numeric not null default 0,
@@ -83,9 +87,11 @@ create table if not exists compliance_frameworks (
   last_assessed    timestamptz not null default now()
 );
 
--- Row Level Security — enable everywhere; add real policies once auth
--- (Supabase Auth) is wired up. For the hackathon demo, a permissive
--- "read for authenticated users" policy is enough; tighten before real use.
+-- Row Level Security — enabled everywhere. Reads are public for now so the
+-- demo works before Part 3 (Supabase Auth) is wired up; PLAN.md Part 3
+-- tightens these to `auth.role() = 'authenticated'` once login exists.
+-- No write policies are defined, so inserts/updates/deletes are already
+-- blocked from the browser (the anon key can only read).
 alter table assets enable row level security;
 alter table vulnerabilities enable row level security;
 alter table risk_snapshots enable row level security;
@@ -94,13 +100,13 @@ alter table recommendations enable row level security;
 alter table threats enable row level security;
 alter table compliance_frameworks enable row level security;
 
-create policy "authenticated read" on assets                for select using (auth.role() = 'authenticated');
-create policy "authenticated read" on vulnerabilities        for select using (auth.role() = 'authenticated');
-create policy "authenticated read" on risk_snapshots         for select using (auth.role() = 'authenticated');
-create policy "authenticated read" on controls               for select using (auth.role() = 'authenticated');
-create policy "authenticated read" on recommendations        for select using (auth.role() = 'authenticated');
-create policy "authenticated read" on threats                for select using (auth.role() = 'authenticated');
-create policy "authenticated read" on compliance_frameworks  for select using (auth.role() = 'authenticated');
+create policy "public read (tighten in Part 3)" on assets                for select using (true);
+create policy "public read (tighten in Part 3)" on vulnerabilities        for select using (true);
+create policy "public read (tighten in Part 3)" on risk_snapshots         for select using (true);
+create policy "public read (tighten in Part 3)" on controls               for select using (true);
+create policy "public read (tighten in Part 3)" on recommendations        for select using (true);
+create policy "public read (tighten in Part 3)" on threats                for select using (true);
+create policy "public read (tighten in Part 3)" on compliance_frameworks  for select using (true);
 
 -- Realtime: expose tables that should push live updates to the dashboard.
 alter publication supabase_realtime add table assets, vulnerabilities, risk_snapshots, recommendations, threats;

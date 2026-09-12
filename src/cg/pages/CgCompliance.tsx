@@ -1,16 +1,19 @@
 import type { CgPage } from "../../App";
+import { useComplianceFrameworks } from "@/hooks/useComplianceFrameworks";
 
 interface Props { navigate: (p: CgPage) => void; }
 
-const frameworks = [
-  { name: "ISO/IEC 27001",  desc: "International information security management standard",           compliance: 84, mapped: 92, missing: 8,  evidence: "Current",     assessed: "12 Aug 2026" },
-  { name: "NIST CSF",       desc: "Identify, Protect, Detect, Respond, Recover functions",              compliance: 78, mapped: 88, missing: 12, evidence: "Current",     assessed: "05 Aug 2026" },
-  { name: "CIS Controls",   desc: "Prioritized technical safeguards benchmark",                          compliance: 81, mapped: 90, missing: 10, evidence: "Current",     assessed: "20 Jul 2026" },
-  { name: "RBI Cyber Security Framework", desc: "Reserve Bank of India regulatory baseline for banks",   compliance: 88, mapped: 95, missing: 5,  evidence: "Current",     assessed: "01 Sep 2026" },
-  { name: "SEBI CSCRF",     desc: "Cybersecurity & Cyber Resilience Framework for markets",               compliance: 73, mapped: 82, missing: 18, evidence: "Refresh due", assessed: "15 Jun 2026" },
-];
-
 export default function CgCompliance({ navigate }: Props) {
+  const { data: frameworks, loading } = useComplianceFrameworks();
+
+  if (loading) {
+    return (
+      <div className="p-5 max-w-screen-xl mx-auto space-y-4">
+        {[0, 1, 2].map(i => <div key={i} className="h-40 rounded-xl animate-pulse" style={{ background: "var(--panel)" }} />)}
+      </div>
+    );
+  }
+
   return (
     <div className="p-5 max-w-screen-xl mx-auto space-y-5">
       <div>

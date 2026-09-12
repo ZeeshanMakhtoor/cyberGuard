@@ -1,16 +1,7 @@
 import type { CgPage } from "../../App";
+import { useControls } from "@/hooks/useControls";
 
 interface Props { navigate: (p: CgPage) => void; }
-
-const controls = [
-  { name: "Multi-Factor Authentication", short: "MFA",           effectiveness: 86, coverage: 91, riskReduction: 22 },
-  { name: "Endpoint Detection & Response", short: "EDR",         effectiveness: 78, coverage: 84, riskReduction: 19 },
-  { name: "Firewall & Perimeter Defence", short: "Firewall",     effectiveness: 82, coverage: 96, riskReduction: 15 },
-  { name: "Network Segmentation", short: "Segmentation",         effectiveness: 61, coverage: 58, riskReduction: 18 },
-  { name: "Backup & Recovery", short: "Backup",                  effectiveness: 90, coverage: 88, riskReduction: 12 },
-  { name: "Data Encryption", short: "Encryption",                effectiveness: 84, coverage: 79, riskReduction: 14 },
-  { name: "Security Monitoring & SIEM", short: "Monitoring",     effectiveness: 71, coverage: 74, riskReduction: 21 },
-];
 
 function Bar({ value, color }: { value: number; color: string }) {
   return (
@@ -21,8 +12,19 @@ function Bar({ value, color }: { value: number; color: string }) {
 }
 
 export default function CgControls({ navigate }: Props) {
+  const { data: controls, loading } = useControls();
   const avgEffectiveness = Math.round(controls.reduce((a, c) => a + c.effectiveness, 0) / controls.length);
   const avgCoverage = Math.round(controls.reduce((a, c) => a + c.coverage, 0) / controls.length);
+  const weakest = [...controls].sort((a, b) => a.effectiveness - b.effectiveness)[0];
+
+  if (loading) {
+    return (
+      <div className="p-5 max-w-screen-xl mx-auto space-y-5">
+        <div className="h-16 rounded-xl animate-pulse" style={{ background: "var(--panel)" }} />
+        <div className="h-64 rounded-xl animate-pulse" style={{ background: "var(--panel)" }} />
+      </div>
+    );
+  }
 
   return (
     <div className="p-5 max-w-screen-xl mx-auto space-y-5">
@@ -41,7 +43,7 @@ export default function CgControls({ navigate }: Props) {
           { label: "Controls Tracked", value: String(controls.length), color: "var(--accent)" },
           { label: "Avg. Effectiveness", value: `${avgEffectiveness}%`, color: "var(--accent2)" },
           { label: "Avg. Coverage", value: `${avgCoverage}%`, color: "var(--mid)" },
-          { label: "Weakest Control", value: "Segmentation", color: "#FBBF24" },
+          { label: "Weakest Control", value: weakest?.short ?? "—", color: "#FBBF24" },
         ].map(s => (
           <div key={s.label} className="rounded-xl border p-4" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
             <p className="text-xs mb-1" style={{ color: "var(--muted)" }}>{s.label}</p>

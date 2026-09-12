@@ -3,16 +3,11 @@ import {
   PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, Legend,
 } from "recharts";
 import type { CgPage } from "../../App";
+import { useEalTrend } from "@/hooks/useRiskSnapshots";
 
 interface Props { navigate: (p: CgPage) => void; }
 
 // ── DATA ──────────────────────────────────────────────────────────────────
-const ealTrend = [
-  { month: "Sep '24", eal: 3.1 }, { month: "Oct '24", eal: 2.9 }, { month: "Nov '24", eal: 3.4 },
-  { month: "Dec '24", eal: 3.0 }, { month: "Jan '25", eal: 2.7 }, { month: "Feb '25", eal: 2.5 },
-  { month: "Mar '25", eal: 2.8 }, { month: "Apr '25", eal: 3.2 }, { month: "May '25", eal: 2.9 },
-  { month: "Jun '25", eal: 2.6 }, { month: "Jul '25", eal: 2.45 }, { month: "Aug '25", eal: 2.45 },
-];
 
 const criticalityData = [
   { name: "Critical", value: 14, color: "#F87171" },
@@ -133,6 +128,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 // ── PAGE ──────────────────────────────────────────────────────────────────
 export default function CgDashboard({ navigate }: Props) {
+  const { data: ealTrend } = useEalTrend();
   return (
     <div className="p-5 space-y-5 max-w-screen-2xl mx-auto">
 
