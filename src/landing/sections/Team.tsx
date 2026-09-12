@@ -1,8 +1,8 @@
 import { useReveal } from "../lib/useReveal";
 
 const TEAM = [
-  { name: "Himanshu Singh", role: "Team Leader", initials: "HS" },
-  { name: "Zeeshan Makhtoor", role: "Builder", initials: "ZM" },
+  { name: "Himanshu Singh", role: "Team Leader", initials: "HS", color: "var(--lp-accent)", bg: "var(--lp-accent-soft)" },
+  { name: "Zeeshan Makhtoor", role: "Builder", initials: "ZM", color: "var(--lp-ok)", bg: "var(--lp-ok-soft)" },
 ];
 
 export default function Team() {
@@ -28,7 +28,7 @@ export default function Team() {
   );
 }
 
-function TeamCard({ name, role, initials, delay }: { name: string; role: string; initials: string; delay: number }) {
+function TeamCard({ name, role, initials, color, bg, delay }: { name: string; role: string; initials: string; color: string; bg: string; delay: number }) {
   const { ref, visible } = useReveal<HTMLDivElement>();
   return (
     <div
@@ -38,7 +38,7 @@ function TeamCard({ name, role, initials, delay }: { name: string; role: string;
     >
       <div
         className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-lg font-extrabold"
-        style={{ background: "var(--lp-panel2)", color: "var(--lp-accent)", fontFamily: "'Outfit',sans-serif" }}
+        style={{ background: bg, color, fontFamily: "'Outfit',sans-serif" }}
       >
         {initials}
       </div>

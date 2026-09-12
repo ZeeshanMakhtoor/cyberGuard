@@ -1,9 +1,10 @@
+import { Target, Compass } from "lucide-react";
 import { useReveal } from "../lib/useReveal";
 
 export default function About() {
   const { ref, visible } = useReveal<HTMLDivElement>();
   return (
-    <section id="about" className="lp-section">
+    <section id="about" className="lp-section" style={{ background: "var(--lp-panel2)" }}>
       <div className="lp-container grid lg:grid-cols-2 gap-14 items-center">
         <div ref={ref} className={`lp-fade-up ${visible ? "lp-visible" : ""}`}>
           <span className="lp-eyebrow">Who We Are</span>
@@ -25,10 +26,14 @@ export default function About() {
 
         <div className="grid sm:grid-cols-2 gap-5">
           <MissionCard
+            icon={Target}
+            color="var(--lp-accent)"
             title="Our Mission"
             desc="Make quantitative, financially-grounded cyber risk accessible to every organization — not just the ones that can afford a dedicated FAIR analyst."
           />
           <MissionCard
+            icon={Compass}
+            color="var(--lp-ok)"
             title="Our Approach"
             desc="Live data, transparent formulas, and an AI assistant that shows its work — every number on screen traces back to a scanner, a feed, or an assessment you can inspect."
           />
@@ -38,11 +43,12 @@ export default function About() {
   );
 }
 
-function MissionCard({ title, desc }: { title: string; desc: string }) {
+function MissionCard({ icon: IconCmp, color, title, desc }: { icon: typeof Target; color: string; title: string; desc: string }) {
   const { ref, visible } = useReveal<HTMLDivElement>();
   return (
     <div ref={ref} className={`lp-card p-6 lp-fade-up ${visible ? "lp-visible" : ""}`}>
-      <h3 className="text-sm font-bold uppercase tracking-wide" style={{ color: "var(--lp-accent)" }}>{title}</h3>
+      <IconCmp className="w-5 h-5" style={{ color }} strokeWidth={2} />
+      <h3 className="mt-3 text-sm font-bold uppercase tracking-wide" style={{ color: "var(--lp-text)" }}>{title}</h3>
       <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--lp-muted)" }}>{desc}</p>
     </div>
   );
