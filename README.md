@@ -9,6 +9,9 @@ the annual Low/Medium/High risk register.
 Built for a 15-hour hackathon. See [`PLAN.md`](./PLAN.md) for the phased
 build plan and the exact prompts used to build each part.
 
+**Live:** https://cyberguard-ai-triphile.vercel.app (deployed from `main` via
+Vercel's git integration — every push auto-deploys)
+
 ## What it does
 
 - **Quantifies risk in rupees, not ratings** — Expected Annual Loss (EAL) and
