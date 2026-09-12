@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Menu, X, ShieldCheck } from "lucide-react";
 
+const DASHBOARD_URL = "https://cyberguard-ai-triphile.vercel.app";
+
 const LINKS = [
   { href: "#problem", label: "Problem" },
   { href: "#about", label: "About" },
@@ -34,7 +36,9 @@ export default function Nav() {
         </nav>
 
         <div className="hidden md:block">
-          <a href="#waitlist" className="lp-btn-primary" style={{ borderRadius: 999 }}>Start for Free</a>
+          <a href={DASHBOARD_URL} target="_blank" rel="noopener noreferrer" className="lp-btn-primary" style={{ borderRadius: 999 }}>
+            Start for Free
+          </a>
         </div>
 
         <button
@@ -57,7 +61,14 @@ export default function Nav() {
               {l.label}
             </a>
           ))}
-          <a href="#waitlist" onClick={() => setMobileOpen(false)} className="lp-btn-primary w-full" style={{ borderRadius: 999 }}>
+          <a
+            href={DASHBOARD_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setMobileOpen(false)}
+            className="lp-btn-primary w-full"
+            style={{ borderRadius: 999 }}
+          >
             Start for Free
           </a>
         </div>
