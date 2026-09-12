@@ -1,6 +1,9 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useMemo, useRef, useState } from "react";
 import type { CgPage } from "../App";
 import { supabase } from "@/lib/supabaseClient";
+import { useAssets } from "@/hooks/useAssets";
+import { useVulnerabilities } from "@/hooks/useVulnerabilities";
+import { useThreats } from "@/hooks/useThreats";
 import AIAssistant from "./AIAssistant";
 import NotificationsPanel from "./NotificationsPanel";
 
@@ -26,11 +29,49 @@ interface Props {
   userEmail?: string;
 }
 
+interface SearchResult { id: string; label: string; sub: string; page: CgPage }
+
 export default function CyberLayout({ page, navigate, children, userEmail }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const initials = userEmail ? userEmail.slice(0, 2).toUpperCase() : "RP";
   const displayName = userEmail ?? "Rahul Pandey";
   const displaySub = userEmail ? "CyberGuard AI" : "CISO · HDFC Bank";
+
+  const { data: assets } = useAssets();
+  const { data: vulnerabilities } = useVulnerabilities();
+  const { data: threats } = useThreats();
+
+  const [query, setQuery] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
+  const searchBoxRef = useRef<HTMLDivElement>(null);
+
+  const results = useMemo<SearchResult[]>(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    const matches: SearchResult[] = [];
+    for (const a of assets) {
+      if (a.name.toLowerCase().includes(q) || a.ip.toLowerCase().includes(q)) {
+        matches.push({ id: `asset-${a.id}`, label: a.name, sub: `Asset · ${a.type} · ${a.criticality}`, page: "assets" });
+      }
+    }
+    for (const v of vulnerabilities) {
+      if (v.id.toLowerCase().includes(q) || v.asset.toLowerCase().includes(q)) {
+        matches.push({ id: `vuln-${v.id}`, label: v.id, sub: `Vulnerability · ${v.asset} · ${v.severity}`, page: "vulnerabilities" });
+      }
+    }
+    for (const t of threats) {
+      if (t.name.toLowerCase().includes(q) || t.type.toLowerCase().includes(q)) {
+        matches.push({ id: `threat-${t.dbId}`, label: t.name, sub: `Threat Intel · ${t.type} · ${t.severity}`, page: "threats" });
+      }
+    }
+    return matches.slice(0, 8);
+  }, [query, assets, vulnerabilities, threats]);
+
+  function goToResult(r: SearchResult) {
+    navigate(r.page);
+    setQuery("");
+    setSearchFocused(false);
+  }
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "var(--bg)", color: "var(--text)" }}>
@@ -128,14 +169,43 @@ export default function CyberLayout({ page, navigate, children, userEmail }: Pro
           </button>
 
           {/* Search */}
-          <div className="flex-1 max-w-sm relative">
+          <div className="flex-1 max-w-sm relative" ref={searchBoxRef}>
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "var(--muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             <input
               type="text"
               placeholder="Search assets, risks, CVEs..."
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
+              onKeyDown={e => {
+                if (e.key === "Escape") { setQuery(""); setSearchFocused(false); }
+                if (e.key === "Enter" && results.length > 0) goToResult(results[0]);
+              }}
               className="w-full pl-9 pr-3 py-2 rounded-lg text-xs focus:outline-none"
               style={{ background: "var(--panel)", color: "var(--text)", border: "1px solid var(--border)" }}
             />
+            {searchFocused && query.trim() && (
+              <div
+                className="absolute top-full left-0 right-0 mt-1.5 rounded-lg border shadow-xl z-50 overflow-hidden"
+                style={{ background: "#0d1b26", borderColor: "var(--border)" }}
+              >
+                {results.length === 0 ? (
+                  <p className="px-3 py-3 text-xs" style={{ color: "var(--muted)" }}>No matches for "{query}"</p>
+                ) : (
+                  results.map(r => (
+                    <button
+                      key={r.id}
+                      className="w-full text-left px-3 py-2 hover:bg-white/5 transition"
+                      onMouseDown={() => goToResult(r)}
+                    >
+                      <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>{r.label}</p>
+                      <p className="text-xs" style={{ color: "var(--muted)" }}>{r.sub}</p>
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
           </div>
 
           <div className="ml-auto flex items-center gap-2">
