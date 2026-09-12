@@ -11,6 +11,7 @@ import { useComplianceFrameworks } from "@/hooks/useComplianceFrameworks";
 import { INITIAL_RECS } from "@/lib/recommendationsData";
 import { exportDashboardExcel } from "@/lib/exportExcel";
 import { benchmarkRiskScore } from "@/lib/benchmark";
+import { computeLossRange, formatCr } from "@/lib/lossRange";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -124,6 +125,33 @@ function PriorityBadge({ p }: { p: string }) {
   );
 }
 
+function LossRangeBar({ label, range }: { label: string; range: { min: number; likely: number; max: number } }) {
+  const scaleMax = range.max * 1.15;
+  const pct = (v: number) => `${Math.min(100, (v / scaleMax) * 100)}%`;
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs" style={{ color: "var(--muted)" }}>{label}</span>
+        <span className="text-xs font-mono font-bold" style={{ color: "var(--text)" }}>
+          {formatCr(range.min)} – <span style={{ color: "var(--accent)" }}>{formatCr(range.likely)}</span> – {formatCr(range.max)}
+        </span>
+      </div>
+      <div className="relative h-2 rounded-full" style={{ background: "rgba(255,255,255,0.07)" }}>
+        <div
+          className="absolute top-0 h-full rounded-full"
+          style={{ left: pct(range.min), width: `calc(${pct(range.max)} - ${pct(range.min)})`, background: "rgba(156,223,240,0.25)" }}
+        />
+        <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2" style={{ left: `calc(${pct(range.likely)} - 6px)`, background: "var(--accent)", borderColor: "var(--bg)" }} />
+      </div>
+      <div className="flex justify-between mt-1">
+        <span className="text-xs" style={{ color: "var(--muted)" }}>Min</span>
+        <span className="text-xs" style={{ color: "var(--muted)" }}>Most Likely</span>
+        <span className="text-xs" style={{ color: "var(--muted)" }}>Max</span>
+      </div>
+    </div>
+  );
+}
+
 const EAL_TICK = (v: number) => `₹${v}Cr`;
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -162,6 +190,8 @@ export default function CgDashboard({ navigate }: Props) {
 
   const OVERALL_RISK_SCORE = 72;
   const benchmark = benchmarkRiskScore(OVERALL_RISK_SCORE, "Banking / BFSI");
+  const ealRange = computeLossRange(2.45);
+  const exposureRange = computeLossRange(8.3);
 
   return (
     <div className="p-5 space-y-5 max-w-screen-2xl mx-auto">
@@ -252,6 +282,15 @@ export default function CgDashboard({ navigate }: Props) {
             style={{ left: `calc(${benchmark.score}% - 6px)`, background: "#F87171", borderColor: "var(--bg)" }}
             title="Your score"
           />
+        </div>
+      </Panel>
+
+      {/* ── FAIR Confidence Range ── */}
+      <Panel>
+        <SectionHeader title="FAIR Loss Confidence Range" sub="Min / Most-Likely / Max estimate — real FAIR analysis never states a single number" />
+        <div className="grid sm:grid-cols-2 gap-5">
+          <LossRangeBar label="Expected Annual Loss" range={ealRange} />
+          <LossRangeBar label="Financial Risk Exposure" range={exposureRange} />
         </div>
       </Panel>
 

@@ -6,6 +6,7 @@ import {
 import type { CgPage } from "../../App";
 import { useVulnerabilities } from "@/hooks/useVulnerabilities";
 import { benchmarkRiskScore } from "@/lib/benchmark";
+import { computeLossRange, formatCr } from "@/lib/lossRange";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -93,6 +94,8 @@ export default function CgRiskAnalysis({ navigate }: Props) {
   const { data: vulnerabilities } = useVulnerabilities();
   const openRisks = vulnerabilities.filter(v => v.status === "Open").length;
   const benchmark = benchmarkRiskScore(72, "Banking / BFSI");
+  const ealRange = computeLossRange(2.45);
+  const exposureRange = computeLossRange(8.3);
 
   return (
     <div className="p-5 max-w-screen-xl mx-auto space-y-5">
@@ -117,12 +120,20 @@ export default function CgRiskAnalysis({ navigate }: Props) {
             <span className="text-xs font-semibold px-2 py-0.5 rounded" style={{ background: "rgba(248,113,113,0.15)", color: "#F87171" }}>HIGH RISK</span>
           </div>
           <div className="mt-3 space-y-1 w-full">
-            {[["EAL", "₹2.45 Cr"], ["Max Exposure", "₹8.3 Cr"], ["MTTR", "14.2 days"], ["Open Risks", String(openRisks)]].map(([k, v]) => (
+            {[["MTTR", "14.2 days"], ["Open Risks", String(openRisks)]].map(([k, v]) => (
               <div key={k} className="flex justify-between text-xs">
                 <span style={{ color: "var(--muted)" }}>{k}</span>
                 <span className="font-semibold font-mono" style={{ color: "var(--text)" }}>{v}</span>
               </div>
             ))}
+            <div className="flex justify-between text-xs" title={`Range: ${formatCr(ealRange.min)} – ${formatCr(ealRange.max)}`}>
+              <span style={{ color: "var(--muted)" }}>EAL</span>
+              <span className="font-semibold font-mono" style={{ color: "var(--text)" }}>{formatCr(ealRange.likely)}</span>
+            </div>
+            <div className="flex justify-between text-xs" title={`Range: ${formatCr(exposureRange.min)} – ${formatCr(exposureRange.max)}`}>
+              <span style={{ color: "var(--muted)" }}>Max Exposure</span>
+              <span className="font-semibold font-mono" style={{ color: "var(--text)" }}>{formatCr(exposureRange.likely)}</span>
+            </div>
           </div>
           <div className="mt-3 pt-3 border-t w-full" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
             <p className="text-xs mb-1" style={{ color: "var(--muted)" }}>vs. {benchmark.sector} peer median</p>
