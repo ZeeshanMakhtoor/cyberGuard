@@ -18,16 +18,43 @@ const SECTIONS = [
   { id: "frameworks",   label: "Framework Settings" },
 ] as const;
 
-function Field({ label, value }: { label: string; value: string }) {
+function Field({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
     <div>
       <label className="text-xs font-semibold block mb-1" style={{ color: "var(--muted)" }}>{label}</label>
       <input
-        defaultValue={value}
+        value={value}
+        onChange={e => onChange(e.target.value)}
         className="w-full px-3 py-2 rounded-lg text-xs focus:outline-none"
         style={{ background: "#1a2f3c", border: "1px solid var(--border)", color: "var(--text)" }}
       />
     </div>
+  );
+}
+
+function loadSettings<T>(key: string, fallback: T): T {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? { ...fallback, ...JSON.parse(raw) } : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function SaveButton({ onSave }: { onSave: () => void }) {
+  const [saved, setSaved] = useState(false);
+  return (
+    <button
+      className="text-xs px-4 py-2 rounded-lg font-semibold mt-2"
+      style={saved ? { background: "rgba(52,211,153,0.15)", color: "#34D399" } : { background: "var(--accent)", color: "var(--bg)" }}
+      onClick={() => {
+        onSave();
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      }}
+    >
+      {saved ? "Saved ✓" : "Save Changes"}
+    </button>
   );
 }
 
@@ -61,8 +88,33 @@ const INITIAL_INTEGRATIONS: IntegrationRow[] = [
   { name: "Wiz CSPM",       type: "CSPM",                status: "Not Connected" },
 ];
 
+const DEFAULT_ORG_FIELDS = {
+  name: "HDFC Bank Ltd.",
+  industry: "Banking & Financial Services",
+  jurisdiction: "India (RBI, SEBI)",
+  fiscalYear: "Apr – Mar",
+};
+
+const DEFAULT_RISK_FIELDS = {
+  currency: "INR (₹)",
+  refreshInterval: "Continuous (real-time)",
+  varConfidence: "95%",
+  criticalityWeighting: "Business-impact weighted",
+};
+
 export default function CgSettings({ navigate }: Props) {
   const [active, setActive] = useState<(typeof SECTIONS)[number]["id"]>("org");
+
+  const [orgFields, setOrgFields] = useState(() => loadSettings("cg_org_settings", DEFAULT_ORG_FIELDS));
+  const [riskFields, setRiskFields] = useState(() => loadSettings("cg_risk_settings", DEFAULT_RISK_FIELDS));
+
+  function saveOrgFields() {
+    localStorage.setItem("cg_org_settings", JSON.stringify(orgFields));
+  }
+
+  function saveRiskFields() {
+    localStorage.setItem("cg_risk_settings", JSON.stringify(riskFields));
+  }
 
   const [users, setUsers] = useState<UserRow[]>(INITIAL_USERS);
   const [showInviteDialog, setShowInviteDialog] = useState(false);
@@ -111,10 +163,11 @@ export default function CgSettings({ navigate }: Props) {
         <div className="flex-1 rounded-xl border p-5" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
           {active === "org" && (
             <div className="space-y-4 max-w-md">
-              <Field label="Organization Name" value="HDFC Bank Ltd." />
-              <Field label="Industry" value="Banking & Financial Services" />
-              <Field label="Regulatory Jurisdiction" value="India (RBI, SEBI)" />
-              <Field label="Fiscal Year" value="Apr – Mar" />
+              <Field label="Organization Name" value={orgFields.name} onChange={v => setOrgFields(f => ({ ...f, name: v }))} />
+              <Field label="Industry" value={orgFields.industry} onChange={v => setOrgFields(f => ({ ...f, industry: v }))} />
+              <Field label="Regulatory Jurisdiction" value={orgFields.jurisdiction} onChange={v => setOrgFields(f => ({ ...f, jurisdiction: v }))} />
+              <Field label="Fiscal Year" value={orgFields.fiscalYear} onChange={v => setOrgFields(f => ({ ...f, fiscalYear: v }))} />
+              <SaveButton onSave={saveOrgFields} />
             </div>
           )}
 
@@ -180,10 +233,11 @@ export default function CgSettings({ navigate }: Props) {
 
           {active === "risk" && (
             <div className="space-y-4 max-w-md">
-              <Field label="Currency" value="INR (₹)" />
-              <Field label="Risk Refresh Interval" value="Continuous (real-time)" />
-              <Field label="Value-at-Risk Confidence Level" value="95%" />
-              <Field label="Asset Criticality Weighting" value="Business-impact weighted" />
+              <Field label="Currency" value={riskFields.currency} onChange={v => setRiskFields(f => ({ ...f, currency: v }))} />
+              <Field label="Risk Refresh Interval" value={riskFields.refreshInterval} onChange={v => setRiskFields(f => ({ ...f, refreshInterval: v }))} />
+              <Field label="Value-at-Risk Confidence Level" value={riskFields.varConfidence} onChange={v => setRiskFields(f => ({ ...f, varConfidence: v }))} />
+              <Field label="Asset Criticality Weighting" value={riskFields.criticalityWeighting} onChange={v => setRiskFields(f => ({ ...f, criticalityWeighting: v }))} />
+              <SaveButton onSave={saveRiskFields} />
             </div>
           )}
 
