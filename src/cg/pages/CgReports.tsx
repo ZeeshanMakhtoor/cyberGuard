@@ -5,6 +5,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { exportGeneratedReportExcel } from "@/lib/exportExcel";
 import V1Pill from "@/components/V1Pill";
+import { useAssets } from "@/hooks/useAssets";
+import { useVulnerabilities } from "@/hooks/useVulnerabilities";
+import { useThreats } from "@/hooks/useThreats";
+import { useComplianceFrameworks } from "@/hooks/useComplianceFrameworks";
+import { computeRiskScore, riskLevelLabel } from "@/lib/riskScore";
+import { computeLossRange } from "@/lib/lossRange";
+import { buildReportSections, type ReportContext } from "@/lib/reportContent";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -37,6 +44,31 @@ export default function CgReports({ navigate }: Props) {
   const [downloadedName, setDownloadedName] = useState<string | null>(null);
   const [sharedName, setSharedName] = useState<string | null>(null);
 
+  const { data: assets } = useAssets();
+  const { data: vulnerabilities } = useVulnerabilities();
+  const { data: threats } = useThreats();
+  const { data: frameworks } = useComplianceFrameworks();
+
+  const criticalVulns = vulnerabilities.filter(v => v.severity === "Critical").length;
+  const criticalAssetRatio = assets.length ? assets.filter(a => a.criticality === "Critical").length / assets.length : 0;
+  const riskBreakdown = computeRiskScore({ activeThreats: threats.length, criticalVulns, criticalAssetRatio });
+  const riskLevel = riskLevelLabel(riskBreakdown.score);
+  const reportContext: ReportContext = {
+    assets,
+    vulnerabilities,
+    threats,
+    frameworks,
+    riskScore: riskBreakdown.score,
+    riskLevel: riskLevel.label,
+    riskBreakdown,
+    ealRange: computeLossRange(2.45),
+    exposureRange: computeLossRange(8.3),
+  };
+
+  function sectionsFor(r: ReportRow) {
+    return buildReportSections(r.type, reportContext);
+  }
+
   async function handleShare(r: ReportRow) {
     const slug = r.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
     const link = `${window.location.origin}/reports/${slug}`;
@@ -50,7 +82,7 @@ export default function CgReports({ navigate }: Props) {
   }
 
   function handleDownload(r: ReportRow) {
-    exportGeneratedReportExcel({ name: r.name, type: r.type, date: r.date });
+    exportGeneratedReportExcel({ name: r.name, type: r.type, date: r.date }, sectionsFor(r));
     setDownloadedName(r.name);
     setTimeout(() => setDownloadedName(cur => (cur === r.name ? null : cur)), 2000);
   }
@@ -167,24 +199,59 @@ export default function CgReports({ navigate }: Props) {
       </div>
 
       <Dialog open={!!previewing} onOpenChange={open => !open && setPreviewing(null)}>
-        <DialogContent>
+        <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col">
           {previewing && (
             <>
               <DialogHeader>
                 <DialogTitle>{previewing.name}</DialogTitle>
                 <DialogDescription>{previewing.type} report · {previewing.date} · {previewing.size}</DialogDescription>
               </DialogHeader>
-              <div className="mt-4 rounded-lg border p-4 text-xs space-y-2" style={{ borderColor: "var(--border)", background: "#1a2f3c", color: "var(--muted)" }}>
-                <p>This is a demo preview. In production this report would render its actual content here (charts, tables, narrative) pulled from the same risk data as the dashboard.</p>
-                <p style={{ color: "var(--text)" }}>Report type: <span style={{ color: typeColors[previewing.type] }}>{previewing.type}</span></p>
+              <div className="mt-4 flex-1 overflow-y-auto space-y-4 pr-1">
+                {sectionsFor(previewing).map(section => (
+                  <div key={section.title} className="rounded-lg border p-4" style={{ borderColor: "var(--border)", background: "#1a2f3c" }}>
+                    <p className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: typeColors[previewing.type] }}>{section.title}</p>
+                    {section.kv && (
+                      <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2">
+                        {section.kv.map(({ label, value }) => (
+                          <div key={label} className="flex justify-between gap-3 text-xs">
+                            <span style={{ color: "var(--muted)" }}>{label}</span>
+                            <span className="font-mono font-semibold text-right" style={{ color: "var(--text)" }}>{value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {section.table && (
+                      <div className="overflow-x-auto -mx-1">
+                        <table className="w-full text-xs">
+                          <thead>
+                            <tr style={{ borderBottom: "1px solid var(--border)" }}>
+                              {section.table.headers.map(h => (
+                                <th key={h} className="text-left px-1 py-2 font-semibold whitespace-nowrap" style={{ color: "var(--muted)" }}>{h}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {section.table.rows.map((row, i) => (
+                              <tr key={i} className="border-b" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+                                {row.map((cell, j) => (
+                                  <td key={j} className="px-1 py-2 whitespace-nowrap" style={{ color: "var(--text)" }}>{cell}</td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
               <button
-                className="w-full py-2 rounded-lg text-xs font-semibold mt-4 disabled:opacity-40"
+                className="w-full py-2 rounded-lg text-xs font-semibold mt-4 disabled:opacity-40 flex-shrink-0"
                 style={{ background: "var(--accent)", color: "var(--bg)" }}
                 disabled={previewing.status !== "Ready"}
                 onClick={() => handleDownload(previewing)}
               >
-                {downloadedName === previewing.name ? "Downloaded ✓" : "Download Report"}
+                {downloadedName === previewing.name ? "Downloaded ✓" : "Download as Excel"}
               </button>
             </>
           )}
