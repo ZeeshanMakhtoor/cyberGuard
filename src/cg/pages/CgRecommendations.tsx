@@ -1,23 +1,9 @@
 import { useState } from "react";
 import type { CgPage } from "../../App";
 import { exportRoadmapExcel } from "@/lib/exportExcel";
+import { INITIAL_RECS, type Recommendation } from "@/lib/recommendationsData";
 
 interface Props { navigate: (p: CgPage) => void; }
-
-interface Recommendation {
-  id: number; title: string; icon: string; impact: string; cost: string; reduction: string;
-  ealSavings: string; effort: string; timeframe: string; desc: string; controls: string[]; status: string;
-}
-
-const INITIAL_RECS: Recommendation[] = [
-  { id: 1, title: "Patch Critical Vulnerabilities – Tier 1 Infrastructure", icon: "🔧", impact: "Critical", cost: "₹4.2L", reduction: "18%", ealSavings: "₹44L", effort: "High", timeframe: "30 days", desc: "31 CVEs with CVSS ≥ 9 remain unpatched on Mail, ERP, and DNS servers. These are being actively exploited in the wild.", controls: ["CVE-2024-21413 (Outlook RCE)", "CVE-2024-3400 (PAN-OS)", "CVE-2023-44487 (HTTP/2 Rapid Reset)"], status: "Pending" },
-  { id: 2, title: "Enforce MFA for All Privileged & Admin Accounts", icon: "🔐", impact: "Critical", cost: "₹85K", reduction: "12%", ealSavings: "₹29L", effort: "Low", timeframe: "7 days", desc: "48 admin accounts across AWS, Azure AD, and core banking system lack MFA. Single-factor compromise is the top initial access vector.", controls: ["AWS IAM", "Azure Active Directory", "Core Banking Admin Console"], status: "Pending" },
-  { id: 3, title: "Revoke Excessive Privileged Access (Least Privilege)", icon: "🛡", impact: "Critical", cost: "₹60K", reduction: "9%", ealSavings: "₹22L", effort: "Medium", timeframe: "14 days", desc: "Access review reveals 134 accounts with admin rights that haven't been used in 90+ days. Violates principle of least privilege.", controls: ["Active Directory", "Jira", "GitLab Admin"], status: "In Progress" },
-  { id: 4, title: "Deploy Anti-Phishing Training & Email Filtering", icon: "🎣", impact: "High", cost: "₹1.1L", reduction: "7%", ealSavings: "₹17L", effort: "Low", timeframe: "21 days", desc: "Employee phishing simulation shows 23% click rate — industry benchmark is <5%. Advanced email filtering rules are not enforced.", controls: ["Google Workspace Security", "ProofPoint / Mimecast"], status: "Pending" },
-  { id: 5, title: "Harden AWS S3 Bucket Access Policies", icon: "☁", impact: "High", cost: "₹45K", reduction: "5%", ealSavings: "₹11L", effort: "Low", timeframe: "3 days", desc: "12 S3 buckets have overly permissive bucket policies. Two contain PII data with public list access enabled.", controls: ["AWS S3 Bucket Policies", "AWS IAM", "AWS Config Rules"], status: "Pending" },
-  { id: 6, title: "Implement Network Micro-Segmentation", icon: "🌐", impact: "High", cost: "₹8.5L", reduction: "11%", ealSavings: "₹27L", effort: "High", timeframe: "90 days", desc: "Flat network topology allows unrestricted lateral movement. A single compromised endpoint can reach core banking systems.", controls: ["Cisco Catalyst SD-WAN", "Palo Alto Networks NGFW"], status: "Planned" },
-  { id: 7, title: "Deploy UEBA for Insider Threat Detection", icon: "👁", impact: "Medium", cost: "₹3.2L", reduction: "6%", ealSavings: "₹15L", effort: "Medium", timeframe: "45 days", desc: "No user behaviour analytics in place. Insider threats and compromised credential abuse are undetected until post-incident.", controls: ["Splunk UBA", "Microsoft Defender for Identity"], status: "Planned" },
-];
 
 function EffortBadge({ e }: { e: string }) {
   const colors: Record<string, [string, string]> = {

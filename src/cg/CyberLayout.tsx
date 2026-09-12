@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { useAssets } from "@/hooks/useAssets";
 import { useVulnerabilities } from "@/hooks/useVulnerabilities";
 import { useThreats } from "@/hooks/useThreats";
+import { INITIAL_RECS } from "@/lib/recommendationsData";
 import AIAssistant from "./AIAssistant";
 import NotificationsPanel from "./NotificationsPanel";
 
@@ -40,6 +41,7 @@ export default function CyberLayout({ page, navigate, children, userEmail }: Pro
   const { data: assets } = useAssets();
   const { data: vulnerabilities } = useVulnerabilities();
   const { data: threats } = useThreats();
+  const pendingRecsCount = INITIAL_RECS.filter(r => r.status === "Pending").length;
 
   const [query, setQuery] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
@@ -121,11 +123,11 @@ export default function CyberLayout({ page, navigate, children, userEmail }: Pro
                   ))}
                 </svg>
                 <span>{item.label}</span>
-                {item.id === "vulnerabilities" && (
-                  <span className="ml-auto text-xs font-bold px-1.5 py-0.5 rounded" style={{ background: "rgba(248,113,113,0.2)", color: "#F87171" }}>86</span>
+                {item.id === "vulnerabilities" && vulnerabilities.length > 0 && (
+                  <span className="ml-auto text-xs font-bold px-1.5 py-0.5 rounded" style={{ background: "rgba(248,113,113,0.2)", color: "#F87171" }}>{vulnerabilities.length}</span>
                 )}
-                {item.id === "ai" && (
-                  <span className="ml-auto text-xs font-bold px-1.5 py-0.5 rounded" style={{ background: "rgba(156,223,240,0.15)", color: "var(--accent)" }}>23</span>
+                {item.id === "ai" && pendingRecsCount > 0 && (
+                  <span className="ml-auto text-xs font-bold px-1.5 py-0.5 rounded" style={{ background: "rgba(156,223,240,0.15)", color: "var(--accent)" }}>{pendingRecsCount}</span>
                 )}
               </button>
             );
