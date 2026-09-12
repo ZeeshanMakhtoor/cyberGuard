@@ -15,8 +15,16 @@ export function useAuth() {
   useEffect(() => {
     if (!supabase) return;
 
+    // If getSession() hangs (flaky network, blocked request), don't leave
+    // the app stuck on a blank loading screen forever.
+    const timeout = setTimeout(() => setReady(true), 8000);
+
     supabase.auth.getSession().then(({ data }) => {
+      clearTimeout(timeout);
       setSession(data.session);
+      setReady(true);
+    }).catch(() => {
+      clearTimeout(timeout);
       setReady(true);
     });
 
@@ -24,7 +32,10 @@ export function useAuth() {
       setSession(newSession);
     });
 
-    return () => listener.subscription.unsubscribe();
+    return () => {
+      clearTimeout(timeout);
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
   return { session, ready, authRequired: Boolean(supabase) };
