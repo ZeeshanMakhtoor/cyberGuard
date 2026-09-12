@@ -1,5 +1,7 @@
 import { useState } from "react";
 import type { CgPage } from "../../App";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -31,13 +33,7 @@ function Toggle({ label, defaultOn }: { label: string; defaultOn?: boolean }) {
   return (
     <div className="flex items-center justify-between py-2">
       <span className="text-xs" style={{ color: "var(--text)" }}>{label}</span>
-      <button
-        onClick={() => setOn(v => !v)}
-        className="w-9 h-5 rounded-full relative transition"
-        style={{ background: on ? "var(--accent)" : "var(--border)" }}
-      >
-        <span className="absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all" style={{ left: on ? 18 : 2 }} />
-      </button>
+      <Switch checked={on} onCheckedChange={setOn} />
     </div>
   );
 }
@@ -58,21 +54,12 @@ export default function CgSettings({ navigate }: Props) {
       <h1 className="text-base font-bold mb-0.5" style={{ fontFamily: "'Outfit',sans-serif" }}>Settings</h1>
       <p className="text-xs mb-5" style={{ color: "var(--muted)" }}>Organization, integrations, and platform configuration</p>
 
-      <div className="flex gap-5">
-        <nav className="w-52 flex-shrink-0 space-y-0.5">
+      <Tabs value={active} onValueChange={v => setActive(v as typeof active)} className="flex gap-5">
+        <TabsList className="w-52 flex-shrink-0">
           {SECTIONS.map(s => (
-            <button
-              key={s.id}
-              onClick={() => setActive(s.id)}
-              className="w-full text-left px-3 py-2 rounded-lg text-xs font-medium"
-              style={active === s.id
-                ? { background: "var(--panel)", color: "var(--accent)" }
-                : { color: "var(--muted)" }}
-            >
-              {s.label}
-            </button>
+            <TabsTrigger key={s.id} value={s.id}>{s.label}</TabsTrigger>
           ))}
-        </nav>
+        </TabsList>
 
         <div className="flex-1 rounded-xl border p-5" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
           {active === "org" && (
@@ -166,7 +153,7 @@ export default function CgSettings({ navigate }: Props) {
             </div>
           )}
         </div>
-      </div>
+      </Tabs>
     </div>
   );
 }

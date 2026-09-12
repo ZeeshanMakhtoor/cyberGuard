@@ -1,13 +1,19 @@
 import { useState } from "react";
 import type { CgPage } from "../../App";
 import { useAssets } from "@/hooks/useAssets";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Props { navigate: (p: CgPage) => void; }
+
+const CRITICALITY_OPTIONS = ["All", "Critical", "High", "Medium", "Low"] as const;
 
 export default function CgAssets({ navigate }: Props) {
   const { data: ASSETS, loading } = useAssets();
   const [search, setSearch] = useState("");
-  const filtered = ASSETS.filter(a => a.name.toLowerCase().includes(search.toLowerCase()) || a.type.toLowerCase().includes(search.toLowerCase()));
+  const [criticality, setCriticality] = useState<(typeof CRITICALITY_OPTIONS)[number]>("All");
+  const filtered = ASSETS
+    .filter(a => a.name.toLowerCase().includes(search.toLowerCase()) || a.type.toLowerCase().includes(search.toLowerCase()))
+    .filter(a => criticality === "All" || a.criticality === criticality);
 
   const colorMap: Record<string, string> = {
     Critical: "#F87171", High: "#FBBF24", Medium: "#60B8CF", Low: "#34D399",
@@ -64,6 +70,14 @@ export default function CgAssets({ navigate }: Props) {
             style={{ background: "var(--panel)", color: "var(--text)", border: "1px solid var(--border)" }}
           />
         </div>
+        <Select value={criticality} onValueChange={v => setCriticality(v as typeof criticality)}>
+          <SelectTrigger className="w-36">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {CRITICALITY_OPTIONS.map(opt => <SelectItem key={opt} value={opt}>{opt === "All" ? "All criticalities" : opt}</SelectItem>)}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Table */}

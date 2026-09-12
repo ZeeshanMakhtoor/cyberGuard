@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { CgPage } from "../../App";
 import { useVulnerabilities } from "@/hooks/useVulnerabilities";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -8,11 +9,16 @@ const exploitColors: Record<string, string> = {
   Active: "#F87171", Public: "#FBBF24", PoC: "#60B8CF", None: "#5196A7",
 };
 
+const SEVERITIES = ["All", "Critical", "High", "Medium", "Low"] as const;
+const STATUSES = ["All", "Open", "In Progress", "Remediated", "Accepted"] as const;
+
 export default function CgVulnerabilities({ navigate }: Props) {
   const { data: VULNS, loading } = useVulnerabilities();
-  const [filter, setFilter] = useState("All");
-  const filters = ["All", "Critical", "High", "Open", "Remediated"];
-  const filtered = VULNS.filter(v => filter === "All" || v.severity === filter || v.status === filter);
+  const [severity, setSeverity] = useState<(typeof SEVERITIES)[number]>("All");
+  const [status, setStatus] = useState<(typeof STATUSES)[number]>("All");
+  const filtered = VULNS
+    .filter(v => severity === "All" || v.severity === severity)
+    .filter(v => status === "All" || v.status === status);
 
   if (loading) {
     return (
@@ -52,14 +58,20 @@ export default function CgVulnerabilities({ navigate }: Props) {
         ))}
       </div>
 
-      {/* Filter tabs */}
+      {/* Filters */}
       <div className="flex gap-2">
-        {filters.map(f => (
-          <button key={f} onClick={() => setFilter(f)} className="px-3 py-1.5 rounded-lg text-xs font-medium border transition"
-            style={filter === f ? { background: "var(--accent)", color: "var(--bg)", borderColor: "var(--accent)" } : { background: "transparent", color: "var(--muted)", borderColor: "var(--border)" }}>
-            {f}
-          </button>
-        ))}
+        <Select value={severity} onValueChange={v => setSeverity(v as typeof severity)}>
+          <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {SEVERITIES.map(s => <SelectItem key={s} value={s}>{s === "All" ? "All severities" : s}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={status} onValueChange={v => setStatus(v as typeof status)}>
+          <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {STATUSES.map(s => <SelectItem key={s} value={s}>{s === "All" ? "All statuses" : s}</SelectItem>)}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Table */}
