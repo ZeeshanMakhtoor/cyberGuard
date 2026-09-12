@@ -4,7 +4,12 @@ import { exportRoadmapExcel } from "@/lib/exportExcel";
 
 interface Props { navigate: (p: CgPage) => void; }
 
-const RECS = [
+interface Recommendation {
+  id: number; title: string; icon: string; impact: string; cost: string; reduction: string;
+  ealSavings: string; effort: string; timeframe: string; desc: string; controls: string[]; status: string;
+}
+
+const INITIAL_RECS: Recommendation[] = [
   { id: 1, title: "Patch Critical Vulnerabilities – Tier 1 Infrastructure", icon: "🔧", impact: "Critical", cost: "₹4.2L", reduction: "18%", ealSavings: "₹44L", effort: "High", timeframe: "30 days", desc: "31 CVEs with CVSS ≥ 9 remain unpatched on Mail, ERP, and DNS servers. These are being actively exploited in the wild.", controls: ["CVE-2024-21413 (Outlook RCE)", "CVE-2024-3400 (PAN-OS)", "CVE-2023-44487 (HTTP/2 Rapid Reset)"], status: "Pending" },
   { id: 2, title: "Enforce MFA for All Privileged & Admin Accounts", icon: "🔐", impact: "Critical", cost: "₹85K", reduction: "12%", ealSavings: "₹29L", effort: "Low", timeframe: "7 days", desc: "48 admin accounts across AWS, Azure AD, and core banking system lack MFA. Single-factor compromise is the top initial access vector.", controls: ["AWS IAM", "Azure Active Directory", "Core Banking Admin Console"], status: "Pending" },
   { id: 3, title: "Revoke Excessive Privileged Access (Least Privilege)", icon: "🛡", impact: "Critical", cost: "₹60K", reduction: "9%", ealSavings: "₹22L", effort: "Medium", timeframe: "14 days", desc: "Access review reveals 134 accounts with admin rights that haven't been used in 90+ days. Violates principle of least privilege.", controls: ["Active Directory", "Jira", "GitLab Admin"], status: "In Progress" },
@@ -46,17 +51,23 @@ function StatusBadge({ s }: { s: string }) {
 }
 
 export default function CgRecommendations({ navigate }: Props) {
+  const [recs, setRecs] = useState<Recommendation[]>(INITIAL_RECS);
   const [expanded, setExpanded] = useState<number | null>(null);
   const [filter, setFilter] = useState("All");
 
   const filters = ["All", "Critical", "High", "Medium", "Pending", "In Progress", "Planned"];
-  const filtered = RECS.filter(r => {
+  const filtered = recs.filter(r => {
     if (filter === "All") return true;
     return r.impact === filter || r.status === filter;
   });
 
-  const totalCost = RECS.reduce((s, r) => s + parseFloat(r.cost.replace(/[₹L]/g, "")), 0);
-  const totalSavings = RECS.reduce((s, r) => s + parseFloat(r.ealSavings.replace(/[₹L]/g, "")), 0);
+  const totalCost = recs.reduce((s, r) => s + parseFloat(r.cost.replace(/[₹L]/g, "")), 0);
+  const totalSavings = recs.reduce((s, r) => s + parseFloat(r.ealSavings.replace(/[₹L]/g, "")), 0);
+  const criticalPending = recs.filter(r => r.impact === "Critical" && r.status === "Pending").length;
+
+  function addToRoadmap(id: number) {
+    setRecs(prev => prev.map(r => (r.id === id && r.status === "Pending" ? { ...r, status: "In Progress" } : r)));
+  }
 
   return (
     <div className="p-5 max-w-screen-xl mx-auto space-y-5">
@@ -78,10 +89,10 @@ export default function CgRecommendations({ navigate }: Props) {
       {/* Summary */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Total Recommendations", value: "23", color: "var(--accent)" },
+          { label: "Total Recommendations", value: String(recs.length), color: "var(--accent)" },
           { label: "Total Est. Investment",  value: `₹${totalCost.toFixed(0)}L+`, color: "var(--accent2)" },
           { label: "Total EAL Savings",      value: `₹${totalSavings.toFixed(0)}L`,  color: "var(--ok)" },
-          { label: "Critical Pending",       value: "8",  color: "#F87171" },
+          { label: "Critical Pending",       value: String(criticalPending),  color: "#F87171" },
         ].map(s => (
           <div key={s.label} className="rounded-xl border p-4" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
             <p className="text-xs mb-1" style={{ color: "var(--muted)" }}>{s.label}</p>
@@ -184,8 +195,15 @@ export default function CgRecommendations({ navigate }: Props) {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <button className="flex-1 py-2 rounded-lg text-xs font-semibold" style={{ background: "var(--accent)", color: "var(--bg)" }}>
-                        Add to Roadmap
+                      <button
+                        className="flex-1 py-2 rounded-lg text-xs font-semibold disabled:opacity-60"
+                        style={r.status === "Pending"
+                          ? { background: "var(--accent)", color: "var(--bg)" }
+                          : { background: "rgba(52,211,153,0.15)", color: "#34D399" }}
+                        disabled={r.status !== "Pending"}
+                        onClick={() => addToRoadmap(r.id)}
+                      >
+                        {r.status === "Pending" ? "Add to Roadmap" : "In Roadmap ✓"}
                       </button>
                       <button
                         className="flex-1 py-2 rounded-lg text-xs font-semibold border"
