@@ -7,25 +7,33 @@
 @source '../../landing/**/*.html';
 
 /*
- * Standalone design tokens for the marketing landing page. Deliberately not
- * shared with src/index.css (the dashboard's token set) so the two builds
- * stay fully independent — a change here can never affect the dashboard
- * and vice versa.
+ * Standalone design tokens for the marketing landing page — a light theme
+ * that reuses the dashboard's own semantic palette (the same blue/red/
+ * amber/green used for accent, danger, warn, ok in src/index.css) so the
+ * marketing site and the product feel like the same brand, without
+ * actually importing the dashboard's stylesheet.
  */
 :root {
-  --lp-bg:      #0A1620;
-  --lp-bg2:     #0D1E2B;
-  --lp-panel:   #122534;
-  --lp-panel2:  #17303F;
-  --lp-border:  #223D4C;
-  --lp-text:    #F2F8FA;
-  --lp-muted:   #93AEBA;
-  --lp-accent:  #58D6C9;
-  --lp-accent2: #7FB8E8;
-  --lp-danger:  #F87171;
-  --lp-warn:    #FBBF24;
-  --lp-ok:      #34D399;
-  --lp-radius:  1rem;
+  --lp-bg:      #F6F8FA;
+  --lp-bg2:     #FFFFFF;
+  --lp-panel:   #FFFFFF;
+  --lp-panel2:  #F1F5F8;
+  --lp-border:  #E1E7EC;
+  --lp-text:    #0F2530;
+  --lp-muted:   #5B7280;
+  --lp-accent:  #0E7A98;
+  --lp-accent2: #1E7A93;
+  --lp-danger:  #DC2626;
+  --lp-warn:    #B45309;
+  --lp-ok:      #15803D;
+  --lp-danger-soft: #FEF2F2;
+  --lp-warn-soft:   #FFFBEB;
+  --lp-ok-soft:     #F0FDF4;
+  --lp-accent-soft: #ECFAFB;
+  --lp-radius: 1rem;
+  --lp-shadow-sm: 0 1px 2px rgba(15,37,48,0.05);
+  --lp-shadow-md: 0 8px 24px -8px rgba(15,37,48,0.12);
+  --lp-shadow-lg: 0 24px 48px -16px rgba(15,37,48,0.18);
 }
 
 * { box-sizing: border-box; }
@@ -68,11 +76,11 @@ h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; margin: 0; }
   gap: 6px;
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--lp-accent);
-  background: rgba(88, 214, 201, 0.1);
-  border: 1px solid rgba(88, 214, 201, 0.25);
+  background: var(--lp-accent-soft);
+  border: 1px solid rgba(14, 122, 152, 0.18);
   padding: 6px 12px;
   border-radius: 999px;
 }
@@ -81,6 +89,7 @@ h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; margin: 0; }
   background: var(--lp-panel);
   border: 1px solid var(--lp-border);
   border-radius: var(--lp-radius);
+  box-shadow: var(--lp-shadow-sm);
 }
 
 .lp-btn-primary {
@@ -89,17 +98,17 @@ h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; margin: 0; }
   justify-content: center;
   gap: 8px;
   background: var(--lp-accent);
-  color: #06201C;
-  font-weight: 700;
+  color: #ffffff;
+  font-weight: 600;
   font-size: 14px;
   padding: 12px 22px;
   border-radius: 10px;
   border: none;
   cursor: pointer;
-  transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
-  box-shadow: 0 8px 24px -8px rgba(88, 214, 201, 0.5);
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+  box-shadow: 0 8px 20px -8px rgba(14, 122, 152, 0.55);
 }
-.lp-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 12px 28px -8px rgba(88, 214, 201, 0.65); }
+.lp-btn-primary:hover { transform: translateY(-1px); background: #0b6480; box-shadow: 0 12px 24px -8px rgba(14, 122, 152, 0.6); }
 .lp-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
 .lp-btn-secondary {
@@ -107,7 +116,7 @@ h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; margin: 0; }
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: transparent;
+  background: var(--lp-panel);
   color: var(--lp-text);
   font-weight: 600;
   font-size: 14px;
@@ -117,7 +126,7 @@ h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; margin: 0; }
   cursor: pointer;
   transition: background 160ms ease, border-color 160ms ease;
 }
-.lp-btn-secondary:hover { background: var(--lp-panel2); border-color: var(--lp-accent2); }
+.lp-btn-secondary:hover { background: var(--lp-panel2); border-color: var(--lp-accent); }
 
 .lp-fade-up {
   opacity: 0;
@@ -129,7 +138,35 @@ h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; margin: 0; }
   transform: translateY(0);
 }
 
+/* Radix Accordion — shadcn-style height animation driven by the CSS
+   custom properties Radix exposes on the content element. */
+.lp-accordion-content {
+  overflow: hidden;
+}
+.lp-accordion-content[data-state="open"] {
+  animation: lp-accordion-down 220ms ease-out;
+}
+.lp-accordion-content[data-state="closed"] {
+  animation: lp-accordion-up 200ms ease-in;
+}
+@keyframes lp-accordion-down {
+  from { height: 0; }
+  to   { height: var(--radix-accordion-content-height); }
+}
+@keyframes lp-accordion-up {
+  from { height: var(--radix-accordion-content-height); }
+  to   { height: 0; }
+}
+.lp-accordion-chevron {
+  transition: transform 200ms ease;
+}
+[data-state="open"] > .lp-accordion-trigger .lp-accordion-chevron {
+  transform: rotate(180deg);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lp-fade-up { opacity: 1; transform: none; transition: none; }
+  .lp-accordion-content[data-state="open"],
+  .lp-accordion-content[data-state="closed"] { animation: none; }
   html { scroll-behavior: auto; }
 }

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import * as Accordion from "@radix-ui/react-accordion";
+import { ChevronDown } from "lucide-react";
 import { useReveal } from "../lib/useReveal";
 
 const FAQS = [
@@ -26,49 +27,30 @@ const FAQS = [
 
 export default function FAQ() {
   const { ref, visible } = useReveal<HTMLDivElement>();
-  const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section id="faq" className="lp-section" style={{ background: "var(--lp-bg2)" }}>
+    <section id="faq" className="lp-section">
       <div className="lp-container max-w-3xl">
         <div ref={ref} className={`lp-fade-up ${visible ? "lp-visible" : ""} text-center`}>
           <span className="lp-eyebrow">FAQ</span>
           <h2 className="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight">Frequently asked questions</h2>
         </div>
 
-        <div className="mt-10 flex flex-col gap-3">
-          {FAQS.map((item, i) => {
-            const isOpen = open === i;
-            return (
-              <div key={item.q} className="lp-card overflow-hidden">
-                <button
-                  className="w-full flex items-center justify-between gap-4 text-left px-5 py-4"
-                  onClick={() => setOpen(isOpen ? null : i)}
-                  aria-expanded={isOpen}
-                >
+        <Accordion.Root type="single" collapsible defaultValue="item-0" className="mt-10 flex flex-col gap-3">
+          {FAQS.map((item, i) => (
+            <Accordion.Item key={item.q} value={`item-${i}`} className="lp-card overflow-hidden">
+              <Accordion.Header>
+                <Accordion.Trigger className="lp-accordion-trigger w-full flex items-center justify-between gap-4 text-left px-5 py-4">
                   <span className="text-sm font-semibold">{item.q}</span>
-                  <svg
-                    className="w-4 h-4 flex-shrink-0 transition-transform"
-                    style={{ color: "var(--lp-accent)", transform: isOpen ? "rotate(180deg)" : "none" }}
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-                <div
-                  style={{
-                    maxHeight: isOpen ? 240 : 0,
-                    opacity: isOpen ? 1 : 0,
-                    overflow: "hidden",
-                    transition: "max-height 260ms ease, opacity 200ms ease",
-                  }}
-                >
-                  <p className="px-5 pb-4 text-sm leading-relaxed" style={{ color: "var(--lp-muted)" }}>{item.a}</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                  <ChevronDown className="lp-accordion-chevron w-4 h-4 flex-shrink-0" style={{ color: "var(--lp-accent)" }} />
+                </Accordion.Trigger>
+              </Accordion.Header>
+              <Accordion.Content className="lp-accordion-content">
+                <p className="px-5 pb-4 text-sm leading-relaxed" style={{ color: "var(--lp-muted)" }}>{item.a}</p>
+              </Accordion.Content>
+            </Accordion.Item>
+          ))}
+        </Accordion.Root>
       </div>
     </section>
   );
