@@ -21,6 +21,15 @@ export default function CgVulnerabilities({ navigate }: Props) {
     .filter(v => severity === "All" || v.severity === severity)
     .filter(v => status === "All" || v.status === status);
 
+  const criticalCount = VULNS.filter(v => v.severity === "Critical").length;
+  const highCount = VULNS.filter(v => v.severity === "High").length;
+  const mediumCount = VULNS.filter(v => v.severity === "Medium").length;
+  const activelyExploited = VULNS.filter(v => v.exploit === "Active").length;
+  const avgAge = VULNS.length ? Math.round(VULNS.reduce((sum, v) => sum + v.age, 0) / VULNS.length) : 0;
+  const lastScanLabel = VULNS.length
+    ? "Last scan: just now"
+    : "No vulnerabilities found — run a scan to get started";
+
   async function handleRunScan() {
     setScanning(true);
     try {
@@ -45,7 +54,9 @@ export default function CgVulnerabilities({ navigate }: Props) {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-base font-bold" style={{ fontFamily: "'Outfit',sans-serif" }}>Vulnerabilities</h1>
-          <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>86 critical · 143 high · 219 medium · Last scan: 01 Sep 2026</p>
+          <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+            {VULNS.length ? `${criticalCount} critical · ${highCount} high · ${mediumCount} medium · ${lastScanLabel}` : lastScanLabel}
+          </p>
         </div>
         <div className="flex gap-2">
           <button
@@ -67,10 +78,10 @@ export default function CgVulnerabilities({ navigate }: Props) {
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Critical (CVSS 9–10)", value: "86",  color: "#F87171" },
-          { label: "High (CVSS 7–8.9)",    value: "143", color: "#FBBF24" },
-          { label: "Actively Exploited",   value: "24",  color: "#F87171" },
-          { label: "Avg. Age (days)",       value: "41",  color: "var(--accent2)" },
+          { label: "Critical (CVSS 9–10)", value: String(criticalCount),      color: "#F87171" },
+          { label: "High (CVSS 7–8.9)",    value: String(highCount),          color: "#FBBF24" },
+          { label: "Actively Exploited",   value: String(activelyExploited),  color: "#F87171" },
+          { label: "Avg. Age (days)",       value: String(avgAge),            color: "var(--accent2)" },
         ].map(s => (
           <div key={s.label} className="rounded-xl border p-4" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
             <p className="text-xs mb-1" style={{ color: "var(--muted)" }}>{s.label}</p>
@@ -107,6 +118,13 @@ export default function CgVulnerabilities({ navigate }: Props) {
               </tr>
             </thead>
             <tbody>
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={9} className="px-4 py-10 text-center" style={{ color: "var(--muted)" }}>
+                    No vulnerabilities found. Click "Run Scan" to scan your assets.
+                  </td>
+                </tr>
+              )}
               {filtered.map((v, i) => (
                 <tr key={i} className="border-b hover:bg-white/[0.02] transition" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
                   <td className="px-4 py-3 font-mono font-semibold" style={{ color: "var(--accent2)" }}>{v.id}</td>
