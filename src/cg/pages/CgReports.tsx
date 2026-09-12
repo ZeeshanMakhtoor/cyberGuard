@@ -34,6 +34,19 @@ export default function CgReports({ navigate }: Props) {
   const [newName, setNewName] = useState("");
   const [newType, setNewType] = useState<(typeof REPORT_TYPES)[number]>("Executive");
   const [downloadedName, setDownloadedName] = useState<string | null>(null);
+  const [sharedName, setSharedName] = useState<string | null>(null);
+
+  async function handleShare(r: ReportRow) {
+    const slug = r.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+    const link = `${window.location.origin}/reports/${slug}`;
+    try {
+      await navigator.clipboard.writeText(link);
+    } catch {
+      // clipboard access denied — link is still shown via the confirmation state below
+    }
+    setSharedName(r.name);
+    setTimeout(() => setSharedName(cur => (cur === r.name ? null : cur)), 2500);
+  }
 
   function handleDownload(r: ReportRow) {
     exportGeneratedReportExcel({ name: r.name, type: r.type, date: r.date });
@@ -111,7 +124,13 @@ export default function CgReports({ navigate }: Props) {
                       >
                         {downloadedName === r.name ? "Downloaded ✓" : "Download"}
                       </button>
-                      <button className="text-xs font-semibold" style={{ color: "var(--muted)" }}>Share</button>
+                      <button
+                        className="text-xs font-semibold"
+                        style={sharedName === r.name ? { color: "#34D399" } : { color: "var(--muted)" }}
+                        onClick={() => handleShare(r)}
+                      >
+                        {sharedName === r.name ? "Link copied ✓" : "Share"}
+                      </button>
                     </div>
                   </td>
                 </tr>

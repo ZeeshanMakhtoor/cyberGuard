@@ -16,6 +16,7 @@ export default function CgAssets({ navigate }: Props) {
   const [search, setSearch] = useState("");
   const [criticality, setCriticality] = useState<(typeof CRITICALITY_OPTIONS)[number]>("All");
   const [addOpen, setAddOpen] = useState(false);
+  const [viewingAsset, setViewingAsset] = useState<(typeof ASSETS)[number] | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [form, setForm] = useState({
@@ -75,7 +76,7 @@ export default function CgAssets({ navigate }: Props) {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-base font-bold" style={{ fontFamily: "'Outfit',sans-serif" }}>Asset Inventory</h1>
-          <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>1,248 assets discovered · Last scan: 01 Sep 2026</p>
+          <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>{ASSETS.length} assets discovered · Last scan: 01 Sep 2026</p>
         </div>
         <button className="text-xs px-3 py-1.5 rounded-lg font-semibold" style={{ background: "var(--accent)", color: "var(--bg)" }} onClick={() => setAddOpen(true)}>
           + Add Asset
@@ -85,10 +86,10 @@ export default function CgAssets({ navigate }: Props) {
       {/* Summary */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Total Assets",    value: "1,248", color: "var(--accent)" },
-          { label: "Critical Assets", value: "42",    color: "#F87171" },
-          { label: "Cloud Assets",    value: "387",   color: "var(--accent2)" },
-          { label: "Unscanned (7d+)", value: "91",    color: "#FBBF24" },
+          { label: "Total Assets",    value: String(ASSETS.length), color: "var(--accent)" },
+          { label: "Critical Assets", value: String(ASSETS.filter(a => a.criticality === "Critical").length), color: "#F87171" },
+          { label: "Cloud Assets",    value: String(ASSETS.filter(a => a.type === "Cloud").length), color: "var(--accent2)" },
+          { label: "High Risk (≥80)", value: String(ASSETS.filter(a => a.riskScore >= 80).length), color: "#FBBF24" },
         ].map(s => (
           <div key={s.label} className="rounded-xl border p-4" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
             <p className="text-xs mb-1" style={{ color: "var(--muted)" }}>{s.label}</p>
@@ -154,7 +155,7 @@ export default function CgAssets({ navigate }: Props) {
                   <td className="px-4 py-3" style={{ color: "var(--muted)" }}>{a.owner}</td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
-                      <button className="text-xs font-semibold" style={{ color: "var(--accent)" }}>View</button>
+                      <button className="text-xs font-semibold" style={{ color: "var(--accent)" }} onClick={() => setViewingAsset(a)}>View</button>
                       <button className="text-xs font-semibold" style={{ color: "var(--muted)" }} onClick={() => navigate("vulnerabilities")}>Vulns</button>
                     </div>
                   </td>
@@ -290,6 +291,56 @@ export default function CgAssets({ navigate }: Props) {
               {submitting ? "Adding…" : "Add Asset"}
             </button>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!viewingAsset} onOpenChange={open => !open && setViewingAsset(null)}>
+        <DialogContent>
+          {viewingAsset && (
+            <>
+              <DialogHeader>
+                <DialogTitle>{viewingAsset.name}</DialogTitle>
+                <DialogDescription>{viewingAsset.id} · {viewingAsset.type}</DialogDescription>
+              </DialogHeader>
+              <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
+                <div className="rounded-lg p-3" style={{ background: "#1a2f3c", border: "1px solid var(--border)" }}>
+                  <p style={{ color: "var(--muted)" }}>Criticality</p>
+                  <p className="font-bold mt-0.5" style={{ color: colorMap[viewingAsset.criticality] }}>{viewingAsset.criticality}</p>
+                </div>
+                <div className="rounded-lg p-3" style={{ background: "#1a2f3c", border: "1px solid var(--border)" }}>
+                  <p style={{ color: "var(--muted)" }}>Risk Score</p>
+                  <p className="font-bold font-mono mt-0.5" style={{ color: viewingAsset.riskScore >= 80 ? "#F87171" : viewingAsset.riskScore >= 65 ? "#FBBF24" : "#9CDFF0" }}>{viewingAsset.riskScore}</p>
+                </div>
+                <div className="rounded-lg p-3" style={{ background: "#1a2f3c", border: "1px solid var(--border)" }}>
+                  <p style={{ color: "var(--muted)" }}>Vulnerabilities</p>
+                  <p className="font-bold font-mono mt-0.5" style={{ color: viewingAsset.vulns > 4 ? "#F87171" : viewingAsset.vulns > 2 ? "#FBBF24" : "#34D399" }}>{viewingAsset.vulns}</p>
+                </div>
+                <div className="rounded-lg p-3" style={{ background: "#1a2f3c", border: "1px solid var(--border)" }}>
+                  <p style={{ color: "var(--muted)" }}>Financial Exposure</p>
+                  <p className="font-bold font-mono mt-0.5" style={{ color: "#FBBF24" }}>{viewingAsset.exposure}</p>
+                </div>
+                <div className="rounded-lg p-3" style={{ background: "#1a2f3c", border: "1px solid var(--border)" }}>
+                  <p style={{ color: "var(--muted)" }}>IP Address</p>
+                  <p className="font-bold font-mono mt-0.5" style={{ color: "var(--text)" }}>{viewingAsset.ip}</p>
+                </div>
+                <div className="rounded-lg p-3" style={{ background: "#1a2f3c", border: "1px solid var(--border)" }}>
+                  <p style={{ color: "var(--muted)" }}>Environment</p>
+                  <p className="font-bold mt-0.5" style={{ color: "var(--text)" }}>{viewingAsset.env}</p>
+                </div>
+                <div className="rounded-lg p-3 col-span-2" style={{ background: "#1a2f3c", border: "1px solid var(--border)" }}>
+                  <p style={{ color: "var(--muted)" }}>Owner</p>
+                  <p className="font-bold mt-0.5" style={{ color: "var(--text)" }}>{viewingAsset.owner}</p>
+                </div>
+              </div>
+              <button
+                className="w-full py-2 rounded-lg text-xs font-semibold mt-4"
+                style={{ background: "var(--accent)", color: "var(--bg)" }}
+                onClick={() => { setViewingAsset(null); navigate("vulnerabilities"); }}
+              >
+                View Vulnerabilities →
+              </button>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>
