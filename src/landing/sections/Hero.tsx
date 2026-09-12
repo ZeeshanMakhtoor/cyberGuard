@@ -1,6 +1,6 @@
 import { lazy, Suspense } from "react";
 import { ArrowRight, PlayCircle } from "lucide-react";
-import DashboardMockup from "../lib/DashboardMockup";
+import dashboardScreenshot from "../assets/dashboard-screenshot.jpg";
 
 const NetworkCanvas = lazy(() => import("../lib/NetworkCanvas"));
 
@@ -70,7 +70,12 @@ export default function Hero() {
           </div>
 
           <div className="relative max-w-3xl mx-auto -mb-24 sm:-mb-28">
-            <DashboardMockup />
+            <img
+              src={dashboardScreenshot}
+              alt="CyberGuard AI dashboard showing live risk score, expected annual loss, and risk breakdown"
+              className="w-full rounded-2xl shadow-2xl"
+              style={{ border: "1px solid rgba(255,255,255,0.12)", display: "block" }}
+            />
           </div>
         </div>
       </div>
