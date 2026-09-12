@@ -1,4 +1,4 @@
-import { ReactNode, useMemo, useRef, useState } from "react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import type { CgPage } from "../App";
 import { supabase } from "@/lib/supabaseClient";
 import { useAssets } from "@/hooks/useAssets";
@@ -8,8 +8,16 @@ import { useTheme } from "@/hooks/useTheme";
 import { INITIAL_RECS } from "@/lib/recommendationsData";
 import AIAssistant from "./AIAssistant";
 import NotificationsPanel from "./NotificationsPanel";
+import DocumentationModal from "./DocumentationModal";
+import ShortcutsModal from "./ShortcutsModal";
 
-const NAV = [
+const NAV_KEY_TO_PAGE: Record<string, CgPage> = {
+  d: "dashboard", a: "assets", v: "vulnerabilities", r: "risk", t: "threats",
+  c: "controls", i: "ai", w: "whatif", n: "investment", o: "compliance",
+  p: "reports", s: "settings",
+};
+
+export const NAV = [
   { id: "dashboard",       icon: "⬛", label: "Dashboard",           svg: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
   { id: "assets",          icon: "⬛", label: "Assets",               svg: "M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2" },
   { id: "vulnerabilities", icon: "⬛", label: "Vulnerabilities",      svg: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" },
@@ -47,10 +55,65 @@ export default function CyberLayout({ page, navigate, children, userEmail }: Pro
   const [query, setQuery] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
   const searchBoxRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const [helpOpen, setHelpOpen] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
+  const [docsOpen, setDocsOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+
+  // Global keyboard shortcuts: "/" focuses search, "?" opens the shortcuts
+  // reference, Esc closes whatever's open, and "g" + a letter jumps to a tab.
+  useEffect(() => {
+    const gPressedAt = { current: 0 };
+
+    function isTypingTarget(el: EventTarget | null) {
+      if (!(el instanceof HTMLElement)) return false;
+      const tag = el.tagName;
+      return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || el.isContentEditable;
+    }
+
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      if (e.key === "Escape") {
+        setHelpOpen(false);
+        setAvatarOpen(false);
+        setDocsOpen(false);
+        setShortcutsOpen(false);
+        return;
+      }
+
+      if (isTypingTarget(e.target)) return;
+
+      if (e.key === "/") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        return;
+      }
+
+      if (e.key === "?") {
+        e.preventDefault();
+        setShortcutsOpen(true);
+        return;
+      }
+
+      if (e.key === "g") {
+        gPressedAt.current = Date.now();
+        return;
+      }
+
+      const target = NAV_KEY_TO_PAGE[e.key.toLowerCase()];
+      if (target && Date.now() - gPressedAt.current < 1200) {
+        gPressedAt.current = 0;
+        navigate(target);
+      }
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [navigate]);
 
   const results = useMemo<SearchResult[]>(() => {
     const q = query.trim().toLowerCase();
@@ -179,6 +242,7 @@ export default function CyberLayout({ page, navigate, children, userEmail }: Pro
           <div className="flex-1 max-w-sm relative" ref={searchBoxRef}>
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "var(--muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             <input
+              ref={searchInputRef}
               type="text"
               placeholder="Search assets, risks, CVEs..."
               value={query}
@@ -260,11 +324,15 @@ export default function CyberLayout({ page, navigate, children, userEmail }: Pro
                     </div>
                     <div className="py-1">
                       {[
-                        { label: "Documentation", desc: "Guides for every module" },
-                        { label: "Keyboard Shortcuts", desc: "Speed up navigation" },
-                        { label: "Contact Support", desc: "support@cyberguard.ai" },
+                        { label: "Documentation", desc: "Guides for every module", onClick: () => setDocsOpen(true) },
+                        { label: "Keyboard Shortcuts", desc: "Speed up navigation", onClick: () => setShortcutsOpen(true) },
+                        { label: "Contact Support", desc: "support@cyberguard.ai", onClick: () => { window.location.href = "mailto:support@cyberguard.ai"; } },
                       ].map(item => (
-                        <button key={item.label} className="w-full text-left px-4 py-2.5 cg-hover transition" onClick={() => setHelpOpen(false)}>
+                        <button
+                          key={item.label}
+                          className="w-full text-left px-4 py-2.5 cg-hover transition"
+                          onClick={() => { item.onClick(); setHelpOpen(false); }}
+                        >
                           <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>{item.label}</p>
                           <p className="text-xs" style={{ color: "var(--muted)" }}>{item.desc}</p>
                         </button>
@@ -327,6 +395,15 @@ export default function CyberLayout({ page, navigate, children, userEmail }: Pro
       </div>
 
       <AIAssistant />
+
+      {docsOpen && (
+        <DocumentationModal
+          initialPage={page}
+          onClose={() => setDocsOpen(false)}
+          onNavigate={navigate}
+        />
+      )}
+      {shortcutsOpen && <ShortcutsModal onClose={() => setShortcutsOpen(false)} />}
     </div>
   );
 }
