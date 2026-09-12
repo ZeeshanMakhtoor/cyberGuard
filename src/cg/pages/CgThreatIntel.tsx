@@ -18,6 +18,11 @@ export default function CgThreatIntel({ navigate }: Props) {
     }
   }
 
+  const activeThreats = threats.length;
+  const sectorRelevant = threats.filter(t => t.relevance === "High").length;
+  const monitoredIocs = threats.reduce((sum, t) => sum + (parseInt(t.ioc, 10) || 0), 0);
+  const threatLevel = threats.some(t => t.severity === "Critical") ? "HIGH" : threats.some(t => t.severity === "High") ? "ELEVATED" : "MODERATE";
+
   if (loading) {
     return (
       <div className="p-5 max-w-screen-xl mx-auto space-y-5">
@@ -36,16 +41,16 @@ export default function CgThreatIntel({ navigate }: Props) {
         </div>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ background: "rgba(248,113,113,0.1)", border: "1px solid rgba(248,113,113,0.2)" }}>
           <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#F87171" }} />
-          <span className="text-xs font-semibold" style={{ color: "#F87171" }}>THREAT LEVEL: HIGH</span>
+          <span className="text-xs font-semibold" style={{ color: "#F87171" }}>THREAT LEVEL: {threatLevel}</span>
         </div>
       </div>
 
       {/* Summary */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Active Threats",     value: "17", color: "#F87171" },
-          { label: "Sector-Relevant",    value: "9",  color: "#FBBF24" },
-          { label: "Monitored IOCs",     value: "847",color: "var(--accent)" },
+          { label: "Active Threats",     value: String(activeThreats), color: "#F87171" },
+          { label: "Sector-Relevant",    value: String(sectorRelevant), color: "#FBBF24" },
+          { label: "Monitored IOCs",     value: String(monitoredIocs), color: "var(--accent)" },
           { label: "Feeds Active",       value: "12", color: "var(--accent2)" },
         ].map(s => (
           <div key={s.label} className="rounded-xl border p-4" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
