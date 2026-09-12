@@ -84,7 +84,36 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Outfit', sans-serif; margin: 0; }
 input, select, textarea, button { font-family: inherit; }
 
 * {
-  transition-property: color, background-color, border-color, opacity, box-shadow, transform;
+  transition-property: color, background-color, border-color, opacity, box-shadow;
   transition-duration: 140ms;
   transition-timing-function: ease;
+}
+
+/* Smooth open/close for Radix popper content (Select, dropdowns, menus).
+   Scales from the trigger's edge (Radix sets this custom property) instead
+   of popping in instantly or inheriting the global transform transition,
+   which fought with Radix's own positioning transform and made it look
+   like it was flying in from a corner. */
+@keyframes cg-popper-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes cg-popper-out {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.95); }
+}
+.cg-popper-content {
+  transform-origin: var(--radix-select-content-transform-origin, center);
+}
+.cg-popper-content[data-state="open"] {
+  animation: cg-popper-in 120ms ease-out;
+}
+.cg-popper-content[data-state="closed"] {
+  animation: cg-popper-out 100ms ease-in;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cg-popper-content[data-state="open"],
+  .cg-popper-content[data-state="closed"] {
+    animation: none;
+  }
 }
