@@ -5,6 +5,10 @@ import {
 import { useEffect, useState } from "react";
 import type { CgPage } from "../../App";
 import { useEalTrend } from "@/hooks/useRiskSnapshots";
+import { useAssets } from "@/hooks/useAssets";
+import { useVulnerabilities } from "@/hooks/useVulnerabilities";
+import { useComplianceFrameworks } from "@/hooks/useComplianceFrameworks";
+import { INITIAL_RECS } from "@/lib/recommendationsData";
 import { exportDashboardExcel } from "@/lib/exportExcel";
 
 interface Props { navigate: (p: CgPage) => void; }
@@ -31,13 +35,6 @@ function LiveIndicator({ live, lastUpdatedAt }: { live: boolean; lastUpdatedAt: 
 
 // ── DATA ──────────────────────────────────────────────────────────────────
 
-const criticalityData = [
-  { name: "Critical", value: 14, color: "#F87171" },
-  { name: "High",     value: 28, color: "#FBBF24" },
-  { name: "Medium",   value: 36, color: "#60B8CF" },
-  { name: "Low",      value: 22, color: "#5196A7" },
-];
-
 const riskContributors = [
   { name: "Unpatched CVEs",      value: 38, impact: "₹94L" },
   { name: "Weak Access Controls",value: 27, impact: "₹67L" },
@@ -62,14 +59,6 @@ const investmentChart = [
   { invest: 80,  risk: 1.1 },
   { invest: 120, risk: 0.95 },
   { invest: 180, risk: 0.88 },
-];
-
-const compliance = [
-  { name: "ISO/IEC 27001",                   pct: 74 },
-  { name: "NIST Cybersecurity Framework",    pct: 68 },
-  { name: "CIS Controls v8",                 pct: 61 },
-  { name: "RBI Cyber Security Framework",    pct: 83 },
-  { name: "SEBI Cyber Resilience Framework", pct: 71 },
 ];
 
 // ── SUB-COMPONENTS ────────────────────────────────────────────────────────
@@ -149,8 +138,27 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 // ── PAGE ──────────────────────────────────────────────────────────────────
+const CRITICALITY_COLORS: Record<string, string> = {
+  Critical: "#F87171", High: "#FBBF24", Medium: "#60B8CF", Low: "#5196A7",
+};
+
 export default function CgDashboard({ navigate }: Props) {
   const { data: ealTrend, live, lastUpdatedAt } = useEalTrend();
+  const { data: assets } = useAssets();
+  const { data: vulnerabilities } = useVulnerabilities();
+  const { data: frameworks } = useComplianceFrameworks();
+
+  const totalAssets = assets.length;
+  const criticalVulns = vulnerabilities.filter(v => v.severity === "Critical").length;
+  const pendingRecs = INITIAL_RECS.filter(r => r.status === "Pending").length;
+
+  const criticalityData = (["Critical", "High", "Medium", "Low"] as const).map(level => {
+    const count = assets.filter(a => a.criticality === level).length;
+    return { name: level, value: totalAssets ? Math.round((count / totalAssets) * 100) : 0, color: CRITICALITY_COLORS[level] };
+  });
+
+  const topRecs = INITIAL_RECS.filter(r => r.status === "Pending").slice(0, 4);
+
   return (
     <div className="p-5 space-y-5 max-w-screen-2xl mx-auto">
 
@@ -172,8 +180,8 @@ export default function CgDashboard({ navigate }: Props) {
               riskScore: 72,
               expectedAnnualLoss: "₹2.45 Cr",
               financialExposure: "₹8.3 Cr",
-              totalAssets: "1,248",
-              criticalVulnerabilities: "86",
+              totalAssets: String(totalAssets),
+              criticalVulnerabilities: String(criticalVulns),
               topRisks: topRisks.map(r => ({ risk: r.risk, asset: r.asset, impact: r.impact, likelihood: r.likelihood, priority: r.priority })),
             })}
           >
@@ -187,12 +195,12 @@ export default function CgDashboard({ navigate }: Props) {
 
       {/* ── KPI Cards ── */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-        <KpiCard icon="🖥" label="Total Assets" value="1,248" sub="+12 this week" color="#9CDFF0" onClick={() => navigate("assets")} />
-        <KpiCard icon="⚠" label="Critical Vulnerabilities" value="86" sub="↑ 7 new (24h)" color="#F87171" onClick={() => navigate("vulnerabilities")} />
+        <KpiCard icon="🖥" label="Total Assets" value={String(totalAssets)} sub="Live from Asset Inventory" color="#9CDFF0" onClick={() => navigate("assets")} />
+        <KpiCard icon="⚠" label="Critical Vulnerabilities" value={String(criticalVulns)} sub="Live from Vulnerabilities" color="#F87171" onClick={() => navigate("vulnerabilities")} />
         <KpiCard icon="₹" label="Expected Annual Loss" value="₹2.45 Cr" sub="↓ 6% vs last quarter" color="#FBBF24" onClick={() => navigate("risk")} />
         <KpiCard icon="🎯" label="Overall Risk Score" value="72 / 100" sub="High — action needed" color="#F87171" onClick={() => navigate("risk")} />
         <KpiCard icon="💰" label="Financial Risk Exposure" value="₹8.3 Cr" sub="Total potential loss" color="#60B8CF" onClick={() => navigate("risk")} />
-        <KpiCard icon="🤖" label="AI Recommendations" value="23" sub="8 critical pending" color="#9CDFF0" onClick={() => navigate("ai")} />
+        <KpiCard icon="🤖" label="AI Recommendations" value={String(pendingRecs)} sub={`${pendingRecs} pending`} color="#9CDFF0" onClick={() => navigate("ai")} />
       </div>
 
       {/* ── Row 2: EAL Trend + Criticality Donut ── */}
@@ -300,15 +308,10 @@ export default function CgDashboard({ navigate }: Props) {
 
       {/* ── Row 4: AI Recommendations (preview) ── */}
       <Panel>
-        <SectionHeader title="AI Recommendations" sub="Priority-ranked, cost-optimised remediation actions" action="View All 23" onAction={() => navigate("ai")} />
+        <SectionHeader title="AI Recommendations" sub="Priority-ranked, cost-optimised remediation actions" action={`View All ${INITIAL_RECS.length}`} onAction={() => navigate("ai")} />
         <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-3">
-          {[
-            { title: "Patch Critical CVEs (Tier-1 Systems)", cost: "₹4.2L", reduction: "18%", impact: "Critical", icon: "🔧" },
-            { title: "Enable MFA for Privileged Accounts",   cost: "₹85K",  reduction: "12%", impact: "Critical", icon: "🔐" },
-            { title: "Restrict Unnecessary Admin Access",    cost: "₹60K",  reduction: "9%",  impact: "High",     icon: "🛡" },
-            { title: "Deploy Anti-Phishing Simulation",      cost: "₹1.1L", reduction: "7%",  impact: "High",     icon: "🎣" },
-          ].map(r => (
-            <div key={r.title} className="rounded-lg border p-3 hover:border-opacity-70 transition cursor-pointer" style={{ background: "#1a2f3c", borderColor: "var(--border)" }}>
+          {topRecs.map(r => (
+            <div key={r.id} className="rounded-lg border p-3 hover:border-opacity-70 transition cursor-pointer" style={{ background: "#1a2f3c", borderColor: "var(--border)" }}>
               <div className="flex items-start gap-2.5 mb-2.5">
                 <span className="text-base">{r.icon}</span>
                 <p className="text-xs font-semibold leading-snug" style={{ color: "var(--text)" }}>{r.title}</p>
@@ -367,18 +370,18 @@ export default function CgDashboard({ navigate }: Props) {
         <Panel>
           <SectionHeader title="Compliance Coverage" sub="Framework alignment score" action="Full Report" onAction={() => navigate("reports")} />
           <div className="space-y-3">
-            {compliance.map(c => (
+            {frameworks.map(c => (
               <div key={c.name}>
                 <div className="flex justify-between mb-1">
                   <span className="text-xs" style={{ color: "var(--muted)" }}>{c.name}</span>
-                  <span className="text-xs font-bold font-mono" style={{ color: c.pct >= 75 ? "var(--ok)" : c.pct >= 60 ? "#FBBF24" : "#F87171" }}>{c.pct}%</span>
+                  <span className="text-xs font-bold font-mono" style={{ color: c.compliance >= 75 ? "var(--ok)" : c.compliance >= 60 ? "#FBBF24" : "#F87171" }}>{c.compliance}%</span>
                 </div>
                 <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.07)" }}>
                   <div
                     className="h-full rounded-full transition-all duration-700"
                     style={{
-                      width: `${c.pct}%`,
-                      background: c.pct >= 75 ? "#34D399" : c.pct >= 60 ? "#FBBF24" : "#F87171",
+                      width: `${c.compliance}%`,
+                      background: c.compliance >= 75 ? "#34D399" : c.compliance >= 60 ? "#FBBF24" : "#F87171",
                     }}
                   />
                 </div>
@@ -386,8 +389,14 @@ export default function CgDashboard({ navigate }: Props) {
             ))}
           </div>
           <div className="mt-4 rounded-lg p-3 text-xs" style={{ background: "rgba(156,223,240,0.07)", border: "1px solid rgba(156,223,240,0.15)" }}>
-            <p className="font-semibold mb-0.5" style={{ color: "var(--accent)" }}>Next audit: 15 Oct 2026</p>
-            <p style={{ color: "var(--muted)" }}>RBI CSF assessment due. 4 controls require remediation.</p>
+            <p className="font-semibold mb-0.5" style={{ color: "var(--accent)" }}>
+              {frameworks.filter(f => f.evidence === "Refresh due").length > 0
+                ? `${frameworks.filter(f => f.evidence === "Refresh due").length} framework(s) need evidence refresh`
+                : "All frameworks current"}
+            </p>
+            <p style={{ color: "var(--muted)" }}>
+              {frameworks.find(f => f.evidence === "Refresh due")?.name ?? frameworks[0]?.name} last assessed {frameworks.find(f => f.evidence === "Refresh due")?.assessed ?? frameworks[0]?.assessed}.
+            </p>
           </div>
         </Panel>
       </div>
