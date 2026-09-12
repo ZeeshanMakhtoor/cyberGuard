@@ -1,5 +1,6 @@
 import type { CgPage } from "../../App";
 import { useComplianceFrameworks } from "@/hooks/useComplianceFrameworks";
+import { exportComplianceAuditExcel } from "@/lib/exportExcel";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -64,7 +65,13 @@ export default function CgCompliance({ navigate }: Props) {
 
             <div className="flex gap-3 mt-3">
               <button className="text-xs font-semibold" style={{ color: "var(--accent)" }} onClick={() => navigate("reports")}>View Evidence Pack</button>
-              <button className="text-xs font-semibold" style={{ color: "var(--muted)" }}>Export Audit Report</button>
+              <button
+                className="text-xs font-semibold"
+                style={{ color: "var(--muted)" }}
+                onClick={() => exportComplianceAuditExcel(f)}
+              >
+                Export Audit Report
+              </button>
             </div>
           </div>
         ))}

@@ -5,7 +5,7 @@ import {
 import { useEffect, useState } from "react";
 import type { CgPage } from "../../App";
 import { useEalTrend } from "@/hooks/useRiskSnapshots";
-import { exportDashboardPdf } from "@/lib/exportPdf";
+import { exportDashboardExcel } from "@/lib/exportExcel";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -167,7 +167,7 @@ export default function CgDashboard({ navigate }: Props) {
           <button
             className="text-xs px-3 py-1.5 rounded-lg border font-medium"
             style={{ borderColor: "var(--border)", color: "var(--muted)" }}
-            onClick={() => exportDashboardPdf({
+            onClick={() => exportDashboardExcel({
               generatedAt: new Date(),
               riskScore: 72,
               expectedAnnualLoss: "₹2.45 Cr",
@@ -177,7 +177,7 @@ export default function CgDashboard({ navigate }: Props) {
               topRisks: topRisks.map(r => ({ risk: r.risk, asset: r.asset, impact: r.impact, likelihood: r.likelihood, priority: r.priority })),
             })}
           >
-            Export PDF
+            Export Excel
           </button>
           <button className="text-xs px-3 py-1.5 rounded-lg font-semibold" style={{ background: "var(--accent)", color: "var(--bg)" }} onClick={() => navigate("risk")}>
             Full Analysis →
