@@ -10,6 +10,7 @@ import { useVulnerabilities } from "@/hooks/useVulnerabilities";
 import { useComplianceFrameworks } from "@/hooks/useComplianceFrameworks";
 import { INITIAL_RECS } from "@/lib/recommendationsData";
 import { exportDashboardExcel } from "@/lib/exportExcel";
+import { benchmarkRiskScore } from "@/lib/benchmark";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -159,6 +160,9 @@ export default function CgDashboard({ navigate }: Props) {
 
   const topRecs = INITIAL_RECS.filter(r => r.status === "Pending").slice(0, 4);
 
+  const OVERALL_RISK_SCORE = 72;
+  const benchmark = benchmarkRiskScore(OVERALL_RISK_SCORE, "Banking / BFSI");
+
   return (
     <div className="p-5 space-y-5 max-w-screen-2xl mx-auto">
 
@@ -177,7 +181,7 @@ export default function CgDashboard({ navigate }: Props) {
             style={{ borderColor: "var(--border)", color: "var(--muted)" }}
             onClick={() => exportDashboardExcel({
               generatedAt: new Date(),
-              riskScore: 72,
+              riskScore: OVERALL_RISK_SCORE,
               expectedAnnualLoss: "₹2.45 Cr",
               financialExposure: "₹8.3 Cr",
               totalAssets: String(totalAssets),
@@ -198,10 +202,58 @@ export default function CgDashboard({ navigate }: Props) {
         <KpiCard icon="🖥" label="Total Assets" value={String(totalAssets)} sub="Live from Asset Inventory" color="#9CDFF0" onClick={() => navigate("assets")} />
         <KpiCard icon="⚠" label="Critical Vulnerabilities" value={String(criticalVulns)} sub="Live from Vulnerabilities" color="#F87171" onClick={() => navigate("vulnerabilities")} />
         <KpiCard icon="₹" label="Expected Annual Loss" value="₹2.45 Cr" sub="↓ 6% vs last quarter" color="#FBBF24" onClick={() => navigate("risk")} />
-        <KpiCard icon="🎯" label="Overall Risk Score" value="72 / 100" sub="High — action needed" color="#F87171" onClick={() => navigate("risk")} />
+        <KpiCard icon="🎯" label="Overall Risk Score" value={`${OVERALL_RISK_SCORE} / 100`} sub="High — action needed" color="#F87171" onClick={() => navigate("risk")} />
         <KpiCard icon="💰" label="Financial Risk Exposure" value="₹8.3 Cr" sub="Total potential loss" color="#60B8CF" onClick={() => navigate("risk")} />
         <KpiCard icon="🤖" label="AI Recommendations" value={String(pendingRecs)} sub={`${pendingRecs} pending`} color="#9CDFF0" onClick={() => navigate("ai")} />
       </div>
+
+      {/* ── Industry Benchmark ── */}
+      <Panel>
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "var(--muted)" }}>Industry Benchmark</p>
+            <p className="text-xs" style={{ color: "var(--muted)" }}>
+              vs. {benchmark.sector} peer median — <span style={{ color: "var(--text)" }}>illustrative reference data</span>
+            </p>
+          </div>
+          <div className="flex items-center gap-6 flex-wrap">
+            <div className="text-center">
+              <p className="text-xs" style={{ color: "var(--muted)" }}>Your Score</p>
+              <p className="text-lg font-bold font-mono" style={{ fontFamily: "'Outfit',sans-serif", color: "#F87171" }}>{benchmark.score}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-xs" style={{ color: "var(--muted)" }}>Peer Median</p>
+              <p className="text-lg font-bold font-mono" style={{ fontFamily: "'Outfit',sans-serif", color: "var(--muted)" }}>{benchmark.medianScore}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-xs" style={{ color: "var(--muted)" }}>Percentile Rank</p>
+              <p className="text-lg font-bold font-mono" style={{ fontFamily: "'Outfit',sans-serif", color: benchmark.betterThanMedian ? "var(--ok)" : "#FBBF24" }}>
+                {benchmark.percentile}th
+              </p>
+            </div>
+            <span
+              className="text-xs px-2.5 py-1 rounded-full font-semibold"
+              style={benchmark.betterThanMedian
+                ? { background: "rgba(52,211,153,0.15)", color: "#34D399" }
+                : { background: "rgba(251,191,36,0.15)", color: "#FBBF24" }}
+            >
+              {benchmark.betterThanMedian ? "Better than peers" : "Below peer median"}
+            </span>
+          </div>
+        </div>
+        <div className="relative h-2 rounded-full mt-4" style={{ background: "rgba(255,255,255,0.07)" }}>
+          <div
+            className="absolute top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-full"
+            style={{ left: `${benchmark.medianScore}%`, background: "var(--muted)" }}
+            title="Peer median"
+          />
+          <div
+            className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2"
+            style={{ left: `calc(${benchmark.score}% - 6px)`, background: "#F87171", borderColor: "var(--bg)" }}
+            title="Your score"
+          />
+        </div>
+      </Panel>
 
       {/* ── Row 2: EAL Trend + Criticality Donut ── */}
       <div className="grid lg:grid-cols-3 gap-5">

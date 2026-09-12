@@ -5,6 +5,7 @@ import {
 } from "recharts";
 import type { CgPage } from "../../App";
 import { useVulnerabilities } from "@/hooks/useVulnerabilities";
+import { benchmarkRiskScore } from "@/lib/benchmark";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -91,6 +92,7 @@ function ScoreGauge({ score }: { score: number }) {
 export default function CgRiskAnalysis({ navigate }: Props) {
   const { data: vulnerabilities } = useVulnerabilities();
   const openRisks = vulnerabilities.filter(v => v.status === "Open").length;
+  const benchmark = benchmarkRiskScore(72, "Banking / BFSI");
 
   return (
     <div className="p-5 max-w-screen-xl mx-auto space-y-5">
@@ -121,6 +123,13 @@ export default function CgRiskAnalysis({ navigate }: Props) {
                 <span className="font-semibold font-mono" style={{ color: "var(--text)" }}>{v}</span>
               </div>
             ))}
+          </div>
+          <div className="mt-3 pt-3 border-t w-full" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+            <p className="text-xs mb-1" style={{ color: "var(--muted)" }}>vs. {benchmark.sector} peer median</p>
+            <div className="flex justify-between text-xs">
+              <span style={{ color: "var(--muted)" }}>Peer median: <span style={{ color: "var(--text)" }}>{benchmark.medianScore}</span></span>
+              <span className="font-semibold" style={{ color: benchmark.betterThanMedian ? "var(--ok)" : "#FBBF24" }}>{benchmark.percentile}th percentile</span>
+            </div>
           </div>
         </div>
 
