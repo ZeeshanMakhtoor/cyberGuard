@@ -48,6 +48,7 @@ export function useEalTrend() {
   const [live, setLive] = useState<EalPoint[] | null>(null);
   const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
   const seenRef = useRef(false);
+  const channelNameRef = useRef(`risk_snapshots_dashboard_${Math.random().toString(36).slice(2)}`);
 
   // Sync in the initial fetch once it lands.
   useEffect(() => {
@@ -62,7 +63,7 @@ export function useEalTrend() {
     if (!supabase) return;
     const client = supabase;
     const channel = client
-      .channel("risk_snapshots_dashboard")
+      .channel(channelNameRef.current)
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "risk_snapshots" },

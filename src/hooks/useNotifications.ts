@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
 export interface Notification {
@@ -25,13 +25,14 @@ const SEED_NOTIFICATIONS: Notification[] = [
  */
 export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>(SEED_NOTIFICATIONS);
+  const channelNameRef = useRef(`notifications_feed_${Math.random().toString(36).slice(2)}`);
 
   useEffect(() => {
     if (!supabase) return;
     const client = supabase;
 
     const channel = client
-      .channel("notifications_feed")
+      .channel(channelNameRef.current)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "vulnerabilities" }, payload => {
         const row = payload.new as { cve: string; severity: string; estimated_financial_impact_inr: number };
         setNotifications(prev => [

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { formatInrCompact } from "@/lib/currency";
 import { supabase } from "@/lib/supabaseClient";
 import { generateSyntheticVulnerability } from "@/lib/vulnScan";
@@ -39,12 +39,13 @@ function ageInDays(createdAt: string): number {
 export function useVulnerabilities() {
   const [reloadKey, setReloadKey] = useState(0);
   const [localExtras, setLocalExtras] = useState<VulnerabilityRow[]>([]);
+  const channelNameRef = useRef(`vulnerabilities_live_${Math.random().toString(36).slice(2)}`);
 
   useEffect(() => {
     if (!supabase) return;
     const client = supabase;
     const channel = client
-      .channel("vulnerabilities_live")
+      .channel(channelNameRef.current)
       .on("postgres_changes", { event: "*", schema: "public", table: "vulnerabilities" }, () => {
         setReloadKey(k => k + 1);
       })
