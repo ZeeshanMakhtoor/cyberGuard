@@ -10,6 +10,7 @@ import { useThreats } from "@/hooks/useThreats";
 import { benchmarkRiskScore } from "@/lib/benchmark";
 import { computeLossRange, formatCr } from "@/lib/lossRange";
 import { computeRiskScore, riskLevelLabel } from "@/lib/riskScore";
+import V2Pill from "@/components/V2Pill";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -135,8 +136,8 @@ export default function CgRiskAnalysis({ navigate }: Props) {
                 <span className="font-semibold font-mono" style={{ color: "var(--text)" }}>{v}</span>
               </div>
             ))}
-            <div className="flex justify-between text-xs" title={`Range: ${formatCr(ealRange.min)} – ${formatCr(ealRange.max)}`}>
-              <span style={{ color: "var(--muted)" }}>EAL</span>
+            <div className="flex justify-between items-center text-xs" title={`Range: ${formatCr(ealRange.min)} – ${formatCr(ealRange.max)} (FAIR-style confidence range, inspired by RiskLens)`}>
+              <span className="flex items-center gap-1.5" style={{ color: "var(--muted)" }}>EAL <V2Pill label="Loss range, inspired by RiskLens" compact /></span>
               <span className="font-semibold font-mono" style={{ color: "var(--text)" }}>{formatCr(ealRange.likely)}</span>
             </div>
             <div className="flex justify-between text-xs" title={`Range: ${formatCr(exposureRange.min)} – ${formatCr(exposureRange.max)}`}>
@@ -145,7 +146,10 @@ export default function CgRiskAnalysis({ navigate }: Props) {
             </div>
           </div>
           <div className="mt-3 pt-3 border-t w-full" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-            <p className="text-xs mb-1" style={{ color: "var(--muted)" }}>vs. {benchmark.sector} peer median</p>
+            <div className="flex items-center gap-2 mb-1">
+              <p className="text-xs" style={{ color: "var(--muted)" }}>vs. {benchmark.sector} peer median</p>
+              <V2Pill label="Peer benchmark, inspired by Bitsight" compact />
+            </div>
             <div className="flex justify-between text-xs">
               <span style={{ color: "var(--muted)" }}>Peer median: <span style={{ color: "var(--text)" }}>{benchmark.medianScore}</span></span>
               <span className="font-semibold" style={{ color: benchmark.betterThanMedian ? "var(--ok)" : "#FBBF24" }}>{benchmark.percentile}th percentile</span>

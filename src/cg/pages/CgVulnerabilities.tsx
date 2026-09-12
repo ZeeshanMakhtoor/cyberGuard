@@ -3,6 +3,7 @@ import type { CgPage } from "../../App";
 import { useVulnerabilities } from "@/hooks/useVulnerabilities";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { computePriorityScore } from "@/lib/priorityScore";
+import V2Pill from "@/components/V2Pill";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -117,7 +118,7 @@ export default function CgVulnerabilities({ navigate }: Props) {
           </SelectContent>
         </Select>
         <button
-          className="text-xs px-3 py-1.5 rounded-lg border font-medium ml-auto"
+          className="text-xs px-3 py-1.5 rounded-lg border font-medium"
           style={sortByPriority
             ? { background: "var(--accent)", color: "var(--bg)", borderColor: "var(--accent)" }
             : { color: "var(--muted)", borderColor: "var(--border)" }}
@@ -126,6 +127,9 @@ export default function CgVulnerabilities({ navigate }: Props) {
         >
           {sortByPriority ? "Sorted by Priority ✓" : "Sort by Priority"}
         </button>
+        <div className="ml-auto flex items-center">
+          <V2Pill label="Attack-path priority ranking, inspired by Balbix" />
+        </div>
       </div>
 
       {/* Table */}
