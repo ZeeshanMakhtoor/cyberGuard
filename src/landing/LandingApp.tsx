@@ -1,4 +1,3 @@
-import Nav from "./sections/Nav";
 import Hero from "./sections/Hero";
 import Problem from "./sections/Problem";
 import About from "./sections/About";
@@ -11,7 +10,6 @@ import Footer from "./sections/Footer";
 export default function LandingApp() {
   return (
     <div style={{ background: "var(--lp-bg)", color: "var(--lp-text)" }}>
-      <Nav />
       <Hero />
       <Problem />
       <About />

@@ -1,8 +1,6 @@
-import { lazy, Suspense } from "react";
 import { ArrowRight, PlayCircle } from "lucide-react";
+import Nav from "./Nav";
 import dashboardScreenshot from "../assets/dashboard-screenshot.jpg";
-
-const NetworkCanvas = lazy(() => import("../lib/NetworkCanvas"));
 
 const STEPS = [
   {
@@ -22,59 +20,56 @@ const STEPS = [
 export default function Hero() {
   return (
     <section id="top">
-      <div className="lp-container pt-6">
-        <div
-          className="relative overflow-hidden rounded-3xl px-6 sm:px-10 pt-10 pb-0"
-          style={{
-            background: "radial-gradient(120% 100% at 15% 0%, #103042 0%, #0B1F2B 45%, #071620 100%)",
-          }}
-        >
-          <div className="absolute inset-0 opacity-60">
-            <Suspense fallback={null}>
-              <NetworkCanvas />
-            </Suspense>
-          </div>
-          <div
-            className="absolute inset-0"
-            style={{ background: "linear-gradient(180deg, rgba(7,22,32,0.15) 0%, rgba(7,22,32,0.75) 75%, #071620 100%)" }}
-          />
+      <div
+        className="relative overflow-hidden"
+        style={{
+          background:
+            "radial-gradient(120% 90% at 15% -10%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 55%), linear-gradient(165deg, #0A6C86 0%, #0E85A3 30%, #21A8C4 60%, #57CFE0 100%)",
+        }}
+      >
+        <Nav variant="light" />
 
-          <div className="relative text-center max-w-2xl mx-auto pb-16">
-            <span
-              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide px-3 py-1.5 rounded-full"
-              style={{ background: "rgba(255,255,255,0.08)", color: "#9FD8E8", border: "1px solid rgba(159,216,232,0.25)" }}
+        <div className="relative text-center max-w-2xl mx-auto px-4 pt-14 sm:pt-16 pb-16">
+          <span
+            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide px-3 py-1.5 rounded-full"
+            style={{ background: "rgba(255,255,255,0.18)", color: "#fff", border: "1px solid rgba(255,255,255,0.35)" }}
+          >
+            Cyber Risk Quantification
+          </span>
+          <h1 className="mt-6 text-4xl sm:text-5xl font-extrabold leading-tight tracking-tight text-white">
+            Manage cyber risk with <em style={{ fontStyle: "italic" }}>financial precision</em>
+          </h1>
+          <p className="mt-5 text-base leading-relaxed max-w-xl mx-auto" style={{ color: "rgba(255,255,255,0.88)" }}>
+            Turn vulnerability scanners, asset inventory, and threat intel into one transparent,
+            FAIR-aligned risk score — in rupees, not red / yellow / green.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <a
+              href="#waitlist"
+              className="inline-flex items-center gap-2 text-sm font-bold px-6 py-3 rounded-full transition-transform hover:-translate-y-0.5"
+              style={{ background: "#fff", color: "#0A6C86" }}
             >
-              Cyber Risk Quantification
-            </span>
-            <h1 className="mt-6 text-4xl sm:text-5xl font-extrabold leading-tight tracking-tight text-white">
-              Manage cyber risk with <em style={{ fontStyle: "italic", color: "#58D6C9" }}>financial precision</em>
-            </h1>
-            <p className="mt-5 text-base leading-relaxed max-w-xl mx-auto" style={{ color: "rgba(255,255,255,0.68)" }}>
-              Turn vulnerability scanners, asset inventory, and threat intel into one transparent,
-              FAIR-aligned risk score — in rupees, not red / yellow / green.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-              <a href="#waitlist" className="lp-btn-primary" style={{ borderRadius: 999 }}>
-                Join the Waitlist
-                <ArrowRight className="w-4 h-4" />
-              </a>
-              <a
-                href="#features"
-                className="inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-full transition-colors"
-                style={{ color: "#fff", border: "1px solid rgba(255,255,255,0.3)" }}
-              >
-                <PlayCircle className="w-4 h-4" />
-                See how it works
-              </a>
-            </div>
+              Join the Waitlist
+              <ArrowRight className="w-4 h-4" />
+            </a>
+            <a
+              href="#features"
+              className="inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-full transition-colors"
+              style={{ color: "#fff", border: "1px solid rgba(255,255,255,0.5)" }}
+            >
+              <PlayCircle className="w-4 h-4" />
+              See how it works
+            </a>
           </div>
+        </div>
 
+        <div className="lp-container relative">
           <div className="relative max-w-3xl mx-auto -mb-24 sm:-mb-28">
             <img
               src={dashboardScreenshot}
               alt="CyberGuard AI dashboard showing live risk score, expected annual loss, and risk breakdown"
               className="w-full rounded-2xl shadow-2xl"
-              style={{ border: "1px solid rgba(255,255,255,0.12)", display: "block" }}
+              style={{ border: "1px solid rgba(255,255,255,0.4)", display: "block" }}
             />
           </div>
         </div>
