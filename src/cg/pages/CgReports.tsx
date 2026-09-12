@@ -33,6 +33,13 @@ export default function CgReports({ navigate }: Props) {
   const [showGenerateDialog, setShowGenerateDialog] = useState(false);
   const [newName, setNewName] = useState("");
   const [newType, setNewType] = useState<(typeof REPORT_TYPES)[number]>("Executive");
+  const [downloadedName, setDownloadedName] = useState<string | null>(null);
+
+  function handleDownload(r: ReportRow) {
+    exportGeneratedReportExcel({ name: r.name, type: r.type, date: r.date });
+    setDownloadedName(r.name);
+    setTimeout(() => setDownloadedName(cur => (cur === r.name ? null : cur)), 2000);
+  }
 
   function handleGenerate() {
     const name = newName.trim() || `${newType} Report`;
@@ -98,11 +105,11 @@ export default function CgReports({ navigate }: Props) {
                       <button className="text-xs font-semibold" style={{ color: "var(--accent)" }} onClick={() => setPreviewing(r)}>View Report</button>
                       <button
                         className="text-xs font-semibold disabled:opacity-40"
-                        style={{ color: "var(--muted)" }}
+                        style={downloadedName === r.name ? { color: "#34D399" } : { color: "var(--muted)" }}
                         disabled={r.status !== "Ready"}
-                        onClick={() => exportGeneratedReportExcel({ name: r.name, type: r.type, date: r.date })}
+                        onClick={() => handleDownload(r)}
                       >
-                        Download
+                        {downloadedName === r.name ? "Downloaded ✓" : "Download"}
                       </button>
                       <button className="text-xs font-semibold" style={{ color: "var(--muted)" }}>Share</button>
                     </div>
