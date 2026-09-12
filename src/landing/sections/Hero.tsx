@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, PlayCircle } from "lucide-react";
 import Nav from "./Nav";
 import { useReveal } from "../lib/useReveal";
@@ -20,6 +21,23 @@ const STEPS = [
 
 export default function Hero() {
   const { ref: stepsRef, visible: stepsVisible } = useReveal<HTMLDivElement>();
+  const [scrolled, setScrolled] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  // Detects when the gradient hero panel has scrolled out from under the
+  // sticky nav (rather than a raw scrollY threshold) so the header's
+  // light-on-gradient look switches to a solid glass look at exactly the
+  // point where the background underneath it actually changes.
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setScrolled(!entry.isIntersecting && entry.boundingClientRect.top < 0),
+      { threshold: 0 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section id="top">
@@ -30,11 +48,9 @@ export default function Hero() {
             "radial-gradient(120% 90% at 15% -10%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 55%), linear-gradient(165deg, #0A6C86 0%, #0E85A3 30%, #21A8C4 60%, #57CFE0 100%)",
         }}
       >
-        <div className="lp-hero-in" style={{ animationDelay: "0ms" }}>
-          <Nav variant="light" />
-        </div>
+        <Nav scrolled={scrolled} />
 
-        <div className="relative text-center max-w-2xl mx-auto px-4 pt-14 sm:pt-16 pb-16">
+        <div className="relative text-center max-w-2xl mx-auto px-4 pt-32 sm:pt-36 pb-16">
           <span
             className="lp-hero-in inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide px-3 py-1.5 rounded-full"
             style={{ background: "rgba(255,255,255,0.18)", color: "#fff", border: "1px solid rgba(255,255,255,0.35)", animationDelay: "80ms" }}
@@ -84,6 +100,8 @@ export default function Hero() {
             />
           </div>
         </div>
+
+        <div ref={sentinelRef} aria-hidden="true" />
       </div>
 
       <div className="lp-container pt-32 sm:pt-36 pb-10">

@@ -42,7 +42,15 @@ html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
-  background: var(--lp-bg);
+  /* Soft, fixed brand-color washes so the glassmorphism cards below the
+     hero have something to actually refract — a flat background would
+     make backdrop-blur invisible. */
+  background:
+    radial-gradient(680px 480px at 8% 8%, rgba(14, 133, 163, 0.10), transparent 60%),
+    radial-gradient(560px 420px at 95% 28%, rgba(87, 207, 224, 0.12), transparent 60%),
+    radial-gradient(600px 460px at 15% 92%, rgba(30, 122, 147, 0.08), transparent 60%),
+    var(--lp-bg);
+  background-attachment: fixed;
   color: var(--lp-text);
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -86,10 +94,12 @@ h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; margin: 0; }
 }
 
 .lp-card {
-  background: var(--lp-panel);
-  border: 1px solid var(--lp-border);
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: var(--lp-radius);
-  box-shadow: var(--lp-shadow-sm);
+  box-shadow: var(--lp-shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .lp-btn-primary {
