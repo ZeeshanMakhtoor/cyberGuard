@@ -103,6 +103,7 @@ alter table compliance_frameworks enable row level security;
 create policy "authenticated read" on assets                for select using (auth.role() = 'authenticated');
 create policy "authenticated insert" on assets               for insert to authenticated with check (true);
 create policy "authenticated read" on vulnerabilities        for select using (auth.role() = 'authenticated');
+create policy "authenticated insert" on vulnerabilities       for insert to authenticated with check (true);
 create policy "authenticated read" on controls               for select using (auth.role() = 'authenticated');
 create policy "authenticated read" on recommendations        for select using (auth.role() = 'authenticated');
 create policy "authenticated read" on threats                for select using (auth.role() = 'authenticated');
