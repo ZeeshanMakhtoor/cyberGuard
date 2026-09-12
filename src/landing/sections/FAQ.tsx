@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import * as Accordion from "@radix-ui/react-accordion";
 import { ChevronDown } from "lucide-react";
 import { useReveal } from "../lib/useReveal";
@@ -25,6 +26,15 @@ const FAQS = [
   },
 ];
 
+function FAQItem({ children, delay }: { children: ReactNode; delay: number }) {
+  const { ref, visible } = useReveal<HTMLDivElement>();
+  return (
+    <div ref={ref} className={`lp-fade-up ${visible ? "lp-visible" : ""}`} style={{ transitionDelay: `${delay}ms` }}>
+      {children}
+    </div>
+  );
+}
+
 export default function FAQ() {
   const { ref, visible } = useReveal<HTMLDivElement>();
 
@@ -38,17 +48,19 @@ export default function FAQ() {
 
         <Accordion.Root type="single" collapsible defaultValue="item-0" className="mt-10 flex flex-col gap-3">
           {FAQS.map((item, i) => (
-            <Accordion.Item key={item.q} value={`item-${i}`} className="lp-card overflow-hidden">
-              <Accordion.Header>
-                <Accordion.Trigger className="lp-accordion-trigger w-full flex items-center justify-between gap-4 text-left px-5 py-4">
-                  <span className="text-sm font-semibold">{item.q}</span>
-                  <ChevronDown className="lp-accordion-chevron w-4 h-4 flex-shrink-0" style={{ color: "var(--lp-accent)" }} />
-                </Accordion.Trigger>
-              </Accordion.Header>
-              <Accordion.Content className="lp-accordion-content">
-                <p className="px-5 pb-4 text-sm leading-relaxed" style={{ color: "var(--lp-muted)" }}>{item.a}</p>
-              </Accordion.Content>
-            </Accordion.Item>
+            <FAQItem key={item.q} delay={i * 70}>
+              <Accordion.Item value={`item-${i}`} className="lp-card overflow-hidden">
+                <Accordion.Header>
+                  <Accordion.Trigger className="lp-accordion-trigger w-full flex items-center justify-between gap-4 text-left px-5 py-4">
+                    <span className="text-sm font-semibold">{item.q}</span>
+                    <ChevronDown className="lp-accordion-chevron w-4 h-4 flex-shrink-0" style={{ color: "var(--lp-accent)" }} />
+                  </Accordion.Trigger>
+                </Accordion.Header>
+                <Accordion.Content className="lp-accordion-content">
+                  <p className="px-5 pb-4 text-sm leading-relaxed" style={{ color: "var(--lp-muted)" }}>{item.a}</p>
+                </Accordion.Content>
+              </Accordion.Item>
+            </FAQItem>
           ))}
         </Accordion.Root>
       </div>

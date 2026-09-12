@@ -1,11 +1,14 @@
 import { ShieldCheck, Mail, ArrowUpRight } from "lucide-react";
+import { useReveal } from "../lib/useReveal";
 
 export default function Footer() {
   const year = new Date().getFullYear();
+  const { ref, visible } = useReveal<HTMLDivElement>();
   return (
     <footer className="lp-container pb-6">
       <div
-        className="relative overflow-hidden rounded-3xl px-6 sm:px-10 pt-14"
+        ref={ref}
+        className={`lp-fade-up ${visible ? "lp-visible" : ""} relative overflow-hidden rounded-3xl px-6 sm:px-10 pt-14`}
         style={{ background: "#071620" }}
       >
         <div className="relative grid sm:grid-cols-2 gap-8 items-start pb-10">
