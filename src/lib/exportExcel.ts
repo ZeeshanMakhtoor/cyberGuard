@@ -141,8 +141,18 @@ export interface GeneratedReport {
   date: string;
 }
 
-/** Generates a report workbook (.xlsx) — one sheet of metadata, one of the org's key metrics. */
-export function exportGeneratedReportExcel(report: GeneratedReport) {
+/** A section of a generated report — see src/lib/reportContent.ts. */
+export interface GeneratedReportSection {
+  title: string;
+  kv?: { label: string; value: string }[];
+  table?: { headers: string[]; rows: (string | number)[][] };
+}
+
+/**
+ * Generates a report workbook (.xlsx): one "Report Info" sheet, then one
+ * sheet per report section (live data, matching the on-screen preview).
+ */
+export function exportGeneratedReportExcel(report: GeneratedReport, sections: GeneratedReportSection[] = []) {
   const infoSheet = XLSX.utils.json_to_sheet([
     { Field: "Report Name", Value: report.name },
     { Field: "Type", Value: report.type },
@@ -151,18 +161,27 @@ export function exportGeneratedReportExcel(report: GeneratedReport) {
   ], { skipHeader: true });
   infoSheet["!cols"] = [{ wch: 18 }, { wch: 40 }];
 
-  const metricsSheet = XLSX.utils.json_to_sheet([
-    { Metric: "Overall Risk Score", Value: "72 / 100" },
-    { Metric: "Expected Annual Loss", Value: "₹2.45 Cr" },
-    { Metric: "Financial Risk Exposure", Value: "₹8.3 Cr" },
-    { Metric: "Total Assets", Value: "1,248" },
-    { Metric: "Critical Vulnerabilities", Value: "86" },
-  ], { skipHeader: true });
-  metricsSheet["!cols"] = [{ wch: 26 }, { wch: 20 }];
-
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, infoSheet, "Report Info");
-  XLSX.utils.book_append_sheet(workbook, metricsSheet, "Key Metrics");
+
+  sections.forEach((section, i) => {
+    const sheetName = section.title.slice(0, 31) || `Section ${i + 1}`;
+    if (section.kv) {
+      const sheet = XLSX.utils.json_to_sheet(
+        section.kv.map(({ label, value }) => ({ Field: label, Value: value })),
+        { skipHeader: true },
+      );
+      sheet["!cols"] = [{ wch: 30 }, { wch: 30 }];
+      XLSX.utils.book_append_sheet(workbook, sheet, sheetName);
+    } else if (section.table) {
+      const rows = section.table.rows.map(row =>
+        Object.fromEntries(section.table!.headers.map((h, idx) => [h, row[idx]])),
+      );
+      const sheet = XLSX.utils.json_to_sheet(rows);
+      sheet["!cols"] = section.table.headers.map(() => ({ wch: 18 }));
+      XLSX.utils.book_append_sheet(workbook, sheet, sheetName);
+    }
+  });
 
   const slug = report.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
   const today = new Date().toISOString().slice(0, 10);
