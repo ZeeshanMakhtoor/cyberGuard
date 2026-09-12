@@ -9,7 +9,7 @@ import V1Pill from "@/components/V1Pill";
 interface Props { navigate: (p: CgPage) => void; }
 
 const exploitColors: Record<string, string> = {
-  Active: "#F87171", Public: "#FBBF24", PoC: "#60B8CF", None: "#5196A7",
+  Active: "#F87171", Public: "#FBBF24", PoC: "var(--accent2)", None: "var(--mid)",
 };
 
 const SEVERITIES = ["All", "Critical", "High", "Medium", "Low"] as const;
@@ -143,7 +143,7 @@ export default function CgVulnerabilities({ navigate }: Props) {
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr style={{ background: "#1a2f3c", borderBottom: "1px solid var(--border)" }}>
+              <tr style={{ background: "var(--panel2)", borderBottom: "1px solid var(--border)" }}>
                 {["CVE ID", "Affected Asset", "Priority", "Severity", "CVSS", "Status", "Exploit", "Financial Impact", "Age (days)", "Action"].map(h => (
                   <th key={h} className="text-left px-4 py-3 font-semibold" style={{ color: "var(--muted)" }}>{h}</th>
                 ))}
@@ -158,7 +158,7 @@ export default function CgVulnerabilities({ navigate }: Props) {
                 </tr>
               )}
               {filtered.map((v, i) => (
-                <tr key={i} className="border-b hover:bg-white/[0.02] transition" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+                <tr key={i} className="border-b cg-hover-soft transition" style={{ borderColor: "var(--overlay-1)" }}>
                   <td className="px-4 py-3 font-mono font-semibold" style={{ color: "var(--accent2)" }}>{v.id}</td>
                   <td className="px-4 py-3" style={{ color: "var(--text)" }}>
                     {v.asset}
@@ -169,10 +169,10 @@ export default function CgVulnerabilities({ navigate }: Props) {
                     title={`Priority = ${Math.round(v.priority.exploitWeight * 100)}% exploit × ${Math.round(v.priority.criticalityWeight * 100)}% asset criticality × ${Math.round(v.priority.cvssNorm * 100)}% CVSS`}
                   >
                     <div className="flex items-center gap-2">
-                      <div className="w-10 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.07)" }}>
-                        <div className="h-full rounded-full" style={{ width: `${v.priority.score}%`, background: v.priority.score >= 75 ? "#F87171" : v.priority.score >= 50 ? "#FBBF24" : "#60B8CF" }} />
+                      <div className="w-10 h-1.5 rounded-full overflow-hidden" style={{ background: "var(--overlay-3)" }}>
+                        <div className="h-full rounded-full" style={{ width: `${v.priority.score}%`, background: v.priority.score >= 75 ? "#F87171" : v.priority.score >= 50 ? "#FBBF24" : "var(--accent2)" }} />
                       </div>
-                      <span className="font-mono font-bold" style={{ color: v.priority.score >= 75 ? "#F87171" : v.priority.score >= 50 ? "#FBBF24" : "#60B8CF" }}>{v.priority.score}</span>
+                      <span className="font-mono font-bold" style={{ color: v.priority.score >= 75 ? "#F87171" : v.priority.score >= 50 ? "#FBBF24" : "var(--accent2)" }}>{v.priority.score}</span>
                     </div>
                   </td>
                   <td className="px-4 py-3"><span className="font-semibold" style={{ color: v.severity === "Critical" ? "#F87171" : "#FBBF24" }}>{v.severity}</span></td>

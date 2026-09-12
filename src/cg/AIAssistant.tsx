@@ -87,7 +87,7 @@ export default function AIAssistant() {
           className="fixed bottom-20 right-5 z-50 w-[22rem] max-w-[calc(100vw-2.5rem)] rounded-xl border flex flex-col overflow-hidden"
           style={{ background: "var(--panel)", borderColor: "var(--border)", height: "min(32rem, calc(100vh - 7rem))" }}
         >
-          <div className="px-4 py-3 border-b flex items-center gap-2" style={{ borderColor: "var(--border)", background: "#1a2f3c" }}>
+          <div className="px-4 py-3 border-b flex items-center gap-2" style={{ borderColor: "var(--border)", background: "var(--panel2)" }}>
             <div className="w-2 h-2 rounded-full" style={{ background: "var(--accent)" }} />
             <p className="text-xs font-bold" style={{ fontFamily: "'Outfit',sans-serif", color: "var(--text)" }}>CyberGuard AI Assistant</p>
             <V1Pill label="Canned Q&A, falls back to live Edge Function when deployed" compact />
@@ -100,7 +100,7 @@ export default function AIAssistant() {
                   className="max-w-[85%] px-3 py-2 rounded-lg text-xs leading-relaxed"
                   style={m.role === "user"
                     ? { background: "var(--accent)", color: "var(--bg)" }
-                    : { background: "#1a2f3c", color: "var(--text)", border: "1px solid var(--border)" }}
+                    : { background: "var(--panel2)", color: "var(--text)", border: "1px solid var(--border)" }}
                 >
                   {m.text}
                 </div>
@@ -108,7 +108,7 @@ export default function AIAssistant() {
             ))}
             {thinking && (
               <div className="flex justify-start">
-                <div className="px-3 py-2 rounded-lg text-xs" style={{ background: "#1a2f3c", color: "var(--muted)", border: "1px solid var(--border)" }}>
+                <div className="px-3 py-2 rounded-lg text-xs" style={{ background: "var(--panel2)", color: "var(--muted)", border: "1px solid var(--border)" }}>
                   Thinking…
                 </div>
               </div>
@@ -137,7 +137,7 @@ export default function AIAssistant() {
               onChange={e => setInput(e.target.value)}
               placeholder="Ask about your risk posture…"
               className="flex-1 px-3 py-2 rounded-lg text-xs focus:outline-none"
-              style={{ background: "#1a2f3c", border: "1px solid var(--border)", color: "var(--text)" }}
+              style={{ background: "var(--panel2)", border: "1px solid var(--border)", color: "var(--text)" }}
             />
             <button
               type="submit"

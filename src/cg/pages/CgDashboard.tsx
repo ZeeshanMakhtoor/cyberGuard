@@ -123,10 +123,10 @@ function PriorityBadge({ p }: { p: string }) {
   const map: Record<string, [string, string]> = {
     Critical: ["#F87171", "rgba(248,113,113,0.15)"],
     High:     ["#FBBF24", "rgba(251,191,36,0.15)"],
-    Medium:   ["#60B8CF", "rgba(96,184,207,0.15)"],
-    Low:      ["#5196A7", "rgba(81,150,167,0.15)"],
+    Medium:   ["var(--accent2)", "rgba(96,184,207,0.15)"],
+    Low:      ["var(--mid)", "rgba(81,150,167,0.15)"],
   };
-  const [c, bg] = map[p] ?? ["#94a3b8", "rgba(148,163,184,0.1)"];
+  const [c, bg] = map[p] ?? ["var(--neutral)", "rgba(148,163,184,0.1)"];
   return (
     <span className="px-2 py-0.5 rounded text-xs font-semibold" style={{ color: c, background: bg }}>{p}</span>
   );
@@ -143,7 +143,7 @@ function LossRangeBar({ label, range }: { label: string; range: { min: number; l
           {formatCr(range.min)} – <span style={{ color: "var(--accent)" }}>{formatCr(range.likely)}</span> – {formatCr(range.max)}
         </span>
       </div>
-      <div className="relative h-2 rounded-full" style={{ background: "rgba(255,255,255,0.07)" }}>
+      <div className="relative h-2 rounded-full" style={{ background: "var(--overlay-3)" }}>
         <div
           className="absolute top-0 h-full rounded-full"
           style={{ left: pct(range.min), width: `calc(${pct(range.max)} - ${pct(range.min)})`, background: "rgba(156,223,240,0.25)" }}
@@ -164,7 +164,7 @@ const EAL_TICK = (v: number) => `₹${v}Cr`;
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg border px-3 py-2 text-xs" style={{ background: "#0d1b26", borderColor: "var(--border)", color: "var(--text)" }}>
+    <div className="rounded-lg border px-3 py-2 text-xs" style={{ background: "var(--panel3)", borderColor: "var(--border)", color: "var(--text)" }}>
       <p className="font-semibold mb-1" style={{ color: "var(--accent)" }}>{label}</p>
       {payload.map((p: any) => (
         <p key={p.name} style={{ color: p.color || "var(--text)" }}>{p.name}: {p.value}</p>
@@ -175,7 +175,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 // ── PAGE ──────────────────────────────────────────────────────────────────
 const CRITICALITY_COLORS: Record<string, string> = {
-  Critical: "#F87171", High: "#FBBF24", Medium: "#60B8CF", Low: "#5196A7",
+  Critical: "#F87171", High: "#FBBF24", Medium: "var(--accent2)", Low: "var(--mid)",
 };
 
 export default function CgDashboard({ navigate }: Props) {
@@ -246,12 +246,12 @@ export default function CgDashboard({ navigate }: Props) {
         <V1Pill label="Core dashboard KPIs, wired to live asset/vulnerability/threat data" compact />
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-        <KpiCard icon="🖥" label="Total Assets" value={String(totalAssets)} sub="Live from Asset Inventory" color="#9CDFF0" onClick={() => navigate("assets")} />
+        <KpiCard icon="🖥" label="Total Assets" value={String(totalAssets)} sub="Live from Asset Inventory" color="var(--accent)" onClick={() => navigate("assets")} />
         <KpiCard icon="⚠" label="Critical Vulnerabilities" value={String(criticalVulns)} sub="Live from Vulnerabilities" color="#F87171" onClick={() => navigate("vulnerabilities")} />
         <KpiCard icon="₹" label="Expected Annual Loss" value="₹2.45 Cr" sub="↓ 6% vs last quarter" color="#FBBF24" onClick={() => navigate("risk")} />
         <KpiCard icon="🎯" label="Overall Risk Score" value={`${OVERALL_RISK_SCORE} / 100`} sub={riskLevel.label} color={riskLevel.color} onClick={() => navigate("risk")} />
-        <KpiCard icon="💰" label="Financial Risk Exposure" value="₹8.3 Cr" sub="Total potential loss" color="#60B8CF" onClick={() => navigate("risk")} />
-        <KpiCard icon="🤖" label="AI Recommendations" value={String(pendingRecs)} sub={`${pendingRecs} pending`} color="#9CDFF0" onClick={() => navigate("ai")} />
+        <KpiCard icon="💰" label="Financial Risk Exposure" value="₹8.3 Cr" sub="Total potential loss" color="var(--accent2)" onClick={() => navigate("risk")} />
+        <KpiCard icon="🤖" label="AI Recommendations" value={String(pendingRecs)} sub={`${pendingRecs} pending`} color="var(--accent)" onClick={() => navigate("ai")} />
       </div>
 
       {/* ── Risk Score Formula ── */}
@@ -277,12 +277,12 @@ export default function CgDashboard({ navigate }: Props) {
             {[
               { label: "Threats", detail: `${activeThreats} active threats tracked`, value: riskBreakdown.threatFactor, weight: "35%", color: "#F87171" },
               { label: "Vulnerabilities", detail: `${criticalVulns} critical CVEs open`, value: riskBreakdown.vulnerabilityFactor, weight: "40%", color: "#FBBF24" },
-              { label: "Business Consequence", detail: `${Math.round(criticalAssetRatio * 100)}% of assets are Critical-tier`, value: riskBreakdown.consequenceFactor, weight: "25%", color: "#9CDFF0" },
+              { label: "Business Consequence", detail: `${Math.round(criticalAssetRatio * 100)}% of assets are Critical-tier`, value: riskBreakdown.consequenceFactor, weight: "25%", color: "var(--accent)" },
             ].map(f => (
-              <div key={f.label} className="rounded-lg p-3" style={{ background: "#1a2f3c", border: "1px solid var(--border)" }}>
+              <div key={f.label} className="rounded-lg p-3" style={{ background: "var(--panel2)", border: "1px solid var(--border)" }}>
                 <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>{f.label} <span style={{ color: "var(--muted)" }}>({f.weight} weight)</span></p>
                 <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>{f.detail}</p>
-                <div className="h-1.5 rounded-full overflow-hidden mt-2" style={{ background: "rgba(255,255,255,0.07)" }}>
+                <div className="h-1.5 rounded-full overflow-hidden mt-2" style={{ background: "var(--overlay-3)" }}>
                   <div className="h-full rounded-full" style={{ width: `${f.value}%`, background: f.color }} />
                 </div>
                 <p className="text-xs mt-1 font-mono font-bold" style={{ color: f.color }}>{f.value} / 100</p>
@@ -329,7 +329,7 @@ export default function CgDashboard({ navigate }: Props) {
             </span>
           </div>
         </div>
-        <div className="relative h-2 rounded-full mt-4" style={{ background: "rgba(255,255,255,0.07)" }}>
+        <div className="relative h-2 rounded-full mt-4" style={{ background: "var(--overlay-3)" }}>
           <div
             className="absolute top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-full"
             style={{ left: `${benchmark.medianScore}%`, background: "var(--muted)" }}
@@ -371,15 +371,15 @@ export default function CgDashboard({ navigate }: Props) {
             <AreaChart data={ealTrend} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
               <defs>
                 <linearGradient id="ealGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#9CDFF0" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#9CDFF0" stopOpacity={0.02} />
+                  <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="var(--accent)" stopOpacity={0.02} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-              <XAxis dataKey="month" tick={{ fill: "#8BB8C4", fontSize: 10 }} axisLine={false} tickLine={false} interval={2} />
-              <YAxis tickFormatter={EAL_TICK} tick={{ fill: "#8BB8C4", fontSize: 10 }} axisLine={false} tickLine={false} domain={[1.5, 4]} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--overlay-1)" />
+              <XAxis dataKey="month" tick={{ fill: "var(--muted)", fontSize: 10 }} axisLine={false} tickLine={false} interval={2} />
+              <YAxis tickFormatter={EAL_TICK} tick={{ fill: "var(--muted)", fontSize: 10 }} axisLine={false} tickLine={false} domain={[1.5, 4]} />
               <Tooltip content={<CustomTooltip />} />
-              <Area type="monotone" dataKey="eal" name="EAL (₹Cr)" stroke="#9CDFF0" strokeWidth={2} fill="url(#ealGrad)" dot={false} activeDot={{ r: 4, fill: "#9CDFF0" }} />
+              <Area type="monotone" dataKey="eal" name="EAL (₹Cr)" stroke="var(--accent)" strokeWidth={2} fill="url(#ealGrad)" dot={false} activeDot={{ r: 4, fill: "var(--accent)" }} />
             </AreaChart>
           </ResponsiveContainer>
         </Panel>
@@ -416,13 +416,13 @@ export default function CgDashboard({ navigate }: Props) {
           <SectionHeader title="Top Risk Contributors" sub="By financial impact %" pill={<V1Pill label="Illustrative risk-contributor breakdown" compact />} />
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={riskContributors} layout="vertical" margin={{ top: 0, right: 40, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" horizontal={false} />
-              <XAxis type="number" domain={[0, 45]} tick={{ fill: "#8BB8C4", fontSize: 10 }} axisLine={false} tickLine={false} />
-              <YAxis dataKey="name" type="category" tick={{ fill: "#8BB8C4", fontSize: 10 }} axisLine={false} tickLine={false} width={130} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--overlay-1)" horizontal={false} />
+              <XAxis type="number" domain={[0, 45]} tick={{ fill: "var(--muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
+              <YAxis dataKey="name" type="category" tick={{ fill: "var(--muted)", fontSize: 10 }} axisLine={false} tickLine={false} width={130} />
               <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="value" name="Share %" radius={[0, 4, 4, 0]}>
                 {riskContributors.map((_, i) => (
-                  <Cell key={i} fill={["#9CDFF0", "#60B8CF", "#5196A7", "#38707D"][i]} />
+                  <Cell key={i} fill={["var(--accent)", "var(--accent2)", "var(--mid)", "var(--border)"][i]} />
                 ))}
               </Bar>
             </BarChart>
@@ -443,13 +443,13 @@ export default function CgDashboard({ navigate }: Props) {
               </thead>
               <tbody>
                 {topRisks.map((r, i) => (
-                  <tr key={i} className="border-b hover:bg-white/[0.02] transition cursor-pointer" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+                  <tr key={i} className="border-b cg-hover-soft transition cursor-pointer" style={{ borderColor: "var(--overlay-1)" }}>
                     <td className="py-2.5 pr-3 font-medium max-w-[160px] truncate" style={{ color: "var(--text)" }}>{r.risk}</td>
                     <td className="py-2.5 pr-3" style={{ color: "var(--muted)" }}>{r.asset}</td>
                     <td className="py-2.5 pr-3 font-mono font-semibold" style={{ color: "#FBBF24" }}>{r.impact}</td>
                     <td className="py-2.5 pr-3" style={{ color: "var(--muted)" }}>{r.likelihood}</td>
                     <td className="py-2.5 pr-3">
-                      <span className="font-bold font-mono" style={{ color: r.score >= 80 ? "#F87171" : r.score >= 65 ? "#FBBF24" : "#60B8CF" }}>{r.score}</span>
+                      <span className="font-bold font-mono" style={{ color: r.score >= 80 ? "#F87171" : r.score >= 65 ? "#FBBF24" : "var(--accent2)" }}>{r.score}</span>
                     </td>
                     <td className="py-2.5"><PriorityBadge p={r.priority} /></td>
                   </tr>
@@ -471,7 +471,7 @@ export default function CgDashboard({ navigate }: Props) {
         />
         <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-3">
           {topRecs.map(r => (
-            <div key={r.id} className="rounded-lg border p-3 hover:border-opacity-70 transition cursor-pointer" style={{ background: "#1a2f3c", borderColor: "var(--border)" }}>
+            <div key={r.id} className="rounded-lg border p-3 hover:border-opacity-70 transition cursor-pointer" style={{ background: "var(--panel2)", borderColor: "var(--border)" }}>
               <div className="flex items-start gap-2.5 mb-2.5">
                 <span className="text-base">{r.icon}</span>
                 <p className="text-xs font-semibold leading-snug" style={{ color: "var(--text)" }}>{r.title}</p>
@@ -508,16 +508,16 @@ export default function CgDashboard({ navigate }: Props) {
           />
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={investmentChart} margin={{ top: 4, right: 16, left: -16, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-              <XAxis dataKey="invest" tickFormatter={v => `₹${v}L`} tick={{ fill: "#8BB8C4", fontSize: 10 }} axisLine={false} tickLine={false} />
-              <YAxis tickFormatter={EAL_TICK} tick={{ fill: "#8BB8C4", fontSize: 10 }} axisLine={false} tickLine={false} domain={[0.5, 2.8]} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--overlay-1)" />
+              <XAxis dataKey="invest" tickFormatter={v => `₹${v}L`} tick={{ fill: "var(--muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
+              <YAxis tickFormatter={EAL_TICK} tick={{ fill: "var(--muted)", fontSize: 10 }} axisLine={false} tickLine={false} domain={[0.5, 2.8]} />
               <Tooltip content={<CustomTooltip />} />
-              <Line type="monotone" dataKey="risk" name="EAL (₹Cr)" stroke="#9CDFF0" strokeWidth={2} dot={{ fill: "#9CDFF0", r: 3 }} activeDot={{ r: 5 }} />
+              <Line type="monotone" dataKey="risk" name="EAL (₹Cr)" stroke="var(--accent)" strokeWidth={2} dot={{ fill: "var(--accent)", r: 3 }} activeDot={{ r: 5 }} />
               {/* Optimal zone annotation */}
               <defs>
                 <linearGradient id="optZone" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#9CDFF0" stopOpacity={0.08} />
-                  <stop offset="100%" stopColor="#9CDFF0" stopOpacity={0.01} />
+                  <stop offset="0%" stopColor="var(--accent)" stopOpacity={0.08} />
+                  <stop offset="100%" stopColor="var(--accent)" stopOpacity={0.01} />
                 </linearGradient>
               </defs>
             </LineChart>
@@ -543,7 +543,7 @@ export default function CgDashboard({ navigate }: Props) {
                   <span className="text-xs" style={{ color: "var(--muted)" }}>{c.name}</span>
                   <span className="text-xs font-bold font-mono" style={{ color: c.compliance >= 75 ? "var(--ok)" : c.compliance >= 60 ? "#FBBF24" : "#F87171" }}>{c.compliance}%</span>
                 </div>
-                <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.07)" }}>
+                <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--overlay-3)" }}>
                   <div
                     className="h-full rounded-full transition-all duration-700"
                     style={{

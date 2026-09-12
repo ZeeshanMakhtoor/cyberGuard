@@ -33,15 +33,24 @@
 :root {
   --bg:       #10202C;
   --panel:    #254953;
+  --panel2:   #1a2f3c;
+  --panel3:   #0d1b26;
   --border:   #38707D;
   --mid:      #5196A7;
   --accent2:  #60B8CF;
   --accent:   #9CDFF0;
   --text:     #F4FBFD;
   --muted:    #8BB8C4;
+  --neutral:  #94a3b8;
   --danger:   #F87171;
   --warn:     #FBBF24;
   --ok:       #34D399;
+  --overlay-1: rgba(255,255,255,0.04);
+  --overlay-2: rgba(255,255,255,0.06);
+  --overlay-3: rgba(255,255,255,0.07);
+  --overlay-4: rgba(255,255,255,0.08);
+  --hover-overlay: rgba(255,255,255,0.05);
+  --hover-overlay-soft: rgba(255,255,255,0.02);
 
   /* shadcn/ui tokens — mapped onto the CyberGuard palette above so shadcn
      components (installed via `npx shadcn add <name>`) match the existing
@@ -63,6 +72,32 @@
   --input: var(--border);
   --ring: var(--accent2);
   --radius: 0.75rem;
+}
+
+/* Light theme — opt-in via [data-theme="light"] on <html>, toggled and
+   persisted from CyberLayout's topbar. Dark stays the unconditional
+   default above so existing users see no change unless they opt in. */
+:root[data-theme="light"] {
+  --bg:       #F4F7F9;
+  --panel:    #FFFFFF;
+  --panel2:   #EEF3F6;
+  --panel3:   #E4ECF0;
+  --border:   #CBD9DF;
+  --mid:      #4A8A9B;
+  --accent2:  #1E7A93;
+  --accent:   #0E7A98;
+  --text:     #0F2530;
+  --muted:    #5A7480;
+  --neutral:  #64748b;
+  --danger:   #DC2626;
+  --warn:     #B45309;
+  --ok:       #15803D;
+  --overlay-1: rgba(15,37,48,0.04);
+  --overlay-2: rgba(15,37,48,0.06);
+  --overlay-3: rgba(15,37,48,0.07);
+  --overlay-4: rgba(15,37,48,0.08);
+  --hover-overlay: rgba(15,37,48,0.06);
+  --hover-overlay-soft: rgba(15,37,48,0.03);
 }
 
 * { box-sizing: border-box; }
@@ -116,4 +151,13 @@ input, select, textarea, button { font-family: inherit; }
   .cg-popper-content[data-state="closed"] {
     animation: none;
   }
+}
+
+/* Theme-aware hover tints, replacing hardcoded hover:bg-white/* utilities
+   (which assumed a dark background and would render wrong in light mode). */
+.cg-hover:hover {
+  background: var(--hover-overlay);
+}
+.cg-hover-soft:hover {
+  background: var(--hover-overlay-soft);
 }
