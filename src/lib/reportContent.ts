@@ -149,3 +149,29 @@ export function buildReportSections(type: string, ctx: ReportContext): ReportSec
       return [];
   }
 }
+
+/**
+ * Builds the live "View Full Report" content for a single compliance
+ * framework on the Compliance page — same idea as buildReportSections, just
+ * scoped to one framework instead of the whole org.
+ */
+export function buildFrameworkReportSections(
+  framework: ComplianceFrameworkRow,
+  grade: { letter: string },
+): ReportSection[] {
+  return [
+    {
+      title: "Framework Overview",
+      kv: [
+        { label: "Framework", value: framework.name },
+        { label: "Description", value: framework.desc },
+        { label: "Letter Grade", value: grade.letter },
+        { label: "Compliance", value: `${framework.compliance}%` },
+        { label: "Controls Mapped", value: `${framework.mapped}%` },
+        { label: "Missing Controls", value: `${framework.missing}%` },
+        { label: "Evidence Status", value: framework.evidence },
+        { label: "Last Assessment", value: framework.assessed },
+      ],
+    },
+  ];
+}
