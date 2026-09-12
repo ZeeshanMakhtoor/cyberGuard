@@ -191,6 +191,24 @@ const FEATURES: Feature[] = [
   },
 ];
 
+function FeatureButton({ children, delay }: { children: ReactNode; delay: number }) {
+  const { ref, visible } = useReveal<HTMLDivElement>();
+  return (
+    <div ref={ref} className={`lp-fade-up ${visible ? "lp-visible" : ""}`} style={{ transitionDelay: `${delay}ms` }}>
+      {children}
+    </div>
+  );
+}
+
+function FeaturePreview({ children, minHeight }: { children: ReactNode; minHeight: number }) {
+  const { ref, visible } = useReveal<HTMLDivElement>();
+  return (
+    <div ref={ref} className={`lp-fade-up ${visible ? "lp-visible" : ""} lg:col-span-3`} style={{ minHeight, transitionDelay: "120ms" }}>
+      {children}
+    </div>
+  );
+}
+
 export default function Features() {
   const [active, setActive] = useState(0);
   const { ref, visible } = useReveal<HTMLDivElement>();
@@ -215,33 +233,34 @@ export default function Features() {
               const IconCmp = f.icon;
               const isActive = active === i;
               return (
-                <button
-                  key={f.key}
-                  onClick={() => setActive(i)}
-                  className="lp-card text-left p-4 transition-shadow flex gap-3 items-start"
-                  style={{
-                    borderColor: isActive ? f.color : "var(--lp-border)",
-                    boxShadow: isActive ? "var(--lp-shadow-md)" : "var(--lp-shadow-sm)",
-                  }}
-                >
-                  <div
-                    className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ background: f.bg }}
+                <FeatureButton key={f.key} delay={i * 70}>
+                  <button
+                    onClick={() => setActive(i)}
+                    className="lp-card text-left p-4 transition-shadow flex gap-3 items-start w-full"
+                    style={{
+                      borderColor: isActive ? f.color : "var(--lp-border)",
+                      boxShadow: isActive ? "var(--lp-shadow-md)" : "var(--lp-shadow-sm)",
+                    }}
                   >
-                    <IconCmp className="w-4.5 h-4.5" style={{ color: f.color }} strokeWidth={2} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold">{f.title}</p>
-                    <p className="text-xs mt-1 leading-relaxed" style={{ color: "var(--lp-muted)" }}>{f.desc}</p>
-                  </div>
-                </button>
+                    <div
+                      className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                      style={{ background: f.bg }}
+                    >
+                      <IconCmp className="w-4.5 h-4.5" style={{ color: f.color }} strokeWidth={2} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold">{f.title}</p>
+                      <p className="text-xs mt-1 leading-relaxed" style={{ color: "var(--lp-muted)" }}>{f.desc}</p>
+                    </div>
+                  </button>
+                </FeatureButton>
               );
             })}
           </div>
 
-          <div className="lg:col-span-3" style={{ minHeight: 340 }}>
+          <FeaturePreview minHeight={340}>
             {FEATURES[active].preview}
-          </div>
+          </FeaturePreview>
         </div>
       </div>
     </section>
