@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { CgPage } from "../../App";
 import { useVulnerabilities } from "@/hooks/useVulnerabilities";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { computePriorityScore } from "@/lib/priorityScore";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -17,9 +18,20 @@ export default function CgVulnerabilities({ navigate }: Props) {
   const [severity, setSeverity] = useState<(typeof SEVERITIES)[number]>("All");
   const [status, setStatus] = useState<(typeof STATUSES)[number]>("All");
   const [scanning, setScanning] = useState(false);
-  const filtered = VULNS
+  const [sortByPriority, setSortByPriority] = useState(true);
+
+  const withPriority = VULNS.map(v => ({ ...v, priority: computePriorityScore({ cvss: v.cvss, exploit: v.exploit, assetCriticality: v.assetCriticality }) }));
+
+  const filtered = withPriority
     .filter(v => severity === "All" || v.severity === severity)
-    .filter(v => status === "All" || v.status === status);
+    .filter(v => status === "All" || v.status === status)
+    .sort((a, b) => {
+      if (!sortByPriority) return 0;
+      const aOpen = a.status === "Open" || a.status === "In Progress";
+      const bOpen = b.status === "Open" || b.status === "In Progress";
+      if (aOpen !== bOpen) return aOpen ? -1 : 1;
+      return b.priority.score - a.priority.score;
+    });
 
   const criticalCount = VULNS.filter(v => v.severity === "Critical").length;
   const highCount = VULNS.filter(v => v.severity === "High").length;
@@ -104,6 +116,16 @@ export default function CgVulnerabilities({ navigate }: Props) {
             {STATUSES.map(s => <SelectItem key={s} value={s}>{s === "All" ? "All statuses" : s}</SelectItem>)}
           </SelectContent>
         </Select>
+        <button
+          className="text-xs px-3 py-1.5 rounded-lg border font-medium ml-auto"
+          style={sortByPriority
+            ? { background: "var(--accent)", color: "var(--bg)", borderColor: "var(--accent)" }
+            : { color: "var(--muted)", borderColor: "var(--border)" }}
+          onClick={() => setSortByPriority(s => !s)}
+          title="Priority = Exploitability × Asset Criticality × Severity — not just financial impact"
+        >
+          {sortByPriority ? "Sorted by Priority ✓" : "Sort by Priority"}
+        </button>
       </div>
 
       {/* Table */}
@@ -112,7 +134,7 @@ export default function CgVulnerabilities({ navigate }: Props) {
           <table className="w-full text-xs">
             <thead>
               <tr style={{ background: "#1a2f3c", borderBottom: "1px solid var(--border)" }}>
-                {["CVE ID", "Affected Asset", "Severity", "CVSS", "Status", "Exploit", "Financial Impact", "Age (days)", "Action"].map(h => (
+                {["CVE ID", "Affected Asset", "Priority", "Severity", "CVSS", "Status", "Exploit", "Financial Impact", "Age (days)", "Action"].map(h => (
                   <th key={h} className="text-left px-4 py-3 font-semibold" style={{ color: "var(--muted)" }}>{h}</th>
                 ))}
               </tr>
@@ -120,7 +142,7 @@ export default function CgVulnerabilities({ navigate }: Props) {
             <tbody>
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={9} className="px-4 py-10 text-center" style={{ color: "var(--muted)" }}>
+                  <td colSpan={10} className="px-4 py-10 text-center" style={{ color: "var(--muted)" }}>
                     No vulnerabilities found. Click "Run Scan" to scan your assets.
                   </td>
                 </tr>
@@ -128,7 +150,21 @@ export default function CgVulnerabilities({ navigate }: Props) {
               {filtered.map((v, i) => (
                 <tr key={i} className="border-b hover:bg-white/[0.02] transition" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
                   <td className="px-4 py-3 font-mono font-semibold" style={{ color: "var(--accent2)" }}>{v.id}</td>
-                  <td className="px-4 py-3" style={{ color: "var(--text)" }}>{v.asset}</td>
+                  <td className="px-4 py-3" style={{ color: "var(--text)" }}>
+                    {v.asset}
+                    <span className="block text-xs" style={{ color: "var(--muted)" }}>{v.assetCriticality}-tier</span>
+                  </td>
+                  <td
+                    className="px-4 py-3"
+                    title={`Priority = ${Math.round(v.priority.exploitWeight * 100)}% exploit × ${Math.round(v.priority.criticalityWeight * 100)}% asset criticality × ${Math.round(v.priority.cvssNorm * 100)}% CVSS`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-10 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.07)" }}>
+                        <div className="h-full rounded-full" style={{ width: `${v.priority.score}%`, background: v.priority.score >= 75 ? "#F87171" : v.priority.score >= 50 ? "#FBBF24" : "#60B8CF" }} />
+                      </div>
+                      <span className="font-mono font-bold" style={{ color: v.priority.score >= 75 ? "#F87171" : v.priority.score >= 50 ? "#FBBF24" : "#60B8CF" }}>{v.priority.score}</span>
+                    </div>
+                  </td>
                   <td className="px-4 py-3"><span className="font-semibold" style={{ color: v.severity === "Critical" ? "#F87171" : "#FBBF24" }}>{v.severity}</span></td>
                   <td className="px-4 py-3 font-mono font-bold" style={{ color: v.cvss >= 9 ? "#F87171" : "#FBBF24" }}>{v.cvss}</td>
                   <td className="px-4 py-3">
