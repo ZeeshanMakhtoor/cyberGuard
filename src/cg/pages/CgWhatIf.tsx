@@ -2,6 +2,7 @@ import { useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, AreaChart, Area, ReferenceLine } from "recharts";
 import type { CgPage } from "../../App";
 import { simulateLossExceedance, type LossExceedanceResult } from "@/lib/monteCarlo";
+import V2Pill from "@/components/V2Pill";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -208,8 +209,11 @@ export default function CgWhatIf({ navigate }: Props) {
           {/* Monte Carlo Loss Exceedance Curve */}
           {ran && exceedance && (
             <div className="rounded-xl border p-4" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
-              <div className="flex items-center justify-between mb-1">
-                <p className="text-xs font-semibold" style={{ color: "var(--muted)" }}>LOSS EXCEEDANCE CURVE — 2,000-TRIAL MONTE CARLO</p>
+              <div className="flex items-center justify-between mb-1 flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <p className="text-xs font-semibold" style={{ color: "var(--muted)" }}>LOSS EXCEEDANCE CURVE — 2,000-TRIAL MONTE CARLO</p>
+                  <V2Pill label="Inspired by Kovrr" />
+                </div>
                 <span className="text-xs px-2 py-0.5 rounded" style={{ background: "rgba(96,184,207,0.12)", color: "var(--accent2)" }}>Post-mitigation</span>
               </div>
               <p className="text-xs mb-3" style={{ color: "var(--muted)" }}>

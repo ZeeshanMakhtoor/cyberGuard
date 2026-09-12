@@ -4,6 +4,7 @@ import { useAssets } from "@/hooks/useAssets";
 import { useVulnerabilities } from "@/hooks/useVulnerabilities";
 import { useThreats } from "@/hooks/useThreats";
 import { computeRiskScore, riskLevelLabel } from "@/lib/riskScore";
+import V2Pill from "@/components/V2Pill";
 
 interface Message {
   role: "user" | "assistant";
@@ -117,10 +118,11 @@ export default function AIAssistant() {
                   <button
                     key={q}
                     onClick={() => send(q)}
-                    className="w-full text-left text-xs px-3 py-2 rounded-lg border"
+                    className="w-full text-left text-xs px-3 py-2 rounded-lg border flex items-center justify-between gap-2"
                     style={{ borderColor: "var(--border)", color: "var(--muted)" }}
                   >
-                    {q}
+                    <span>{q}</span>
+                    {q === "Generate a board risk briefing" && <V2Pill label="Inspired by SAFE Security" compact />}
                   </button>
                 ))}
               </div>

@@ -2,6 +2,7 @@ import type { CgPage } from "../../App";
 import { useComplianceFrameworks } from "@/hooks/useComplianceFrameworks";
 import { exportComplianceAuditExcel } from "@/lib/exportExcel";
 import { gradeFromPercent, overallGrade } from "@/lib/securityGrade";
+import V2Pill from "@/components/V2Pill";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -33,7 +34,10 @@ export default function CgCompliance({ navigate }: Props) {
           <span className="text-3xl font-extrabold" style={{ fontFamily: "'Outfit',sans-serif", color: overall.color }}>{overall.letter}</span>
         </div>
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "var(--muted)" }}>Overall Security Grade</p>
+          <div className="flex items-center gap-2 mb-1">
+            <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--muted)" }}>Overall Security Grade</p>
+            <V2Pill label="Letter grade, inspired by SecurityScorecard" />
+          </div>
           <p className="text-xs" style={{ color: "var(--muted)" }}>
             Averaged across {frameworks.length} framework{frameworks.length === 1 ? "" : "s"} · {overall.avgPct}% mean compliance
           </p>

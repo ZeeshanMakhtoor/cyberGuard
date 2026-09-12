@@ -14,6 +14,7 @@ import { exportDashboardExcel } from "@/lib/exportExcel";
 import { benchmarkRiskScore } from "@/lib/benchmark";
 import { computeLossRange, formatCr } from "@/lib/lossRange";
 import { computeRiskScore, riskLevelLabel } from "@/lib/riskScore";
+import V2Pill from "@/components/V2Pill";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -90,11 +91,14 @@ function KpiCard({ icon, label, value, sub, color, onClick }: {
   );
 }
 
-function SectionHeader({ title, sub, action, onAction }: { title: string; sub?: string; action?: string; onAction?: () => void; }) {
+function SectionHeader({ title, sub, action, onAction, pill }: { title: string; sub?: string; action?: string; onAction?: () => void; pill?: React.ReactNode; }) {
   return (
     <div className="flex items-center justify-between mb-4">
       <div>
-        <h2 className="text-sm font-bold" style={{ fontFamily: "'Outfit',sans-serif", color: "var(--text)" }}>{title}</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm font-bold" style={{ fontFamily: "'Outfit',sans-serif", color: "var(--text)" }}>{title}</h2>
+          {pill}
+        </div>
         {sub && <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>{sub}</p>}
       </div>
       {action && (
@@ -249,7 +253,10 @@ export default function CgDashboard({ navigate }: Props) {
       <Panel>
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "var(--muted)" }}>How is {OVERALL_RISK_SCORE} calculated?</p>
+            <div className="flex items-center gap-2 mb-1">
+              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--muted)" }}>How is {OVERALL_RISK_SCORE} calculated?</p>
+              <V2Pill label="Transparent formula, inspired by SAFE Security" />
+            </div>
             <p className="text-xs" style={{ color: "var(--muted)" }}>Risk Score = Threats × Vulnerabilities × Business Consequence — every input is traceable, not a black-box model.</p>
           </div>
           <button
@@ -284,7 +291,10 @@ export default function CgDashboard({ navigate }: Props) {
       <Panel>
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "var(--muted)" }}>Industry Benchmark</p>
+            <div className="flex items-center gap-2 mb-1">
+              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--muted)" }}>Industry Benchmark</p>
+              <V2Pill label="Peer comparison, inspired by Bitsight" />
+            </div>
             <p className="text-xs" style={{ color: "var(--muted)" }}>
               vs. {benchmark.sector} peer median — <span style={{ color: "var(--text)" }}>illustrative reference data</span>
             </p>
@@ -330,7 +340,11 @@ export default function CgDashboard({ navigate }: Props) {
 
       {/* ── FAIR Confidence Range ── */}
       <Panel>
-        <SectionHeader title="FAIR Loss Confidence Range" sub="Min / Most-Likely / Max estimate — real FAIR analysis never states a single number" />
+        <SectionHeader
+          title="FAIR Loss Confidence Range"
+          sub="Min / Most-Likely / Max estimate — real FAIR analysis never states a single number"
+          pill={<V2Pill label="Loss ranges, inspired by RiskLens" />}
+        />
         <div className="grid sm:grid-cols-2 gap-5">
           <LossRangeBar label="Expected Annual Loss" range={ealRange} />
           <LossRangeBar label="Financial Risk Exposure" range={exposureRange} />
