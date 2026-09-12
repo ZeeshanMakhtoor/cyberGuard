@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { formatInrCompact } from "@/lib/currency";
 import { supabase } from "@/lib/supabaseClient";
+import { generateSyntheticVulnerability } from "@/lib/vulnScan";
 import { useSupabaseQuery } from "./useSupabaseQuery";
 
 export interface VulnerabilityRow {
@@ -36,6 +37,7 @@ function ageInDays(createdAt: string): number {
  */
 export function useVulnerabilities() {
   const [reloadKey, setReloadKey] = useState(0);
+  const [localExtras, setLocalExtras] = useState<VulnerabilityRow[]>([]);
 
   useEffect(() => {
     if (!supabase) return;
@@ -52,7 +54,7 @@ export function useVulnerabilities() {
     };
   }, []);
 
-  return useSupabaseQuery<VulnerabilityRow[]>(
+  const query = useSupabaseQuery<VulnerabilityRow[]>(
     async client => {
       const { data, error } = await client
         .from("vulnerabilities")
@@ -73,4 +75,48 @@ export function useVulnerabilities() {
     MOCK_VULNS,
     [reloadKey],
   );
+
+  async function runScan() {
+    const finding = generateSyntheticVulnerability();
+
+    if (supabase) {
+      const { data: assets, error: assetsError } = await supabase
+        .from("assets")
+        .select("id")
+        .limit(50);
+      if (assetsError) throw assetsError;
+      const assetId = assets?.length ? assets[Math.floor(Math.random() * assets.length)].id : null;
+
+      const { error } = await supabase.from("vulnerabilities").insert({
+        cve: finding.cve,
+        asset_id: assetId,
+        severity: finding.severity,
+        cvss: finding.cvss,
+        exploitability: finding.exploitability,
+        business_criticality: finding.businessCriticality,
+        estimated_financial_impact_inr: finding.estimatedFinancialImpactInr,
+        recommended_action: finding.recommendedAction,
+        status: "Open",
+      });
+      if (error) throw error;
+      setReloadKey(k => k + 1);
+      return;
+    }
+
+    setLocalExtras(prev => [
+      {
+        id: finding.cve,
+        asset: "Newly Scanned Asset",
+        severity: finding.severity,
+        cvss: finding.cvss,
+        status: "Open",
+        exploit: finding.exploitability,
+        impact: formatInrCompact(finding.estimatedFinancialImpactInr),
+        age: 0,
+      },
+      ...prev,
+    ]);
+  }
+
+  return { ...query, data: [...localExtras, ...query.data], runScan };
 }

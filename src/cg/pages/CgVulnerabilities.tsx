@@ -13,12 +13,23 @@ const SEVERITIES = ["All", "Critical", "High", "Medium", "Low"] as const;
 const STATUSES = ["All", "Open", "In Progress", "Remediated", "Accepted"] as const;
 
 export default function CgVulnerabilities({ navigate }: Props) {
-  const { data: VULNS, loading } = useVulnerabilities();
+  const { data: VULNS, loading, runScan } = useVulnerabilities();
   const [severity, setSeverity] = useState<(typeof SEVERITIES)[number]>("All");
   const [status, setStatus] = useState<(typeof STATUSES)[number]>("All");
+  const [scanning, setScanning] = useState(false);
   const filtered = VULNS
     .filter(v => severity === "All" || v.severity === severity)
     .filter(v => status === "All" || v.status === status);
+
+  async function handleRunScan() {
+    setScanning(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2200));
+      await runScan();
+    } finally {
+      setScanning(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -37,7 +48,17 @@ export default function CgVulnerabilities({ navigate }: Props) {
           <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>86 critical · 143 high · 219 medium · Last scan: 01 Sep 2026</p>
         </div>
         <div className="flex gap-2">
-          <button className="text-xs px-3 py-1.5 rounded-lg border font-medium" style={{ borderColor: "var(--border)", color: "var(--muted)" }}>Run Scan</button>
+          <button
+            className="text-xs px-3 py-1.5 rounded-lg border font-medium disabled:opacity-60 inline-flex items-center gap-2"
+            style={{ borderColor: "var(--border)", color: "var(--muted)" }}
+            disabled={scanning}
+            onClick={handleRunScan}
+          >
+            {scanning && (
+              <span className="w-3 h-3 rounded-full border-2 animate-spin" style={{ borderColor: "var(--muted)", borderTopColor: "transparent" }} />
+            )}
+            {scanning ? "Scanning…" : "Run Scan"}
+          </button>
           <button className="text-xs px-3 py-1.5 rounded-lg font-semibold" style={{ background: "var(--accent)", color: "var(--bg)" }}
             onClick={() => navigate("ai")}>Get Remediation Plan →</button>
         </div>
