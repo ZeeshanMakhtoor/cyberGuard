@@ -2,10 +2,31 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, Legend,
 } from "recharts";
+import { useEffect, useState } from "react";
 import type { CgPage } from "../../App";
 import { useEalTrend } from "@/hooks/useRiskSnapshots";
 
 interface Props { navigate: (p: CgPage) => void; }
+
+function LiveIndicator({ live, lastUpdatedAt }: { live: boolean; lastUpdatedAt: Date | null }) {
+  const [, forceTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => forceTick(n => n + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  if (!live) return null;
+
+  const secondsAgo = lastUpdatedAt ? Math.max(0, Math.round((Date.now() - lastUpdatedAt.getTime()) / 1000)) : null;
+  return (
+    <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg" style={{ background: "rgba(52,211,153,0.1)" }}>
+      <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#34D399" }} />
+      <span className="text-xs font-medium" style={{ color: "#34D399" }}>
+        Live{secondsAgo !== null ? ` · updated ${secondsAgo}s ago` : ""}
+      </span>
+    </div>
+  );
+}
 
 // ── DATA ──────────────────────────────────────────────────────────────────
 
@@ -128,15 +149,18 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 // ── PAGE ──────────────────────────────────────────────────────────────────
 export default function CgDashboard({ navigate }: Props) {
-  const { data: ealTrend } = useEalTrend();
+  const { data: ealTrend, live, lastUpdatedAt } = useEalTrend();
   return (
     <div className="p-5 space-y-5 max-w-screen-2xl mx-auto">
 
       {/* Page title */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-base font-bold" style={{ fontFamily: "'Outfit',sans-serif" }}>Security Risk Dashboard</h1>
-          <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>Last updated: 01 Sep 2026, 09:42 IST · HDFC Bank Ltd.</p>
+          <div className="flex items-center gap-2">
+            <h1 className="text-base font-bold" style={{ fontFamily: "'Outfit',sans-serif" }}>Security Risk Dashboard</h1>
+            <LiveIndicator live={live} lastUpdatedAt={lastUpdatedAt} />
+          </div>
+          <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>Continuous risk quantification · HDFC Bank Ltd.</p>
         </div>
         <div className="flex gap-2">
           <button className="text-xs px-3 py-1.5 rounded-lg border font-medium" style={{ borderColor: "var(--border)", color: "var(--muted)" }}>Export PDF</button>

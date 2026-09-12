@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { formatInrCompact } from "@/lib/currency";
+import { supabase } from "@/lib/supabaseClient";
 import { useSupabaseQuery } from "./useSupabaseQuery";
 
 export interface VulnerabilityRow {
@@ -27,7 +29,29 @@ function ageInDays(createdAt: string): number {
   return Math.max(0, Math.round((Date.now() - new Date(createdAt).getTime()) / 86_400_000));
 }
 
+/**
+ * Vulnerabilities list, with a Realtime subscription that re-fetches on any
+ * insert/update/delete so newly discovered or remediated CVEs show up live
+ * without a page refresh.
+ */
 export function useVulnerabilities() {
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    if (!supabase) return;
+    const client = supabase;
+    const channel = client
+      .channel("vulnerabilities_live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "vulnerabilities" }, () => {
+        setReloadKey(k => k + 1);
+      })
+      .subscribe();
+
+    return () => {
+      client.removeChannel(channel);
+    };
+  }, []);
+
   return useSupabaseQuery<VulnerabilityRow[]>(
     async client => {
       const { data, error } = await client
@@ -47,6 +71,6 @@ export function useVulnerabilities() {
       }));
     },
     MOCK_VULNS,
-    [],
+    [reloadKey],
   );
 }

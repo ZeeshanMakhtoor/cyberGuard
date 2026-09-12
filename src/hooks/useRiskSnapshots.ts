@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
 import { useSupabaseQuery } from "./useSupabaseQuery";
 
 export interface EalPoint {
@@ -14,23 +16,76 @@ const MOCK_EAL_TREND: EalPoint[] = [
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-/** EAL trend for the dashboard's area chart, newest snapshot last. */
+function toEalPoint(row: { captured_at: string; expected_annual_loss_inr: number }): EalPoint {
+  const d = new Date(row.captured_at);
+  return {
+    month: `${MONTHS[d.getUTCMonth()]} '${String(d.getUTCFullYear()).slice(2)}`,
+    eal: Math.round((row.expected_annual_loss_inr / 1_00_00_000) * 100) / 100,
+  };
+}
+
+/**
+ * EAL trend for the dashboard's area chart, newest snapshot last. Once
+ * loaded from Supabase, also subscribes to new `risk_snapshots` inserts via
+ * Realtime and appends them live — `lastUpdatedAt` drives the dashboard's
+ * "Live" indicator. Falls back to mock data (no realtime) if Supabase isn't
+ * configured.
+ */
 export function useEalTrend() {
-  return useSupabaseQuery<EalPoint[]>(
+  const initial = useSupabaseQuery<EalPoint[]>(
     async client => {
       const { data, error } = await client
         .from("risk_snapshots")
         .select("captured_at, expected_annual_loss_inr")
         .order("captured_at", { ascending: true });
       if (error) throw error;
-      return data.map(row => ({
-        month: `${MONTHS[new Date(row.captured_at).getUTCMonth()]} '${String(new Date(row.captured_at).getUTCFullYear()).slice(2)}`,
-        eal: Math.round((row.expected_annual_loss_inr / 1_00_00_000) * 100) / 100,
-      }));
+      return data.map(toEalPoint);
     },
     MOCK_EAL_TREND,
     [],
   );
+
+  const [live, setLive] = useState<EalPoint[] | null>(null);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
+  const seenRef = useRef(false);
+
+  // Sync in the initial fetch once it lands.
+  useEffect(() => {
+    if (!initial.loading && !seenRef.current) {
+      seenRef.current = true;
+      setLive(initial.data);
+      if (initial.live) setLastUpdatedAt(new Date());
+    }
+  }, [initial.loading, initial.data, initial.live]);
+
+  useEffect(() => {
+    if (!supabase) return;
+    const client = supabase;
+    const channel = client
+      .channel("risk_snapshots_dashboard")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "risk_snapshots" },
+        payload => {
+          const row = payload.new as { captured_at: string; expected_annual_loss_inr: number };
+          setLive(prev => [...(prev ?? MOCK_EAL_TREND), toEalPoint(row)]);
+          setLastUpdatedAt(new Date());
+        },
+      )
+      .subscribe();
+
+    return () => {
+      client.removeChannel(channel);
+    };
+  }, []);
+
+  return {
+    data: live ?? initial.data,
+    loading: initial.loading,
+    error: initial.error,
+    live: initial.live,
+    lastUpdatedAt,
+  };
 }
 
 export interface LatestRisk {
