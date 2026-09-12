@@ -99,10 +99,10 @@ h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; margin: 0; }
   gap: 8px;
   background: var(--lp-accent);
   color: #ffffff;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 14px;
-  padding: 12px 22px;
-  border-radius: 10px;
+  padding: 12px 24px;
+  border-radius: 999px;
   border: none;
   cursor: pointer;
   transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
@@ -120,8 +120,8 @@ h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; margin: 0; }
   color: var(--lp-text);
   font-weight: 600;
   font-size: 14px;
-  padding: 12px 22px;
-  border-radius: 10px;
+  padding: 12px 24px;
+  border-radius: 999px;
   border: 1px solid var(--lp-border);
   cursor: pointer;
   transition: background 160ms ease, border-color 160ms ease;
