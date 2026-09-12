@@ -31,8 +31,7 @@ function SelectContent({ className, children, position = "popper", ...props }: R
         data-slot="select-content"
         position={position}
         className={cn(
-          "z-50 min-w-[8rem] overflow-hidden rounded-lg border border-border bg-card text-card-foreground shadow-md",
-          position === "popper" && "translate-y-1",
+          "cg-popper-content z-50 min-w-[8rem] overflow-hidden rounded-lg border border-border bg-card text-card-foreground shadow-md",
           className,
         )}
         {...props}
