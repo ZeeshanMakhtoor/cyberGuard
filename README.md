@@ -81,6 +81,13 @@ If you'd rather manage the Supabase project through this assistant instead of
 the dashboard, connect the **Supabase MCP connector** — see `PLAN.md`
 "Tools you need to connect" for exactly how.
 
+**Status:** the connected project (`xfakrnxddgdxlrzoxabe`) already has the
+schema applied, is seeded, and Auth is wired up (`src/cg/Login.tsx` gates the
+app once `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` are set — see
+`.env.local`, gitignored). One optional hardening step the Supabase
+dashboard doesn't expose via MCP: Authentication → Policies → turn on
+"Leaked password protection" (checks new passwords against HaveIBeenPwned).
+
 ## Adding shadcn/ui components
 
 `components.json` is already configured (Tailwind v4, `@/` alias, tokens

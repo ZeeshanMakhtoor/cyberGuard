@@ -1,5 +1,7 @@
 import { useState } from "react";
 import CyberLayout from "./cg/CyberLayout";
+import Login from "./cg/Login";
+import { useAuth } from "@/hooks/useAuth";
 import CgDashboard from "./cg/pages/CgDashboard";
 import CgRiskAnalysis from "./cg/pages/CgRiskAnalysis";
 import CgRecommendations from "./cg/pages/CgRecommendations";
@@ -20,6 +22,14 @@ export type CgPage =
 
 export default function App() {
   const [page, setPage] = useState<CgPage>("dashboard");
+  const { session, ready, authRequired } = useAuth();
+
+  if (authRequired && !ready) {
+    return <div className="min-h-screen" style={{ background: "var(--bg)" }} />;
+  }
+  if (authRequired && !session) {
+    return <Login />;
+  }
 
   const renderPage = () => {
     switch (page) {
@@ -40,7 +50,7 @@ export default function App() {
   };
 
   return (
-    <CyberLayout page={page} navigate={setPage}>
+    <CyberLayout page={page} navigate={setPage} userEmail={session?.user.email}>
       {renderPage()}
     </CyberLayout>
   );

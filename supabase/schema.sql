@@ -87,11 +87,10 @@ create table if not exists compliance_frameworks (
   last_assessed    timestamptz not null default now()
 );
 
--- Row Level Security — enabled everywhere. Reads are public for now so the
--- demo works before Part 3 (Supabase Auth) is wired up; PLAN.md Part 3
--- tightens these to `auth.role() = 'authenticated'` once login exists.
--- No write policies are defined, so inserts/updates/deletes are already
--- blocked from the browser (the anon key can only read).
+-- Row Level Security — enabled everywhere, reads require a signed-in user
+-- (Supabase Auth, wired up in Part 3 — src/cg/Login.tsx). No write
+-- policies are defined, so inserts/updates/deletes are already blocked
+-- from the browser (the anon key can only read, and only once authenticated).
 alter table assets enable row level security;
 alter table vulnerabilities enable row level security;
 alter table risk_snapshots enable row level security;
@@ -100,13 +99,13 @@ alter table recommendations enable row level security;
 alter table threats enable row level security;
 alter table compliance_frameworks enable row level security;
 
-create policy "public read (tighten in Part 3)" on assets                for select using (true);
-create policy "public read (tighten in Part 3)" on vulnerabilities        for select using (true);
-create policy "public read (tighten in Part 3)" on risk_snapshots         for select using (true);
-create policy "public read (tighten in Part 3)" on controls               for select using (true);
-create policy "public read (tighten in Part 3)" on recommendations        for select using (true);
-create policy "public read (tighten in Part 3)" on threats                for select using (true);
-create policy "public read (tighten in Part 3)" on compliance_frameworks  for select using (true);
+create policy "authenticated read" on assets                for select using (auth.role() = 'authenticated');
+create policy "authenticated read" on vulnerabilities        for select using (auth.role() = 'authenticated');
+create policy "authenticated read" on risk_snapshots         for select using (auth.role() = 'authenticated');
+create policy "authenticated read" on controls               for select using (auth.role() = 'authenticated');
+create policy "authenticated read" on recommendations        for select using (auth.role() = 'authenticated');
+create policy "authenticated read" on threats                for select using (auth.role() = 'authenticated');
+create policy "authenticated read" on compliance_frameworks  for select using (auth.role() = 'authenticated');
 
 -- Realtime: expose tables that should push live updates to the dashboard.
 alter publication supabase_realtime add table assets, vulnerabilities, risk_snapshots, recommendations, threats;
