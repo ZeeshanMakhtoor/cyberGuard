@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+/* Explicit content scanning, scoped to just this directory and the landing
+   HTML shell, so the landing bundle never pulls in utility classes that
+   only exist in the dashboard's src/cg, src/components, etc. */
+@import 'tailwindcss' source(none);
+@source './**/*.{ts,tsx}';
+@source '../../landing/**/*.html';
+
+/*
+ * Standalone design tokens for the marketing landing page. Deliberately not
+ * shared with src/index.css (the dashboard's token set) so the two builds
+ * stay fully independent — a change here can never affect the dashboard
+ * and vice versa.
+ */
+:root {
+  --lp-bg:      #0A1620;
+  --lp-bg2:     #0D1E2B;
+  --lp-panel:   #122534;
+  --lp-panel2:  #17303F;
+  --lp-border:  #223D4C;
+  --lp-text:    #F2F8FA;
+  --lp-muted:   #93AEBA;
+  --lp-accent:  #58D6C9;
+  --lp-accent2: #7FB8E8;
+  --lp-danger:  #F87171;
+  --lp-warn:    #FBBF24;
+  --lp-ok:      #34D399;
+  --lp-radius:  1rem;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--lp-bg);
+  color: var(--lp-text);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; margin: 0; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--lp-border); border-radius: 4px; }
+
+.lp-container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.lp-section {
+  padding-top: 96px;
+  padding-bottom: 96px;
+}
+
+@media (max-width: 640px) {
+  .lp-section { padding-top: 64px; padding-bottom: 64px; }
+}
+
+.lp-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--lp-accent);
+  background: rgba(88, 214, 201, 0.1);
+  border: 1px solid rgba(88, 214, 201, 0.25);
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+.lp-card {
+  background: var(--lp-panel);
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius);
+}
+
+.lp-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--lp-accent);
+  color: #06201C;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 12px 22px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+  box-shadow: 0 8px 24px -8px rgba(88, 214, 201, 0.5);
+}
+.lp-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 12px 28px -8px rgba(88, 214, 201, 0.65); }
+.lp-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.lp-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--lp-text);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 12px 22px;
+  border-radius: 10px;
+  border: 1px solid var(--lp-border);
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+.lp-btn-secondary:hover { background: var(--lp-panel2); border-color: var(--lp-accent2); }
+
+.lp-fade-up {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 600ms ease, transform 600ms ease;
+}
+.lp-fade-up.lp-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-fade-up { opacity: 1; transform: none; transition: none; }
+  html { scroll-behavior: auto; }
+}

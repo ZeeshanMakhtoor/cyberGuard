@@ -1,5 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
-@import 'tailwindcss';
+/* Explicit content scanning (instead of Tailwind v4's automatic whole-repo
+   detection) so the dashboard's compiled CSS never picks up utility classes
+   that only exist in src/landing — keeping the two builds fully isolated. */
+@import 'tailwindcss' source(none);
+@source './**/*.{ts,tsx}';
+@source not './landing/**';
 
 /* Registers the shadcn/ui tokens (defined below on :root) as Tailwind v4
    utilities, so shadcn components using classes like `bg-primary` or
