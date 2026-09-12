@@ -188,6 +188,7 @@ export type Database = {
       }
       threats: {
         Row: {
+          blocked_at: string | null
           description: string
           id: string
           ioc_count: number
@@ -199,6 +200,7 @@ export type Database = {
           type: string
         }
         Insert: {
+          blocked_at?: string | null
           description: string
           id?: string
           ioc_count?: number
@@ -210,6 +212,7 @@ export type Database = {
           type: string
         }
         Update: {
+          blocked_at?: string | null
           description?: string
           id?: string
           ioc_count?: number

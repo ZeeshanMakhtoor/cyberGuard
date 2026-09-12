@@ -1,10 +1,22 @@
+import { useState } from "react";
 import type { CgPage } from "../../App";
 import { useThreats } from "@/hooks/useThreats";
 
 interface Props { navigate: (p: CgPage) => void; }
 
 export default function CgThreatIntel({ navigate }: Props) {
-  const { data: threats, loading } = useThreats();
+  const { data: threats, loading, blockIocs } = useThreats();
+  const [blockingId, setBlockingId] = useState<string | null>(null);
+
+  async function handleBlockIocs(dbId: string) {
+    setBlockingId(dbId);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 900));
+      await blockIocs(dbId);
+    } finally {
+      setBlockingId(null);
+    }
+  }
 
   if (loading) {
     return (
@@ -61,10 +73,23 @@ export default function CgThreatIntel({ navigate }: Props) {
                   <span>🎯 {t.sector}</span>
                   <span>📍 {t.ioc}</span>
                   <span>📅 Last seen: {t.last}</span>
+                  {t.blocked && <span style={{ color: "#34D399" }}>🛡️ IOCs blocked</span>}
                 </div>
               </div>
               <div className="flex flex-col gap-2">
-                <button className="px-3 py-1.5 rounded-lg text-xs font-semibold" style={{ background: "var(--accent)", color: "var(--bg)" }}>Block IOCs</button>
+                <button
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-60 inline-flex items-center justify-center gap-2"
+                  style={t.blocked
+                    ? { background: "rgba(52,211,153,0.15)", color: "#34D399" }
+                    : { background: "var(--accent)", color: "var(--bg)" }}
+                  disabled={t.blocked || blockingId === t.dbId}
+                  onClick={() => handleBlockIocs(t.dbId)}
+                >
+                  {blockingId === t.dbId && (
+                    <span className="w-3 h-3 rounded-full border-2 animate-spin" style={{ borderColor: "var(--bg)", borderTopColor: "transparent" }} />
+                  )}
+                  {t.blocked ? "IOCs Blocked ✓" : blockingId === t.dbId ? "Blocking…" : "Block IOCs"}
+                </button>
                 <button className="px-3 py-1.5 rounded-lg text-xs font-semibold border" style={{ borderColor: "var(--border)", color: "var(--muted)" }} onClick={() => navigate("vulnerabilities")}>Check Exposure</button>
               </div>
             </div>

@@ -73,7 +73,8 @@ create table if not exists threats (
   sector       text not null,
   ioc_count    int not null default 0,
   description  text not null,
-  last_seen    timestamptz not null default now()
+  last_seen    timestamptz not null default now(),
+  blocked_at   timestamptz
 );
 
 create table if not exists compliance_frameworks (
@@ -107,6 +108,7 @@ create policy "authenticated insert" on vulnerabilities       for insert to auth
 create policy "authenticated read" on controls               for select using (auth.role() = 'authenticated');
 create policy "authenticated read" on recommendations        for select using (auth.role() = 'authenticated');
 create policy "authenticated read" on threats                for select using (auth.role() = 'authenticated');
+create policy "authenticated update" on threats               for update to authenticated using (true) with check (true);
 create policy "authenticated read" on compliance_frameworks  for select using (auth.role() = 'authenticated');
 
 -- Realtime: expose tables that should push live updates to the dashboard.
