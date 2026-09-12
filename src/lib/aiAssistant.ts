@@ -32,14 +32,38 @@ const CANNED: { match: RegExp; answer: string }[] = [
 const DEFAULT_ANSWER =
   "I can currently answer questions about your top financial risks, which vulnerabilities drive the most expected loss, the effect of enabling MFA, and how to prioritize your next security spend. Try one of those, or check the What-if Scenarios and Investment Optimization pages for deeper analysis.";
 
-function cannedAnswer(question: string): string {
+const BOARD_BRIEFING_MATCH = /board (briefing|report|summary|update)|generate.*board/i;
+
+export interface RiskContext {
+  riskScore: number;
+  riskLevel: string;
+  activeThreats: number;
+  criticalVulns: number;
+  totalAssets: number;
+  expectedAnnualLossCr: number;
+  topRisk: string;
+  topRiskImpact: string;
+}
+
+function boardBriefing(ctx: RiskContext): string {
+  return (
+    `**Board Risk Briefing** — Overall Risk Score is ${ctx.riskScore}/100 (${ctx.riskLevel}), driven by ${ctx.activeThreats} active threats, ` +
+    `${ctx.criticalVulns} unpatched critical vulnerabilities, and a ${ctx.totalAssets}-asset estate with meaningful Critical-tier exposure. ` +
+    `Expected Annual Loss stands at ₹${ctx.expectedAnnualLossCr.toFixed(2)} Cr. The single largest contributor is "${ctx.topRisk}" ` +
+    `(${ctx.topRiskImpact} potential impact). Recommendation: prioritize the pending AI recommendations targeting critical vulnerabilities and MFA ` +
+    `enforcement — see AI Recommendations for the cost-ranked action list and Export Roadmap for a board-ready record.`
+  );
+}
+
+function cannedAnswer(question: string, context?: RiskContext): string {
+  if (context && BOARD_BRIEFING_MATCH.test(question)) return boardBriefing(context);
   const hit = CANNED.find(c => c.match.test(question));
   return hit ? hit.answer : DEFAULT_ANSWER;
 }
 
-export async function askAssistant(question: string): Promise<{ answer: string; live: boolean }> {
+export async function askAssistant(question: string, context?: RiskContext): Promise<{ answer: string; live: boolean }> {
   if (!supabase) {
-    return { answer: cannedAnswer(question), live: false };
+    return { answer: cannedAnswer(question, context), live: false };
   }
   try {
     const { data, error } = await supabase.functions.invoke<{ answer: string }>("ai-assistant", {
@@ -50,6 +74,6 @@ export async function askAssistant(question: string): Promise<{ answer: string; 
   } catch {
     // Edge Function not deployed yet, or ANTHROPIC_API_KEY isn't set — fall
     // back to canned answers rather than showing an error in the panel.
-    return { answer: cannedAnswer(question), live: false };
+    return { answer: cannedAnswer(question, context), live: false };
   }
 }

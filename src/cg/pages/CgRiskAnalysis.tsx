@@ -5,8 +5,11 @@ import {
 } from "recharts";
 import type { CgPage } from "../../App";
 import { useVulnerabilities } from "@/hooks/useVulnerabilities";
+import { useAssets } from "@/hooks/useAssets";
+import { useThreats } from "@/hooks/useThreats";
 import { benchmarkRiskScore } from "@/lib/benchmark";
 import { computeLossRange, formatCr } from "@/lib/lossRange";
+import { computeRiskScore, riskLevelLabel } from "@/lib/riskScore";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -92,8 +95,14 @@ function ScoreGauge({ score }: { score: number }) {
 
 export default function CgRiskAnalysis({ navigate }: Props) {
   const { data: vulnerabilities } = useVulnerabilities();
+  const { data: assets } = useAssets();
+  const { data: threats } = useThreats();
   const openRisks = vulnerabilities.filter(v => v.status === "Open").length;
-  const benchmark = benchmarkRiskScore(72, "Banking / BFSI");
+  const criticalVulns = vulnerabilities.filter(v => v.severity === "Critical").length;
+  const criticalAssetRatio = assets.length ? assets.filter(a => a.criticality === "Critical").length / assets.length : 0;
+  const riskBreakdown = computeRiskScore({ activeThreats: threats.length, criticalVulns, criticalAssetRatio });
+  const riskLevel = riskLevelLabel(riskBreakdown.score);
+  const benchmark = benchmarkRiskScore(riskBreakdown.score, "Banking / BFSI");
   const ealRange = computeLossRange(2.45);
   const exposureRange = computeLossRange(8.3);
 
@@ -115,9 +124,9 @@ export default function CgRiskAnalysis({ navigate }: Props) {
         {/* Gauge */}
         <div className="rounded-xl border p-4 flex flex-col items-center" style={{ background: "var(--panel)", borderColor: "var(--border)" }}>
           <p className="text-xs font-semibold mb-2" style={{ color: "var(--muted)" }}>OVERALL RISK SCORE</p>
-          <ScoreGauge score={72} />
+          <ScoreGauge score={riskBreakdown.score} />
           <div className="mt-1 text-center">
-            <span className="text-xs font-semibold px-2 py-0.5 rounded" style={{ background: "rgba(248,113,113,0.15)", color: "#F87171" }}>HIGH RISK</span>
+            <span className="text-xs font-semibold px-2 py-0.5 rounded" style={{ background: `${riskLevel.color}26`, color: riskLevel.color }}>{riskLevel.label}</span>
           </div>
           <div className="mt-3 space-y-1 w-full">
             {[["MTTR", "14.2 days"], ["Open Risks", String(openRisks)]].map(([k, v]) => (
