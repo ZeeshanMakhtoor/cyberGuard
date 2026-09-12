@@ -112,3 +112,37 @@ export function exportComplianceAuditExcel(framework: ComplianceFrameworkExcel) 
   const today = new Date().toISOString().slice(0, 10);
   XLSX.writeFile(workbook, `cyberguard-audit-report-${slug}-${today}.xlsx`);
 }
+
+export interface GeneratedReport {
+  name: string;
+  type: string;
+  date: string;
+}
+
+/** Generates a report workbook (.xlsx) — one sheet of metadata, one of the org's key metrics. */
+export function exportGeneratedReportExcel(report: GeneratedReport) {
+  const infoSheet = XLSX.utils.json_to_sheet([
+    { Field: "Report Name", Value: report.name },
+    { Field: "Type", Value: report.type },
+    { Field: "Generated", Value: report.date },
+    { Field: "Organization", Value: "HDFC Bank Ltd." },
+  ], { skipHeader: true });
+  infoSheet["!cols"] = [{ wch: 18 }, { wch: 40 }];
+
+  const metricsSheet = XLSX.utils.json_to_sheet([
+    { Metric: "Overall Risk Score", Value: "72 / 100" },
+    { Metric: "Expected Annual Loss", Value: "₹2.45 Cr" },
+    { Metric: "Financial Risk Exposure", Value: "₹8.3 Cr" },
+    { Metric: "Total Assets", Value: "1,248" },
+    { Metric: "Critical Vulnerabilities", Value: "86" },
+  ], { skipHeader: true });
+  metricsSheet["!cols"] = [{ wch: 26 }, { wch: 20 }];
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, infoSheet, "Report Info");
+  XLSX.utils.book_append_sheet(workbook, metricsSheet, "Key Metrics");
+
+  const slug = report.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  const today = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(workbook, `cyberguard-${slug}-${today}.xlsx`);
+}
