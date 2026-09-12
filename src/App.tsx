@@ -25,7 +25,11 @@ export default function App() {
   const { session, ready, authRequired } = useAuth();
 
   if (authRequired && !ready) {
-    return <div className="min-h-screen" style={{ background: "var(--bg)" }} />;
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}>
+        <div className="w-5 h-5 rounded-full border-2 animate-spin" style={{ borderColor: "var(--accent)", borderTopColor: "transparent" }} />
+      </div>
+    );
   }
   if (authRequired && !session) {
     return <Login />;
