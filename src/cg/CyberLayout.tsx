@@ -45,6 +45,9 @@ export default function CyberLayout({ page, navigate, children, userEmail }: Pro
   const [searchFocused, setSearchFocused] = useState(false);
   const searchBoxRef = useRef<HTMLDivElement>(null);
 
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [avatarOpen, setAvatarOpen] = useState(false);
+
   const results = useMemo<SearchResult[]>(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
@@ -216,14 +219,85 @@ export default function CyberLayout({ page, navigate, children, userEmail }: Pro
             </div>
 
             {/* Icons */}
-            <button title="Help" className="relative p-2 rounded-lg hover:bg-white/5 transition">
-              <svg className="w-4 h-4" style={{ color: "var(--muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-            </button>
+            <div className="relative">
+              <button
+                title="Help"
+                className="relative p-2 rounded-lg hover:bg-white/5 transition"
+                onClick={() => { setHelpOpen(o => !o); setAvatarOpen(false); }}
+              >
+                <svg className="w-4 h-4" style={{ color: "var(--muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </button>
+              {helpOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setHelpOpen(false)} />
+                  <div
+                    className="absolute right-0 top-full mt-2 w-64 rounded-xl border z-50 overflow-hidden"
+                    style={{ background: "var(--panel)", borderColor: "var(--border)" }}
+                  >
+                    <div className="px-4 py-3 border-b" style={{ borderColor: "var(--border)" }}>
+                      <p className="text-xs font-bold" style={{ fontFamily: "'Outfit',sans-serif", color: "var(--text)" }}>Help & Support</p>
+                    </div>
+                    <div className="py-1">
+                      {[
+                        { label: "Documentation", desc: "Guides for every module" },
+                        { label: "Keyboard Shortcuts", desc: "Speed up navigation" },
+                        { label: "Contact Support", desc: "support@cyberguard.ai" },
+                      ].map(item => (
+                        <button key={item.label} className="w-full text-left px-4 py-2.5 hover:bg-white/5 transition" onClick={() => setHelpOpen(false)}>
+                          <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>{item.label}</p>
+                          <p className="text-xs" style={{ color: "var(--muted)" }}>{item.desc}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
             <NotificationsPanel />
 
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold cursor-pointer" style={{ background: "var(--accent)", color: "var(--bg)" }}>{initials}</div>
+            <div className="relative">
+              <button
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold cursor-pointer"
+                style={{ background: "var(--accent)", color: "var(--bg)" }}
+                onClick={() => { setAvatarOpen(o => !o); setHelpOpen(false); }}
+              >
+                {initials}
+              </button>
+              {avatarOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setAvatarOpen(false)} />
+                  <div
+                    className="absolute right-0 top-full mt-2 w-56 rounded-xl border z-50 overflow-hidden"
+                    style={{ background: "var(--panel)", borderColor: "var(--border)" }}
+                  >
+                    <div className="px-4 py-3 border-b" style={{ borderColor: "var(--border)" }}>
+                      <p className="text-xs font-semibold truncate" style={{ color: "var(--text)" }}>{displayName}</p>
+                      <p className="text-xs truncate" style={{ color: "var(--muted)" }}>{displaySub}</p>
+                    </div>
+                    <div className="py-1">
+                      <button
+                        className="w-full text-left px-4 py-2.5 text-xs font-semibold hover:bg-white/5 transition"
+                        style={{ color: "var(--text)" }}
+                        onClick={() => { setAvatarOpen(false); navigate("settings"); }}
+                      >
+                        Account Settings
+                      </button>
+                      {userEmail && supabase && (
+                        <button
+                          className="w-full text-left px-4 py-2.5 text-xs font-semibold hover:bg-white/5 transition"
+                          style={{ color: "#F87171" }}
+                          onClick={() => { setAvatarOpen(false); supabase?.auth.signOut(); }}
+                        >
+                          Sign out
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </header>
 
