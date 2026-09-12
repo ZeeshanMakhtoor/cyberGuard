@@ -1,63 +1,96 @@
 import { lazy, Suspense } from "react";
-import { ArrowRight, ShieldCheck } from "lucide-react";
+import { ArrowRight, PlayCircle } from "lucide-react";
+import DashboardMockup from "../lib/DashboardMockup";
 
 const NetworkCanvas = lazy(() => import("../lib/NetworkCanvas"));
 
+const STEPS = [
+  {
+    title: "Connect your scanners",
+    desc: "Point CyberGuard AI at your existing vulnerability scanners, asset inventory, and threat feeds — no rip-and-replace.",
+  },
+  {
+    title: "See your risk in ₹",
+    desc: "Get one live, explainable risk score and an Expected Annual Loss range, refreshed as your data changes.",
+  },
+  {
+    title: "Fix what matters first",
+    desc: "An AI analyst ranks remediation by financial impact, so your team always works the highest-value item next.",
+  },
+];
+
 export default function Hero() {
   return (
-    <section id="top" className="relative overflow-hidden" style={{ paddingTop: 150, paddingBottom: 90 }}>
-      <div className="absolute inset-0" style={{ height: 560 }}>
-        <Suspense fallback={null}>
-          <NetworkCanvas />
-        </Suspense>
+    <section id="top">
+      <div className="lp-container pt-6">
         <div
-          className="absolute inset-0"
-          style={{ background: "linear-gradient(180deg, rgba(246,248,250,0.2) 0%, var(--lp-bg) 88%)" }}
-        />
-      </div>
+          className="relative overflow-hidden rounded-3xl px-6 sm:px-10 pt-10 pb-0"
+          style={{
+            background: "radial-gradient(120% 100% at 15% 0%, #103042 0%, #0B1F2B 45%, #071620 100%)",
+          }}
+        >
+          <div className="absolute inset-0 opacity-60">
+            <Suspense fallback={null}>
+              <NetworkCanvas />
+            </Suspense>
+          </div>
+          <div
+            className="absolute inset-0"
+            style={{ background: "linear-gradient(180deg, rgba(7,22,32,0.15) 0%, rgba(7,22,32,0.75) 75%, #071620 100%)" }}
+          />
 
-      <div className="lp-container relative text-center max-w-3xl">
-        <span className="lp-eyebrow">
-          <ShieldCheck className="w-3.5 h-3.5" />
-          Cyber Risk Quantification
-        </span>
-        <h1 className="mt-6 text-4xl sm:text-5xl font-extrabold leading-tight tracking-tight">
-          Know your cyber risk in <span style={{ color: "var(--lp-accent)" }}>rupees</span>, not{" "}
-          <span style={{ color: "var(--lp-danger)" }}>red</span>,{" "}
-          <span style={{ color: "var(--lp-warn)" }}>yellow</span>, or{" "}
-          <span style={{ color: "var(--lp-ok)" }}>green</span>.
-        </h1>
-        <p className="mt-5 text-base leading-relaxed max-w-xl mx-auto" style={{ color: "var(--lp-muted)" }}>
-          CyberGuard AI turns your vulnerability scanners, asset inventory, and threat intel into one
-          transparent, FAIR-aligned financial risk score — with an AI analyst that can explain exactly why,
-          and what to fix first.
-        </p>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-          <a href="#waitlist" className="lp-btn-primary">
-            Join the Waitlist
-            <ArrowRight className="w-4 h-4" />
-          </a>
-          <a href="#features" className="lp-btn-secondary">See how it works</a>
+          <div className="relative text-center max-w-2xl mx-auto pb-16">
+            <span
+              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide px-3 py-1.5 rounded-full"
+              style={{ background: "rgba(255,255,255,0.08)", color: "#9FD8E8", border: "1px solid rgba(159,216,232,0.25)" }}
+            >
+              Cyber Risk Quantification
+            </span>
+            <h1 className="mt-6 text-4xl sm:text-5xl font-extrabold leading-tight tracking-tight text-white">
+              Manage cyber risk with <em style={{ fontStyle: "italic", color: "#58D6C9" }}>financial precision</em>
+            </h1>
+            <p className="mt-5 text-base leading-relaxed max-w-xl mx-auto" style={{ color: "rgba(255,255,255,0.68)" }}>
+              Turn vulnerability scanners, asset inventory, and threat intel into one transparent,
+              FAIR-aligned risk score — in rupees, not red / yellow / green.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+              <a href="#waitlist" className="lp-btn-primary" style={{ borderRadius: 999 }}>
+                Join the Waitlist
+                <ArrowRight className="w-4 h-4" />
+              </a>
+              <a
+                href="#features"
+                className="inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-full transition-colors"
+                style={{ color: "#fff", border: "1px solid rgba(255,255,255,0.3)" }}
+              >
+                <PlayCircle className="w-4 h-4" />
+                See how it works
+              </a>
+            </div>
+          </div>
+
+          <div className="relative max-w-3xl mx-auto -mb-24 sm:-mb-28">
+            <DashboardMockup />
+          </div>
         </div>
       </div>
 
-      <div className="lp-container relative mt-16">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <Stat value="49/100" label="Live risk score" color="var(--lp-accent)" />
-          <Stat value="₹2.45 Cr" label="Modeled annual loss" color="var(--lp-warn)" />
-          <Stat value="7" label="Critical vulns tracked" color="var(--lp-danger)" />
-          <Stat value="84%" label="Mean compliance" color="var(--lp-ok)" />
+      <div className="lp-container pt-32 sm:pt-36 pb-10">
+        <div className="grid sm:grid-cols-3 gap-8">
+          {STEPS.map((s, i) => (
+            <div key={s.title} className="text-center sm:text-left">
+              <div
+                className="w-8 h-8 rounded-lg flex items-center justify-center mb-3 mx-auto sm:mx-0 text-sm font-bold"
+                style={{ background: "var(--lp-accent-soft)", color: "var(--lp-accent)" }}
+              >
+                {i + 1}
+              </div>
+              <h3 className="text-sm font-bold">{s.title}</h3>
+              <p className="mt-1.5 text-sm leading-relaxed" style={{ color: "var(--lp-muted)" }}>{s.desc}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
-  );
-}
-
-function Stat({ value, label, color }: { value: string; label: string; color: string }) {
-  return (
-    <div className="lp-card px-4 py-5 text-center">
-      <p className="text-2xl font-extrabold" style={{ fontFamily: "'Outfit',sans-serif", color }}>{value}</p>
-      <p className="mt-1 text-xs" style={{ color: "var(--lp-muted)" }}>{label}</p>
-    </div>
   );
 }
