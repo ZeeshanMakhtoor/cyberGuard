@@ -1,7 +1,10 @@
+import { useState } from "react";
 import type { CgPage } from "../../App";
-import { useComplianceFrameworks } from "@/hooks/useComplianceFrameworks";
+import { useComplianceFrameworks, type ComplianceFrameworkRow } from "@/hooks/useComplianceFrameworks";
 import { exportComplianceAuditExcel } from "@/lib/exportExcel";
 import { gradeFromPercent, overallGrade } from "@/lib/securityGrade";
+import { buildFrameworkReportSections } from "@/lib/reportContent";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import V2Pill from "@/components/V2Pill";
 import V1Pill from "@/components/V1Pill";
 
@@ -10,6 +13,7 @@ interface Props { navigate: (p: CgPage) => void; }
 export default function CgCompliance({ navigate }: Props) {
   const { data: frameworks, loading } = useComplianceFrameworks();
   const overall = overallGrade(frameworks);
+  const [viewing, setViewing] = useState<ComplianceFrameworkRow | null>(null);
 
   if (loading) {
     return (
@@ -102,7 +106,7 @@ export default function CgCompliance({ navigate }: Props) {
             </div>
 
             <div className="flex gap-3 mt-3">
-              <button className="text-xs font-semibold" style={{ color: "var(--accent)" }} onClick={() => navigate("reports")}>View Evidence Pack</button>
+              <button className="text-xs font-semibold" style={{ color: "var(--accent)" }} onClick={() => setViewing(f)}>View Full Report</button>
               <button
                 className="text-xs font-semibold"
                 style={{ color: "var(--muted)" }}
@@ -115,6 +119,43 @@ export default function CgCompliance({ navigate }: Props) {
           );
         })}
       </div>
+
+      <Dialog open={!!viewing} onOpenChange={open => !open && setViewing(null)}>
+        <DialogContent className="max-w-lg">
+          {viewing && (
+            <>
+              <DialogHeader>
+                <DialogTitle>{viewing.name}</DialogTitle>
+                <DialogDescription>Full compliance report · Last assessed {viewing.assessed}</DialogDescription>
+              </DialogHeader>
+              <div className="mt-4 space-y-4">
+                {buildFrameworkReportSections(viewing, gradeFromPercent(viewing.compliance)).map(section => (
+                  <div key={section.title} className="rounded-lg border p-4" style={{ borderColor: "var(--border)", background: "#1a2f3c" }}>
+                    <p className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: "var(--accent2)" }}>{section.title}</p>
+                    {section.kv && (
+                      <div className="space-y-2">
+                        {section.kv.map(({ label, value }) => (
+                          <div key={label} className="flex justify-between gap-3 text-xs">
+                            <span style={{ color: "var(--muted)" }}>{label}</span>
+                            <span className="font-mono font-semibold text-right" style={{ color: "var(--text)" }}>{value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <button
+                className="w-full py-2 rounded-lg text-xs font-semibold mt-4"
+                style={{ background: "var(--accent)", color: "var(--bg)" }}
+                onClick={() => exportComplianceAuditExcel(viewing)}
+              >
+                Download as Excel
+              </button>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
