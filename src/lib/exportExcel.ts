@@ -1,5 +1,27 @@
 import * as XLSX from "xlsx";
 
+const XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+/**
+ * Downloads a workbook with the correct Excel MIME type. XLSX.writeFile()
+ * builds its blob as generic application/octet-stream, which some browsers
+ * and antivirus/download-protection tools (common on locked-down Windows
+ * laptops) silently block or strip. Building the blob ourselves with the
+ * real spreadsheet MIME type avoids that.
+ */
+function downloadWorkbook(workbook: XLSX.WorkBook, filename: string) {
+  const buffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+  const blob = new Blob([buffer], { type: XLSX_MIME });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
+
 export interface RoadmapItem {
   id: number;
   title: string;
@@ -40,7 +62,7 @@ export function exportRoadmapExcel(items: RoadmapItem[]) {
   XLSX.utils.book_append_sheet(workbook, sheet, "Remediation Roadmap");
 
   const today = new Date().toISOString().slice(0, 10);
-  XLSX.writeFile(workbook, `cyberguard-remediation-roadmap-${today}.xlsx`);
+  downloadWorkbook(workbook, `cyberguard-remediation-roadmap-${today}.xlsx`);
 }
 
 export interface DashboardExcelData {
@@ -79,7 +101,7 @@ export function exportDashboardExcel(data: DashboardExcelData) {
   XLSX.utils.book_append_sheet(workbook, risksSheet, "Top Risk Register");
 
   const today = data.generatedAt.toISOString().slice(0, 10);
-  XLSX.writeFile(workbook, `cyberguard-executive-summary-${today}.xlsx`);
+  downloadWorkbook(workbook, `cyberguard-executive-summary-${today}.xlsx`);
 }
 
 export interface ComplianceFrameworkExcel {
@@ -110,7 +132,7 @@ export function exportComplianceAuditExcel(framework: ComplianceFrameworkExcel) 
 
   const slug = framework.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
   const today = new Date().toISOString().slice(0, 10);
-  XLSX.writeFile(workbook, `cyberguard-audit-report-${slug}-${today}.xlsx`);
+  downloadWorkbook(workbook, `cyberguard-audit-report-${slug}-${today}.xlsx`);
 }
 
 export interface GeneratedReport {
@@ -144,5 +166,5 @@ export function exportGeneratedReportExcel(report: GeneratedReport) {
 
   const slug = report.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
   const today = new Date().toISOString().slice(0, 10);
-  XLSX.writeFile(workbook, `cyberguard-${slug}-${today}.xlsx`);
+  downloadWorkbook(workbook, `cyberguard-${slug}-${today}.xlsx`);
 }
