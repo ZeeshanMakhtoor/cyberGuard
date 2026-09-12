@@ -1,27 +1,33 @@
 import { useState } from "react";
 import type { CgPage } from "../../App";
+import { useVulnerabilities } from "@/hooks/useVulnerabilities";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Props { navigate: (p: CgPage) => void; }
-
-const VULNS = [
-  { id: "CVE-2024-21413", asset: "Mail Server", severity: "Critical", cvss: 9.8, status: "Open",    exploit: "Public", impact: "₹42L",  age: 18, category: "RCE" },
-  { id: "CVE-2024-3400",  asset: "PAN-OS FW",   severity: "Critical", cvss: 10.0,status: "Open",    exploit: "Active", impact: "₹68L",  age: 12, category: "Privilege Escalation" },
-  { id: "CVE-2023-44487", asset: "Load Balancer",severity: "High",    cvss: 7.5, status: "Open",    exploit: "Public", impact: "₹28L",  age: 31, category: "DoS" },
-  { id: "CVE-2024-6387",  asset: "SSH Servers",  severity: "Critical", cvss: 8.1, status: "Open",    exploit: "PoC",    impact: "₹54L",  age: 8,  category: "RCE" },
-  { id: "CVE-2021-44228", asset: "ERP (Log4j)",  severity: "Critical", cvss: 10.0,status: "Patched", exploit: "Active", impact: "₹88L",  age: 890,category: "RCE" },
-  { id: "CVE-2023-35078", asset: "MDM Server",   severity: "Critical", cvss: 10.0,status: "Open",    exploit: "Active", impact: "₹34L",  age: 22, category: "Auth Bypass" },
-  { id: "CVE-2024-4577",  asset: "PHP Servers",  severity: "Critical", cvss: 9.8, status: "Open",    exploit: "Active", impact: "₹21L",  age: 14, category: "RCE" },
-  { id: "CVE-2022-26134", asset: "Confluence",   severity: "Critical", cvss: 9.8, status: "Patched", exploit: "Active", impact: "₹45L",  age: 420,category: "RCE" },
-];
 
 const exploitColors: Record<string, string> = {
   Active: "#F87171", Public: "#FBBF24", PoC: "#60B8CF", None: "#5196A7",
 };
 
+const SEVERITIES = ["All", "Critical", "High", "Medium", "Low"] as const;
+const STATUSES = ["All", "Open", "In Progress", "Remediated", "Accepted"] as const;
+
 export default function CgVulnerabilities({ navigate }: Props) {
-  const [filter, setFilter] = useState("All");
-  const filters = ["All", "Critical", "High", "Open", "Patched"];
-  const filtered = VULNS.filter(v => filter === "All" || v.severity === filter || v.status === filter);
+  const { data: VULNS, loading } = useVulnerabilities();
+  const [severity, setSeverity] = useState<(typeof SEVERITIES)[number]>("All");
+  const [status, setStatus] = useState<(typeof STATUSES)[number]>("All");
+  const filtered = VULNS
+    .filter(v => severity === "All" || v.severity === severity)
+    .filter(v => status === "All" || v.status === status);
+
+  if (loading) {
+    return (
+      <div className="p-5 max-w-screen-xl mx-auto space-y-5">
+        <div className="h-16 rounded-xl animate-pulse" style={{ background: "var(--panel)" }} />
+        <div className="h-96 rounded-xl animate-pulse" style={{ background: "var(--panel)" }} />
+      </div>
+    );
+  }
 
   return (
     <div className="p-5 max-w-screen-xl mx-auto space-y-5">
@@ -52,14 +58,20 @@ export default function CgVulnerabilities({ navigate }: Props) {
         ))}
       </div>
 
-      {/* Filter tabs */}
+      {/* Filters */}
       <div className="flex gap-2">
-        {filters.map(f => (
-          <button key={f} onClick={() => setFilter(f)} className="px-3 py-1.5 rounded-lg text-xs font-medium border transition"
-            style={filter === f ? { background: "var(--accent)", color: "var(--bg)", borderColor: "var(--accent)" } : { background: "transparent", color: "var(--muted)", borderColor: "var(--border)" }}>
-            {f}
-          </button>
-        ))}
+        <Select value={severity} onValueChange={v => setSeverity(v as typeof severity)}>
+          <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {SEVERITIES.map(s => <SelectItem key={s} value={s}>{s === "All" ? "All severities" : s}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={status} onValueChange={v => setStatus(v as typeof status)}>
+          <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {STATUSES.map(s => <SelectItem key={s} value={s}>{s === "All" ? "All statuses" : s}</SelectItem>)}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Table */}

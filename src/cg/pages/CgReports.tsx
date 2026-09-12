@@ -1,4 +1,6 @@
+import { useState } from "react";
 import type { CgPage } from "../../App";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 interface Props { navigate: (p: CgPage) => void; }
 
@@ -16,6 +18,7 @@ export default function CgReports({ navigate }: Props) {
   const typeColors: Record<string, string> = {
     Executive: "#9CDFF0", Technical: "#60B8CF", Compliance: "#FBBF24", Risk: "#F87171", Intel: "#34D399",
   };
+  const [previewing, setPreviewing] = useState<(typeof reports)[number] | null>(null);
 
   return (
     <div className="p-5 max-w-screen-xl mx-auto space-y-5">
@@ -60,7 +63,8 @@ export default function CgReports({ navigate }: Props) {
                   <td className="px-4 py-3 font-mono" style={{ color: "var(--muted)" }}>{r.size}</td>
                   <td className="px-4 py-3">
                     <div className="flex gap-3">
-                      <button className="text-xs font-semibold" style={{ color: "var(--accent)" }}>Download</button>
+                      <button className="text-xs font-semibold" style={{ color: "var(--accent)" }} onClick={() => setPreviewing(r)}>View Report</button>
+                      <button className="text-xs font-semibold" style={{ color: "var(--muted)" }}>Download</button>
                       <button className="text-xs font-semibold" style={{ color: "var(--muted)" }}>Share</button>
                     </div>
                   </td>
@@ -88,6 +92,23 @@ export default function CgReports({ navigate }: Props) {
           ))}
         </div>
       </div>
+
+      <Dialog open={!!previewing} onOpenChange={open => !open && setPreviewing(null)}>
+        <DialogContent>
+          {previewing && (
+            <>
+              <DialogHeader>
+                <DialogTitle>{previewing.name}</DialogTitle>
+                <DialogDescription>{previewing.type} report · {previewing.date} · {previewing.size}</DialogDescription>
+              </DialogHeader>
+              <div className="mt-4 rounded-lg border p-4 text-xs space-y-2" style={{ borderColor: "var(--border)", background: "#1a2f3c", color: "var(--muted)" }}>
+                <p>This is a demo preview. In production this report would render its actual content here (charts, tables, narrative) pulled from the same risk data as the dashboard.</p>
+                <p style={{ color: "var(--text)" }}>Report type: <span style={{ color: typeColors[previewing.type] }}>{previewing.type}</span></p>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

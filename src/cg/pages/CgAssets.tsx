@@ -1,26 +1,32 @@
 import { useState } from "react";
 import type { CgPage } from "../../App";
+import { useAssets } from "@/hooks/useAssets";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Props { navigate: (p: CgPage) => void; }
 
-const ASSETS = [
-  { id: "A-001", name: "Core Banking Server (CBS-01)", type: "Server", criticality: "Critical", ip: "10.0.1.10", vulns: 4, riskScore: 89, exposure: "₹1.2Cr", owner: "IT Ops", env: "On-prem" },
-  { id: "A-002", name: "Customer Web Portal",          type: "Web App", criticality: "Critical", ip: "203.0.113.5", vulns: 7, riskScore: 84, exposure: "₹92L",  owner: "Engineering", env: "AWS" },
-  { id: "A-003", name: "Mail Gateway (MX-01)",          type: "Server", criticality: "High",     ip: "10.0.2.15", vulns: 3, riskScore: 77, exposure: "₹56L",  owner: "IT Ops", env: "On-prem" },
-  { id: "A-004", name: "HR Self-Service Portal",        type: "Web App", criticality: "High",     ip: "10.0.3.22", vulns: 5, riskScore: 71, exposure: "₹43L",  owner: "HR Dept", env: "Azure" },
-  { id: "A-005", name: "AWS S3 Data Lake",              type: "Cloud",  criticality: "High",     ip: "AWS Global", vulns: 2, riskScore: 65, exposure: "₹38L",  owner: "Data Team", env: "AWS" },
-  { id: "A-006", name: "Corporate VPN Gateway",         type: "Network",criticality: "High",     ip: "10.0.0.1",  vulns: 2, riskScore: 63, exposure: "₹29L",  owner: "Network", env: "On-prem" },
-  { id: "A-007", name: "AD Domain Controller",          type: "Server", criticality: "Critical", ip: "10.0.1.5",  vulns: 1, riskScore: 61, exposure: "₹75L",  owner: "IT Ops", env: "On-prem" },
-  { id: "A-008", name: "ERP System (SAP)",              type: "Server", criticality: "Critical", ip: "10.0.1.20", vulns: 6, riskScore: 79, exposure: "₹88L",  owner: "Finance", env: "On-prem" },
-];
+const CRITICALITY_OPTIONS = ["All", "Critical", "High", "Medium", "Low"] as const;
 
 export default function CgAssets({ navigate }: Props) {
+  const { data: ASSETS, loading } = useAssets();
   const [search, setSearch] = useState("");
-  const filtered = ASSETS.filter(a => a.name.toLowerCase().includes(search.toLowerCase()) || a.type.toLowerCase().includes(search.toLowerCase()));
+  const [criticality, setCriticality] = useState<(typeof CRITICALITY_OPTIONS)[number]>("All");
+  const filtered = ASSETS
+    .filter(a => a.name.toLowerCase().includes(search.toLowerCase()) || a.type.toLowerCase().includes(search.toLowerCase()))
+    .filter(a => criticality === "All" || a.criticality === criticality);
 
   const colorMap: Record<string, string> = {
     Critical: "#F87171", High: "#FBBF24", Medium: "#60B8CF", Low: "#34D399",
   };
+
+  if (loading) {
+    return (
+      <div className="p-5 max-w-screen-xl mx-auto space-y-5">
+        <div className="h-16 rounded-xl animate-pulse" style={{ background: "var(--panel)" }} />
+        <div className="h-96 rounded-xl animate-pulse" style={{ background: "var(--panel)" }} />
+      </div>
+    );
+  }
 
   return (
     <div className="p-5 max-w-screen-xl mx-auto space-y-5">
@@ -64,6 +70,14 @@ export default function CgAssets({ navigate }: Props) {
             style={{ background: "var(--panel)", color: "var(--text)", border: "1px solid var(--border)" }}
           />
         </div>
+        <Select value={criticality} onValueChange={v => setCriticality(v as typeof criticality)}>
+          <SelectTrigger className="w-36">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {CRITICALITY_OPTIONS.map(opt => <SelectItem key={opt} value={opt}>{opt === "All" ? "All criticalities" : opt}</SelectItem>)}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Table */}
