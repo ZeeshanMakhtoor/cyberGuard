@@ -38,7 +38,28 @@
 
 * { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; scroll-snap-type: y mandatory; }
+
+/* Section-by-section scroll: each top-level section snaps to the top of the
+   viewport as the user scrolls, so the page advances one section at a time
+   with the browser's native smooth snap-into-place motion, rather than
+   drifting freely between them. scroll-snap-stop keeps a fast scroll/fling
+   from skipping a section entirely. scroll-margin-top leaves room for the
+   fixed nav so a snapped section's heading isn't hidden underneath it. */
+section#top,
+.lp-section,
+footer {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  scroll-margin-top: 88px;
+}
+section#top {
+  scroll-margin-top: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-snap-type: none; }
+}
 
 body {
   margin: 0;
