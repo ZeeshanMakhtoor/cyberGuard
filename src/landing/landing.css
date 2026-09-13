@@ -109,6 +109,19 @@ h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; margin: 0; }
   }
 }
 
+/* Features chart viewport: stays pinned in the viewport for the whole
+   scroll-through of its column so only the active panel is ever visible,
+   crossfading between panels instead of stacking them all in flow. */
+.lp-features-viewport {
+  position: sticky;
+  top: 96px;
+}
+@media (max-width: 639px) {
+  .lp-features-viewport {
+    top: 16px;
+  }
+}
+
 .lp-eyebrow {
   display: inline-flex;
   align-items: center;
