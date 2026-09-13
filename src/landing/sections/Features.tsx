@@ -273,11 +273,35 @@ export default function Features() {
             })}
           </div>
 
-          <div className="lg:col-span-3 flex flex-col gap-10">
-            {FEATURES.map((f, i) => (
-              <div key={f.key} ref={el => { panelRefs.current[i] = el; }}>
-                {f.preview}
+          {/* Right side: the actual visuals live in one sticky viewport
+              (placed first so it's on screen from the moment this column
+              enters view) that crossfades between panels as `active`
+              changes — only one chart is ever on screen. Below it, invisible
+              spacers set the scroll distance for each module and are what
+              the scroll-spy above observes. */}
+          <div className="lg:col-span-3 relative">
+            <div className="lp-features-viewport">
+              <div className="relative" style={{ height: 340 }}>
+                {FEATURES.map((f, i) => (
+                  <div
+                    key={f.key}
+                    className="absolute inset-0"
+                    style={{
+                      opacity: active === i ? 1 : 0,
+                      transform: active === i ? "translateY(0)" : "translateY(16px)",
+                      transition: "opacity 500ms cubic-bezier(0.16, 1, 0.3, 1), transform 500ms cubic-bezier(0.16, 1, 0.3, 1)",
+                      pointerEvents: active === i ? "auto" : "none",
+                    }}
+                    aria-hidden={active !== i}
+                  >
+                    {f.preview}
+                  </div>
+                ))}
               </div>
+            </div>
+
+            {FEATURES.map((f, i) => (
+              <div key={f.key} ref={el => { panelRefs.current[i] = el; }} style={{ height: "70vh" }} aria-hidden="true" />
             ))}
           </div>
         </div>
