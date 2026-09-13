@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   ResponsiveContainer, AreaChart, Area, BarChart, Bar, RadarChart, Radar, PolarGrid,
   PolarAngleAxis, Cell, XAxis, YAxis, Tooltip, CartesianGrid,
@@ -200,18 +200,33 @@ function FeatureButton({ children, delay }: { children: ReactNode; delay: number
   );
 }
 
-function FeaturePreview({ children, minHeight }: { children: ReactNode; minHeight: number }) {
-  const { ref, visible } = useReveal<HTMLDivElement>();
-  return (
-    <div ref={ref} className={`lp-fade-up ${visible ? "lp-visible" : ""} lg:col-span-3`} style={{ minHeight, transitionDelay: "120ms" }}>
-      {children}
-    </div>
-  );
-}
-
 export default function Features() {
   const [active, setActive] = useState(0);
   const { ref, visible } = useReveal<HTMLDivElement>();
+  const panelRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Scroll-spy: as the right-hand panels scroll past, whichever one sits in
+  // a thin band near the vertical center of the viewport becomes "active",
+  // driving the highlight in the sticky left-hand list — the list itself
+  // never scrolls, only the panels beside it do.
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        const hit = entries.find(e => e.isIntersecting);
+        if (!hit) return;
+        const idx = panelRefs.current.findIndex(el => el === hit.target);
+        if (idx !== -1) setActive(idx);
+      },
+      { rootMargin: "-45% 0px -45% 0px", threshold: 0 },
+    );
+    panelRefs.current.forEach(el => el && observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  function goToFeature(i: number) {
+    setActive(i);
+    panelRefs.current[i]?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
 
   return (
     <section id="features" className="lp-section">
@@ -222,20 +237,20 @@ export default function Features() {
             One platform. Every angle of cyber risk.
           </h2>
           <p className="mt-4 text-base" style={{ color: "var(--lp-muted)" }}>
-            Click through the modules below — this is the same live data model that powers the actual
+            Scroll through the modules below — this is the same live data model that powers the actual
             product, not mockups.
           </p>
         </div>
 
         <div className="mt-12 grid lg:grid-cols-5 gap-8 items-start">
-          <div className="lg:col-span-2 flex flex-col gap-2">
+          <div className="lg:col-span-2 lp-features-sticky flex flex-col gap-2">
             {FEATURES.map((f, i) => {
               const IconCmp = f.icon;
               const isActive = active === i;
               return (
                 <FeatureButton key={f.key} delay={i * 70}>
                   <button
-                    onClick={() => setActive(i)}
+                    onClick={() => goToFeature(i)}
                     className="lp-card text-left p-4 transition-shadow flex gap-3 items-start w-full"
                     style={{
                       borderColor: isActive ? f.color : "var(--lp-border)",
@@ -258,9 +273,13 @@ export default function Features() {
             })}
           </div>
 
-          <FeaturePreview minHeight={340}>
-            {FEATURES[active].preview}
-          </FeaturePreview>
+          <div className="lg:col-span-3 flex flex-col gap-10">
+            {FEATURES.map((f, i) => (
+              <div key={f.key} ref={el => { panelRefs.current[i] = el; }}>
+                {f.preview}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

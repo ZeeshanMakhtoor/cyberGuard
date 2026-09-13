@@ -99,6 +99,16 @@ h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; margin: 0; }
   .lp-section { padding-top: 64px; padding-bottom: 64px; }
 }
 
+/* Features module list: pinned in place on desktop while its matching
+   chart panels scroll past beside it (see Features.tsx's scroll-spy). */
+@media (min-width: 1024px) {
+  .lp-features-sticky {
+    position: sticky;
+    top: 104px;
+    align-self: start;
+  }
+}
+
 .lp-eyebrow {
   display: inline-flex;
   align-items: center;
