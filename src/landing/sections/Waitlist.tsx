@@ -1,35 +1,10 @@
-import { useState, type FormEvent } from "react";
 import { CheckCircle2, Info, AlertCircle } from "lucide-react";
-import { landingSupabase } from "../lib/supabaseClient";
 import { useReveal } from "../lib/useReveal";
-
-type Status = "idle" | "submitting" | "success" | "error" | "duplicate";
+import { useWaitlistForm } from "../lib/useWaitlistForm";
 
 export default function Waitlist() {
   const { ref, visible } = useReveal<HTMLDivElement>();
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<Status>("idle");
-
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!email.trim()) return;
-
-    if (!landingSupabase) {
-      setStatus("error");
-      return;
-    }
-
-    setStatus("submitting");
-    const { error } = await landingSupabase.from("waitlist_signups").insert({ email: email.trim().toLowerCase() });
-
-    if (!error) {
-      setStatus("success");
-    } else if (error.code === "23505") {
-      setStatus("duplicate");
-    } else {
-      setStatus("error");
-    }
-  }
+  const { email, setEmail, status, handleSubmit } = useWaitlistForm();
 
   return (
     <section id="waitlist" className="lp-section">

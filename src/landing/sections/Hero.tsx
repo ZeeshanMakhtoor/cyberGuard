@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, PlayCircle } from "lucide-react";
 import Nav from "./Nav";
+import WaitlistModal from "./WaitlistModal";
 import { useReveal } from "../lib/useReveal";
 import dashboardScreenshot from "../assets/dashboard-screenshot.jpg";
 
@@ -22,6 +23,7 @@ const STEPS = [
 export default function Hero() {
   const { ref: stepsRef, visible: stepsVisible } = useReveal<HTMLDivElement>();
   const [scrolled, setScrolled] = useState(false);
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   // Detects when the gradient hero panel has scrolled out from under the
@@ -71,14 +73,15 @@ export default function Hero() {
             FAIR-aligned risk score — in rupees, not red / yellow / green.
           </p>
           <div className="lp-hero-in mt-8 flex flex-wrap items-center justify-center gap-4" style={{ animationDelay: "320ms" }}>
-            <a
-              href="#waitlist"
+            <button
+              type="button"
+              onClick={() => setWaitlistOpen(true)}
               className="inline-flex items-center gap-2 text-sm font-bold px-6 py-3 rounded-full transition-transform hover:-translate-y-0.5"
               style={{ background: "#fff", color: "#0A6C86" }}
             >
               Join the Waitlist
               <ArrowRight className="w-4 h-4" />
-            </a>
+            </button>
             <a
               href="#features"
               className="inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-full transition-colors"
@@ -124,6 +127,8 @@ export default function Hero() {
           ))}
         </div>
       </div>
+
+      <WaitlistModal open={waitlistOpen} onClose={() => setWaitlistOpen(false)} />
     </section>
   );
 }
